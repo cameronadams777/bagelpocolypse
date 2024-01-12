@@ -3,13 +3,16 @@ import CreamCheese from "./game/cream-cheese";
 import GameObject from "./game/game-object";
 import Player from "./game/player";
 import Salmon from "./game/salmon";
+import { getRandomArbitrary } from "./helpers";
+
 import "./style.css";
+
 const canvas = document.querySelector<HTMLCanvasElement>("#game-canvas");
 
 if (!canvas) throw new Error("No canvas element found")
 
-canvas.width = 1280;
-canvas.height = 720;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 const ctx = canvas.getContext("2d");
 
@@ -20,10 +23,35 @@ const CREAM_CHEESE_TAG = "cream_cheese";
 
 let PLAYER_SPEED: number = 5;
 
+const floor = 1;
 const player = new Player(PLAYER_TAG, 50, 50, 50, 50);
-const bagel = new Bagel(BAGEL_TAG, 150, 150, 50, 50);
 const salmon = new Salmon(SALMON_TAG, 500, 500, 50, 50);
 const creamCheese = new CreamCheese(CREAM_CHEESE_TAG, 250, 250, 50, 50);
+
+const generateBagels = (): Bagel[] => {
+  let attempts = 0;
+  const bagels: Bagel[] = [];
+  const enemyMaxCount = floor * 3;
+  while (bagels.length < enemyMaxCount) {
+    if (attempts >= 3) {
+      if (bagels.length > 1) {
+        break;
+      }
+      attempts = 0;
+    }
+    const x = getRandomArbitrary(0, canvas.width - 100);
+    const y = getRandomArbitrary(0, canvas.height - 100);
+    const bagel = new Bagel(BAGEL_TAG, x, y, 50, 50);
+    if (!bagels.some(b => !b.isCollidingWith(bagel))) {
+      bagels.push(bagel);
+      continue;
+    }
+    attempts++;
+  }
+  return bagels;
+}
+
+const bagels: Bagel[] = generateBagels();
 
 document.addEventListener('keydown', (e: KeyboardEvent) => {
   if (e.key === "w") player.setVelY(-PLAYER_SPEED);
@@ -39,7 +67,7 @@ document.addEventListener("keyup", (e: KeyboardEvent) => {
   else if (e.key === "d") player.setVelX(0);
 })
 
-const gameObjects: Array<GameObject | undefined> = [player, bagel, salmon, creamCheese];
+const gameObjects: Array<GameObject | undefined> = [player, salmon, creamCheese].concat(bagels);
 
 const loop = () => {
   if (!ctx) throw new Error("No context found");
@@ -49,34 +77,51 @@ const loop = () => {
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  player.update();
+
+  const prevLives = player.getLives();
 
   for (let i = 0; i < gameObjects.length; i++) {
-    if (!gameObjects[i]) continue;
-    if (!player.isCollidingWith(gameObjects[i]!)) {
+    for (let j = 0; j < gameObjects.length; j++) {
+      if (gameObjects[i] == null || gameObjects[j] == null || gameObjects[i] === gameObjects[j]) continue;
+
+      // Player collision logic
+      if (gameObjects[i]?.getTag() === PLAYER_TAG) {
+        const p = gameObjects[i] as Player
+        if (!p.isCollidingWith(gameObjects[j]!)) {
+          if (gameObjects[j]?.getTag() === BAGEL_TAG) {
+            p.setLives(p.getLives() - 1);
+            p.setX(50);
+            p.setY(50);
+          }
+          if (gameObjects[j]?.getTag() === SALMON_TAG) {
+            gameObjects[j] = undefined;
+            PLAYER_SPEED = 10;
+            setTimeout(() => PLAYER_SPEED = 5, 5000)
+          }
+          if (gameObjects[j]?.getTag() === CREAM_CHEESE_TAG) {
+            gameObjects[j] = undefined;
+            PLAYER_SPEED = 2;
+            setTimeout(() => PLAYER_SPEED = 5, 5000)
+          }
+        }
+      }
+
       if (gameObjects[i]?.getTag() === BAGEL_TAG) {
-        player.setLives(player.getLives() - 1);
-        player.setX(50);
-        player.setY(50);
-      }
-      if (gameObjects[i]?.getTag() === SALMON_TAG) {
-        gameObjects[i] = undefined;
-        PLAYER_SPEED = 10;
-        setTimeout(() => PLAYER_SPEED = 5, 5000)
-      }
-      if (gameObjects[i]?.getTag() === CREAM_CHEESE_TAG) {
-        gameObjects[i] = undefined;
-        PLAYER_SPEED = 2;
-        setTimeout(() => PLAYER_SPEED = 5, 5000)
+        const b = gameObjects[i] as Bagel;
+        if (prevLives != player.getLives()) b.setGameObjectToFollow(undefined);
+        if (!b.getGameObjectToFollow() && !b.isInRadius(gameObjects[j]!) && b.isFollowableItem(gameObjects[j]?.getTag()!)) {
+          b.setState("following");
+          b.setGameObjectToFollow(gameObjects[j]!);
+        }
       }
     }
 
+    gameObjects[i]?.update();
     gameObjects[i]?.draw(ctx);
   }
 
-
-
   requestAnimationFrame(loop);
 }
+
 
 loop();
