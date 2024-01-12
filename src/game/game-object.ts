@@ -1,10 +1,12 @@
 class GameObject {
+  protected tag: string;
   protected x: number;
   protected y: number;
   protected width: number;
   protected height: number;
 
-  constructor(x: number, y: number, width: number, height: number) {
+  constructor(tag: string, x: number, y: number, width: number, height: number) {
+    this.tag = tag;
     this.x = x;
     this.y = y;
     this.width = width;
@@ -21,6 +23,10 @@ class GameObject {
         ((this.x + this.width) <= gameObject.x) ||
         (this.x >= (gameObject.x + gameObject.width))
     );
+  }
+
+  public getTag(): string {
+    return this.tag;
   }
 
   public getX(): number {

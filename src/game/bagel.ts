@@ -4,8 +4,8 @@ class Bagel extends GameObject {
   private velX: number;
   private velY: number;
 
-  constructor(x: number, y: number, width: number, height: number) {
-    super(x, y, width, height);
+  constructor(tag: string, x: number, y: number, width: number, height: number) {
+    super(tag, x, y, width, height);
     this.velX = 0;
     this.velY = 0;
   }

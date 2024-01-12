@@ -21,3 +21,25 @@
 - Cream cheese slows you down
 - Potentially have some sort of screen visibility power down
 - If bagel touches you, reduce life count and reset to spawn point on same floor
+
+### Tools
+
+- Toaster Oven
+    - Works like a fire flower from mario where you can shoot fire at bagels
+- Spreading tool
+    - Prevents you from losing a life when touched and removes the bagel that you touched
+
+### Power-Up/Downs
+
+#### Cream cheese - Down
+
+- Consume and reduce for short period of time
+
+#### Salmon - Up
+
+- Nullify cream cheese slowdown
+- Speeds up for a time
+
+#### Butter - Down
+
+- Smears screen so that we can't see
