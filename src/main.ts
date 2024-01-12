@@ -16,6 +16,9 @@ canvas.height = window.innerHeight;
 
 const ctx = canvas.getContext("2d");
 
+if (!ctx) throw new Error("No context found")
+ctx.imageSmoothingEnabled = false;
+
 const PLAYER_TAG = "player";
 const BAGEL_TAG = "bagel";
 const SALMON_TAG = "salmon";
@@ -24,7 +27,7 @@ const CREAM_CHEESE_TAG = "cream_cheese";
 let PLAYER_SPEED: number = 5;
 
 const floor = 1;
-const player = new Player(PLAYER_TAG, 50, 50, 50, 50);
+const player = new Player(PLAYER_TAG, 50, 50, 40, 60);
 const salmon = new Salmon(SALMON_TAG, 500, 500, 50, 50);
 const creamCheese = new CreamCheese(CREAM_CHEESE_TAG, 250, 250, 50, 50);
 
@@ -54,17 +57,45 @@ const generateBagels = (): Bagel[] => {
 const bagels: Bagel[] = generateBagels();
 
 document.addEventListener('keydown', (e: KeyboardEvent) => {
-  if (e.key === "w") player.setVelY(-PLAYER_SPEED);
-  else if (e.key === "s") player.setVelY(PLAYER_SPEED);
-  else if (e.key === "a") player.setVelX(-PLAYER_SPEED);
-  else if (e.key === "d") player.setVelX(PLAYER_SPEED);
+  if (e.key === "w") {
+    player.setCurrentFrameY(1);
+    player.setCurrentFrameX(player.getCurrentFrameX() + 1);
+    player.setVelY(-PLAYER_SPEED);
+  }
+  else if (e.key === "s") {
+    player.setCurrentFrameY(0);
+    player.setCurrentFrameX(player.getCurrentFrameX() + 1);
+    player.setVelY(PLAYER_SPEED);
+  }
+  else if (e.key === "a") {
+    player.setCurrentFrameY(2);
+    player.setCurrentFrameX(player.getCurrentFrameX() + 1);
+    player.setVelX(-PLAYER_SPEED);
+  }
+  else if (e.key === "d") {
+    player.setCurrentFrameY(3);
+    player.setCurrentFrameX(player.getCurrentFrameX() + 1);
+    player.setVelX(PLAYER_SPEED);
+  }
 });
 
 document.addEventListener("keyup", (e: KeyboardEvent) => {
-  if (e.key === "w") player.setVelY(0);
-  else if (e.key === "s") player.setVelY(0);
-  else if (e.key === "a") player.setVelX(0);
-  else if (e.key === "d") player.setVelX(0);
+  if (e.key === "w") {
+    player.setCurrentFrameX(0);
+    player.setVelY(0);
+  }
+  else if (e.key === "s") {
+    player.setCurrentFrameX(0);
+    player.setVelY(0);
+  }
+  else if (e.key === "a") {
+    player.setCurrentFrameX(0);
+    player.setVelX(0);
+  }
+  else if (e.key === "d") {
+    player.setCurrentFrameX(3);
+    player.setVelX(0);
+  }
 })
 
 const gameObjects: Array<GameObject | undefined> = [player, salmon, creamCheese].concat(bagels);
