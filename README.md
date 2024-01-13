@@ -1,5 +1,10 @@
 # Bagel Apocalypse
 
+This is a game developed for PirateSoftware Game Jam 14! The theme is "It's Spreading!" Below are ideas and a 
+breakdown of possible functionality! Everything is being streamed live on Twitch at https://twitch.tv/cameronadams777
+
+## Ideas
+
 - Office space setting
 - CEO turns into Bagel
 - Make your way to the mail room while everyone is turning into Bagels
