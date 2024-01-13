@@ -3,6 +3,7 @@ import CreamCheese from "./game/cream-cheese";
 import GameObject from "./game/game-object";
 import Player from "./game/player";
 import Salmon from "./game/salmon";
+import Level from "./game/level";
 import { getRandomArbitrary } from "./helpers";
 
 import "./style.css";
@@ -17,7 +18,6 @@ canvas.height = window.innerHeight;
 const ctx = canvas.getContext("2d");
 
 if (!ctx) throw new Error("No context found")
-ctx.imageSmoothingEnabled = false;
 
 const PLAYER_TAG = "player";
 const BAGEL_TAG = "bagel";
@@ -30,6 +30,7 @@ const floor = 1;
 const player = new Player(PLAYER_TAG, 50, 50, 40, 60);
 const salmon = new Salmon(SALMON_TAG, 500, 500, 50, 50);
 const creamCheese = new CreamCheese(CREAM_CHEESE_TAG, 250, 250, 50, 50);
+const level = new Level(canvas);
 
 const generateBagels = (): Bagel[] => {
   let attempts = 0;
@@ -105,11 +106,9 @@ const loop = () => {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  level.draw(ctx);
 
-
-  const prevLives = player.getLives();
+  /*const prevLives = player.getLives();
 
   for (let i = 0; i < gameObjects.length; i++) {
     for (let j = 0; j < gameObjects.length; j++) {
@@ -149,7 +148,7 @@ const loop = () => {
 
     gameObjects[i]?.update();
     gameObjects[i]?.draw(ctx);
-  }
+  }*/
 
   requestAnimationFrame(loop);
 }
