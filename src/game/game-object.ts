@@ -13,7 +13,7 @@ class GameObject {
     this.height = height;
   }
 
-  public update(): void { }
+  public update(_map: number[][]): void { }
   public draw(_ctx: CanvasRenderingContext2D): void { }
 
   public isCollidingWith(gameObject: GameObject): boolean {

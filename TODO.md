@@ -3,7 +3,7 @@
 ## FEATURES
 
 - [ ] Floors
-    - [ ] Randomly create a floor with a potential stair case
+    - [x] Randomly create a floor with a potential stair case
     - [ ] Set spawn point for player
     - [ ] Set NPC spawn points (there won't always be NPC)
     - [ ] Set Bagel spawn points
@@ -33,4 +33,4 @@
 
 - [ ] Set Timeout on Power Ups not consistent when collecting mulitple power ups
 - [x] When generating initial Bagel spawns, there is the possibilty that no bagels will be generated
-
+- [ ] GameObjects don't always spawn in rooms
