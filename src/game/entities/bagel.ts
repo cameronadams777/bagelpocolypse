@@ -1,5 +1,6 @@
 import GameObject from "./game-object";
 import Vector2 from "../math/vector2";
+import Camera from "./camera";
 
 type BagelState = "idle" | "following";
 
@@ -30,9 +31,14 @@ class Bagel extends GameObject {
     this.position.add(this.velocity);
   }
 
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
     ctx.fillStyle = "red";
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+    ctx.fillRect(
+      this.position.x - camera.getPosition().x,
+      this.position.y - camera.getPosition().y,
+      this.width,
+      this.height
+    );
   }
 
   public getVelocity(): Vector2 {

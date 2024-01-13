@@ -2,6 +2,7 @@ import GameObject from "./game-object";
 import { PLAYER_SPEED } from "../../constants";
 import PlayerSprite from "../../assets/images/player-sheet.png";
 import Vector2 from "../math/vector2";
+import Camera from "./camera";
 
 const sprite = new Image();
 sprite.src = PlayerSprite;
@@ -31,7 +32,7 @@ class Player extends GameObject {
     this.position.add(this.velocity);
   }
 
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
     const frameX = Math.floor(this.currentFrameX % this.frameCount);
     ctx.drawImage(
       sprite,
@@ -39,8 +40,8 @@ class Player extends GameObject {
       this.currentFrameY * this.height * PLAYER_SPRITE_SCALE_OFFSET,
       this.width * PLAYER_SPRITE_SCALE_OFFSET,
       this.height * PLAYER_SPRITE_SCALE_OFFSET,
-      this.position.x,
-      this.position.y,
+      this.position.x - camera.getPosition().x,
+      this.position.y - camera.getPosition().y,
       this.width,
       this.height
     );

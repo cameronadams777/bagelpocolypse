@@ -1,4 +1,5 @@
 import Vector2 from "../math/vector2";
+import Camera from "./camera";
 
 class GameObject {
   protected tag: string;
@@ -14,7 +15,7 @@ class GameObject {
   }
 
   public update(): void {}
-  public draw(_ctx: CanvasRenderingContext2D): void {}
+  public draw(_ctx: CanvasRenderingContext2D, _camera: Camera): void {}
 
   public isCollidingWith(gameObject: GameObject): boolean {
     return (

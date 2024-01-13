@@ -65,7 +65,7 @@ class Level {
   private gameObjects: Array<GameObject | undefined>;
 
   constructor(canvas: HTMLCanvasElement) {
-    this.camera = new Camera(GameTags.CAMERA_TAG, Vector2.Zero(), 1, 1);
+    this.camera = new Camera(GameTags.CAMERA_TAG, Vector2.Zero(), canvas.width, canvas.height);
     this.map = [];
     this.rooms = [];
     this.bagels = [];
@@ -125,11 +125,17 @@ class Level {
   public draw(ctx: CanvasRenderingContext2D): void {
     for (let j = 0; j < this.map.length; j++) {
       for (let i = 0; i < this.map[j].length; i++) {
-        ctx.drawImage(tileMap[this.map[j][i]], i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        ctx.drawImage(
+          tileMap[this.map[j][i]],
+          i * TILE_SIZE - this.camera.getPosition().x,
+          j * TILE_SIZE - this.camera.getPosition().y,
+          TILE_SIZE,
+          TILE_SIZE
+        );
       }
     }
 
-    for (let i = 0; i < this.gameObjects.length; i++) this.gameObjects[i]?.draw(ctx);
+    for (let i = 0; i < this.gameObjects.length; i++) this.gameObjects[i]?.draw(ctx, this.camera);
   }
 
   private setupLevel(canvas: HTMLCanvasElement): void {
@@ -151,9 +157,9 @@ class Level {
 
   private generateMap(canvas: HTMLCanvasElement): number[][] {
     let map: number[][] = [];
-    for (let j = 0; j < Math.ceil(canvas.height / TILE_SIZE); j++) {
+    for (let j = 0; j < Math.ceil((canvas.height * 4) / TILE_SIZE); j++) {
       map.push([]);
-      for (let i = 0; i < Math.ceil(canvas.width / TILE_SIZE); i++) {
+      for (let i = 0; i < Math.ceil((canvas.width * 4) / TILE_SIZE); i++) {
         map[j].push(0);
       }
     }

@@ -14,9 +14,11 @@ class Camera extends GameObject {
 
   public update(): void {
     if (this.follow == null) return;
+    this.position = new Vector2(
+      this.follow.getPosition().x - this.width / 2,
+      this.follow.getPosition().y - this.height / 2
+    );
   }
-
-  public draw(ctx: CanvasRenderingContext2D): void {}
 
   public getFollowedObject(): GameObject | undefined {
     return this.follow;
