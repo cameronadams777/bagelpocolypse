@@ -6,6 +6,7 @@ import { getRandomArbitrary } from "../helpers";
 import { Room } from "./entities/room";
 import {
   GameTags,
+  MAX_BAGEL_COUNT,
   MAX_ROOM_COUNT,
   MAX_ROOM_GEN_ATTEMPTS_COUNT,
   MAX_ROOM_HEIGHT,
@@ -125,17 +126,25 @@ class Level {
   public draw(ctx: CanvasRenderingContext2D): void {
     for (let j = 0; j < this.map.length; j++) {
       for (let i = 0; i < this.map[j].length; i++) {
-        ctx.drawImage(
-          tileMap[this.map[j][i]],
-          i * TILE_SIZE - this.camera.getPosition().x,
-          j * TILE_SIZE - this.camera.getPosition().y,
-          TILE_SIZE,
-          TILE_SIZE
-        );
+        if (
+          !this.camera.isInRadius(
+            new GameObject(GameTags.ROOM_TAG, new Vector2(i * TILE_SIZE, j * TILE_SIZE), TILE_SIZE, TILE_SIZE)
+          )
+        ) {
+          ctx.drawImage(
+            tileMap[this.map[j][i]],
+            i * TILE_SIZE - this.camera.getPosition().x,
+            j * TILE_SIZE - this.camera.getPosition().y,
+            TILE_SIZE,
+            TILE_SIZE
+          );
+        }
       }
     }
 
-    for (let i = 0; i < this.gameObjects.length; i++) this.gameObjects[i]?.draw(ctx, this.camera);
+    for (let i = 0; i < this.gameObjects.length; i++) {
+      if (!this.camera.isInRadius(this.gameObjects[i]!)) this.gameObjects[i]?.draw(ctx, this.camera);
+    }
   }
 
   private setupLevel(canvas: HTMLCanvasElement): void {
@@ -219,14 +228,12 @@ class Level {
   private generateCorridors(): void {
     const paths: Vector2[][] = [];
     let curr = 0;
-    let attempts = 0;
-    while (curr != this.rooms.length - 1 && attempts < 10) {
+    while (curr != this.rooms.length - 1) {
       const currentCenter = this.rooms[curr].getCenter();
       const nextCenter = this.rooms[curr + 1].getCenter();
       const path = this.generatePath(currentCenter, nextCenter);
       paths.push(path);
       curr += 1;
-      attempts += 1;
     }
     for (let j = 0; j < paths.length; j++) {
       for (let i = 0; i < paths[j].length; i++) {
@@ -237,32 +244,31 @@ class Level {
 
   private generatePath(currentCenter: Vector2, nextCenter: Vector2): Vector2[] {
     const path: Vector2[] = [];
+    const corridorSize = 4;
     let diffX = currentCenter.x - nextCenter.x;
     let diffY = currentCenter.y - nextCenter.y;
-    for (let i = 0; i < Math.abs(diffX); i++) {
-      let currentTile: Vector2;
-      if (diffX > 0) currentTile = new Vector2(currentCenter.x - i, currentCenter.y);
-      else currentTile = new Vector2(currentCenter.x + i, currentCenter.y);
-      path.push(currentTile);
+    for (let i = 0; i < corridorSize; i++) {
+      for (let j = 0; j < Math.abs(diffX); j++) {
+        let currentTile: Vector2;
+        if (diffX > 0) currentTile = new Vector2(currentCenter.x - j, currentCenter.y + i);
+        else currentTile = new Vector2(currentCenter.x + j, currentCenter.y + i);
+        path.push(currentTile);
+      }
     }
-    for (let i = 0; i < Math.abs(diffX); i++) {
-      let currentTile: Vector2;
-      if (diffX > 0) currentTile = new Vector2(currentCenter.x - i, currentCenter.y + 1);
-      else currentTile = new Vector2(currentCenter.x + i, currentCenter.y + 1);
-      path.push(currentTile);
-    }
-    for (let i = 0; i < Math.abs(diffY); i++) {
-      let currentTile: Vector2;
-      if (diffY > 0) currentTile = new Vector2(nextCenter.x, currentCenter.y - 1);
-      else currentTile = new Vector2(nextCenter.x, currentCenter.y + i);
-      path.push(currentTile);
+    for (let i = 0; i < corridorSize; i++) {
+      for (let j = 0; j < Math.abs(diffY); j++) {
+        let currentTile: Vector2;
+        if (diffY > 0) currentTile = new Vector2(nextCenter.x + i, currentCenter.y - j);
+        else currentTile = new Vector2(nextCenter.x + i, currentCenter.y + j);
+        path.push(currentTile);
+      }
     }
     return path;
   }
 
   private generateStairs(): void {
-    const { x, y } = generateSpawnCoordinates(this.map, this.rooms);
-    this.map[y][x] = 2;
+    const spawnPosition = generateSpawnCoordinates(this.map, this.rooms);
+    this.map[spawnPosition.y][spawnPosition.x] = 2;
   }
 
   private spawnPlayer(): Player {
@@ -279,7 +285,7 @@ class Level {
 
   private spawnBagels(): Bagel[] {
     const bagels: Bagel[] = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < MAX_BAGEL_COUNT; i++) {
       const spawnPosition = generateSpawnCoordinates(this.map, this.rooms);
       bagels.push(
         new Bagel(

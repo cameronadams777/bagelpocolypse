@@ -2,7 +2,7 @@ import { TILE_SIZE } from "../../constants";
 import Vector2 from "../math/vector2";
 import GameObject from "./game-object";
 
-const RENDER_OFFSET_RADIUS = TILE_SIZE * 10;
+const RENDER_OFFSET_RADIUS = TILE_SIZE * 5;
 
 class Camera extends GameObject {
   private follow: GameObject | undefined;
@@ -26,6 +26,15 @@ class Camera extends GameObject {
 
   public setFollowedObject(gameObject: GameObject | undefined): void {
     this.follow = gameObject;
+  }
+
+  public isInRadius(gameObject: GameObject): boolean {
+    return (
+      this.getBottom() + RENDER_OFFSET_RADIUS <= gameObject.getPosition().y ||
+      this.position.y - RENDER_OFFSET_RADIUS >= gameObject.getBottom() ||
+      this.getRight() + RENDER_OFFSET_RADIUS <= gameObject.getPosition().x ||
+      this.position.x - RENDER_OFFSET_RADIUS >= gameObject.getRight()
+    );
   }
 }
 
