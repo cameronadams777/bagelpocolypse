@@ -3,7 +3,8 @@ export enum GameTags {
   BAGEL_TAG = "bagel",
   SALMON_TAG = "salmon",
   CREAM_CHEESE_TAG = "cream_cheese",
-  ROOM_TAG = "room"
+  ROOM_TAG = "room",
+  CAMERA_TAG = "camera"
 }
 
 export enum TileMapSprites {

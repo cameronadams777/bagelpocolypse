@@ -1,6 +1,7 @@
 import ConcreteImage from "../assets/images/concrete.png";
-import StoneImage from "../assets/images/stone.png";
+import BlackImage from "../assets/images/black.png";
 import StairsImage from "../assets/images/stairs.png";
+import StoneImage from "../assets/images/stone.png";
 import { getRandomArbitrary } from "../helpers";
 import { Room } from "./entities/room";
 import {
@@ -17,6 +18,7 @@ import Player from "./entities/player";
 import Bagel from "./entities/bagel";
 import GameObject from "./entities/game-object";
 import Vector2 from "./math/vector2";
+import Camera from "./entities/camera";
 
 const stairsSprite = new Image();
 stairsSprite.src = StairsImage;
@@ -24,15 +26,19 @@ stairsSprite.src = StairsImage;
 const concreteSprite = new Image();
 concreteSprite.src = ConcreteImage;
 
-const floorSprite = new Image();
-floorSprite.src = StoneImage;
+const stoneSprite = new Image();
+stoneSprite.src = StoneImage;
+
+const blackSprite = new Image();
+blackSprite.src = BlackImage;
 
 const tileMap: Record<number, HTMLImageElement> = {
-  0: floorSprite,
+  0: blackSprite,
   1: concreteSprite,
   2: stairsSprite,
   3: concreteSprite, // Player location
-  4: concreteSprite // Bagel location
+  4: concreteSprite, // Bagel location
+  5: stoneSprite // Wall location
 };
 
 const entityConstants = [2, 3, 4];
@@ -42,14 +48,15 @@ const generateSpawnCoordinates = (map: number[][], rooms: Room[]): Vector2 => {
   let randPosition: Vector2 | undefined;
   while (randPosition == null || entityConstants.includes(map[randPosition.y][randPosition.x])) {
     randPosition = new Vector2(
-      getRandomArbitrary(randRoom.getPosition().x, randRoom.getRight()),
-      getRandomArbitrary(randRoom.getPosition().y, randRoom.getBottom())
+      getRandomArbitrary(randRoom.getPosition().x + 1, randRoom.getRight() - 1),
+      getRandomArbitrary(randRoom.getPosition().y + 1, randRoom.getBottom() - 1)
     );
   }
   return randPosition;
 };
 
 class Level {
+  private camera: Camera;
   private player: Player;
   private playerInitialSpawn: Vector2;
   private bagels: Bagel[];
@@ -58,12 +65,13 @@ class Level {
   private gameObjects: Array<GameObject | undefined>;
 
   constructor(canvas: HTMLCanvasElement) {
-    this.map = this.generateMap(canvas);
+    this.camera = new Camera(GameTags.CAMERA_TAG, Vector2.Zero(), 1, 1);
+    this.map = [];
     this.rooms = [];
     this.bagels = [];
     this.gameObjects = [];
     this.playerInitialSpawn = Vector2.Zero();
-    this.setupLevel();
+    this.setupLevel(canvas);
   }
 
   public update(): void {
@@ -110,6 +118,8 @@ class Level {
 
       this.gameObjects[i]?.update();
     }
+
+    this.camera.update();
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
@@ -122,13 +132,21 @@ class Level {
     for (let i = 0; i < this.gameObjects.length; i++) this.gameObjects[i]?.draw(ctx);
   }
 
-  private setupLevel(): void {
+  private setupLevel(canvas: HTMLCanvasElement): void {
+    // Floor generation
+    this.map = this.generateMap(canvas);
     this.generateRooms();
     this.generateCorridors();
+    this.generateWalls();
     this.generateStairs();
+
+    // Entity creation
     this.player = this.spawnPlayer();
     this.bagels = this.spawnBagels();
     this.gameObjects = [this.player, ...this.bagels];
+
+    // Set camera
+    this.camera.setFollowedObject(this.player);
   }
 
   private generateMap(canvas: HTMLCanvasElement): number[][] {
@@ -140,6 +158,31 @@ class Level {
       }
     }
     return map;
+  }
+
+  private generateWalls(): void {
+    for (let j = 0; j < this.map.length; j++) {
+      for (let i = 0; i < this.map[j].length; i++) {
+        if (this.map[j][i] !== 1) continue;
+        if (this.map?.[j - 1]?.[i - 1] === 0) {
+          this.map[j][i] = 5;
+        } else if (this.map?.[j - 1]?.[i] === 0) {
+          this.map[j][i] = 5;
+        } else if (this.map?.[j - 1]?.[i + 1] === 0) {
+          this.map[j][i] = 5;
+        } else if (this.map?.[j]?.[i + 1] === 0) {
+          this.map[j][i] = 5;
+        } else if (this.map?.[j + 1]?.[i + 1] === 0) {
+          this.map[j][i] = 5;
+        } else if (this.map?.[j + 1]?.[i] === 0) {
+          this.map[j][i] = 5;
+        } else if (this.map?.[j + 1]?.[i - 1] === 0) {
+          this.map[j][i] = 5;
+        } else if (this.map?.[j]?.[i - 1] === 0) {
+          this.map[j][i] = 5;
+        }
+      }
+    }
   }
 
   private generateRooms(): void {
@@ -174,8 +217,7 @@ class Level {
     while (curr != this.rooms.length - 1 && attempts < 10) {
       const currentCenter = this.rooms[curr].getCenter();
       const nextCenter = this.rooms[curr + 1].getCenter();
-      console.log(currentCenter, nextCenter);
-      const path: Vector2[] = this.findPath(currentCenter, nextCenter);
+      const path = this.generatePath(currentCenter, nextCenter);
       paths.push(path);
       curr += 1;
       attempts += 1;
@@ -187,7 +229,7 @@ class Level {
     }
   }
 
-  private findPath(currentCenter: Vector2, nextCenter: Vector2): Vector2[] {
+  private generatePath(currentCenter: Vector2, nextCenter: Vector2): Vector2[] {
     const path: Vector2[] = [];
     let diffX = currentCenter.x - nextCenter.x;
     let diffY = currentCenter.y - nextCenter.y;
