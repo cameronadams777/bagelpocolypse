@@ -3,14 +3,14 @@ import "./style.css";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game-canvas");
 
-if (!canvas) throw new Error("No canvas element found")
+if (!canvas) throw new Error("No canvas element found");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const ctx = canvas.getContext("2d");
 
-if (!ctx) throw new Error("No context found")
+if (!ctx) throw new Error("No context found");
 
 const level = new Level(canvas);
 
@@ -66,7 +66,6 @@ const loop = () => {
   }*/
 
   requestAnimationFrame(loop);
-}
-
+};
 
 loop();

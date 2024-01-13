@@ -35,7 +35,7 @@ class Bagel extends GameObject {
 
   public draw(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = "red";
-    ctx.fillRect(this.x, this.y, this.width, this.height)
+    ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 
   public getVelX(): number {
@@ -72,10 +72,10 @@ class Bagel extends GameObject {
 
   public isInRadius(gameObject: GameObject): boolean {
     return (
-      ((this.y + this.height + DETECTION_RADIUS_OFFSET) <= (gameObject.getY())) ||
-      (this.y - DETECTION_RADIUS_OFFSET >= (gameObject.getY() + gameObject.getHeight())) ||
-      ((this.x + this.width + DETECTION_RADIUS_OFFSET) <= gameObject.getX()) ||
-      (this.x - DETECTION_RADIUS_OFFSET >= (gameObject.getX() + gameObject.getWidth()))
+      this.y + this.height + DETECTION_RADIUS_OFFSET <= gameObject.getY() ||
+      this.y - DETECTION_RADIUS_OFFSET >= gameObject.getY() + gameObject.getHeight() ||
+      this.x + this.width + DETECTION_RADIUS_OFFSET <= gameObject.getX() ||
+      this.x - DETECTION_RADIUS_OFFSET >= gameObject.getX() + gameObject.getWidth()
     );
   }
 

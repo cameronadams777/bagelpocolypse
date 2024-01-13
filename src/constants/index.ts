@@ -6,6 +6,14 @@ export enum GameTags {
   ROOM_TAG = "room"
 }
 
+export enum TileMapSprites {
+  FLOOR = 0,
+  CONCRETE = 1,
+  STAIRS = 2,
+  PLAYER = 3,
+  BAGEL = 4
+}
+
 export const TILE_SIZE = 32;
 export const MIN_ROOM_WIDTH = 10;
 export const MIN_ROOM_HEIGHT = 10;

@@ -3,7 +3,18 @@ import StoneImage from "../assets/images/stone.png";
 import StairsImage from "../assets/images/stairs.png";
 import { getRandomArbitrary } from "../helpers";
 import { Room } from "./room";
-import { GameTags, MAX_ROOM_COUNT, MAX_ROOM_GEN_ATTEMPTS_COUNT, MAX_ROOM_HEIGHT, MAX_ROOM_WIDTH, MIN_ROOM_HEIGHT, MIN_ROOM_WIDTH, PLAYER_SPEED, TILE_SIZE } from "../constants";
+import {
+  GameTags,
+  MAX_ROOM_COUNT,
+  MAX_ROOM_GEN_ATTEMPTS_COUNT,
+  MAX_ROOM_HEIGHT,
+  MAX_ROOM_WIDTH,
+  MIN_ROOM_HEIGHT,
+  MIN_ROOM_WIDTH,
+  PLAYER_SPEED,
+  TILE_SIZE,
+  TileMapSprites
+} from "../constants";
 import Player from "./player";
 import Bagel from "./bagel";
 import GameObject from "./game-object";
@@ -22,12 +33,12 @@ const tileMap: Record<number, HTMLImageElement> = {
   1: concreteSprite,
   2: stairsSprite,
   3: concreteSprite, // Player location
-  4: concreteSprite, // Bagel location
-}
+  4: concreteSprite // Bagel location
+};
 
 const entityConstants = [2, 3, 4];
 
-const generateSpawnCoordinates = (map: number[][], rooms: Room[]): { x: number, y: number } => {
+const generateSpawnCoordinates = (map: number[][], rooms: Room[]): { x: number; y: number } => {
   const randRoom = rooms[getRandomArbitrary(0, rooms.length - 1)];
   let randX: number | undefined;
   let randY: number | undefined;
@@ -38,11 +49,11 @@ const generateSpawnCoordinates = (map: number[][], rooms: Room[]): { x: number, 
   return {
     x: randX,
     y: randY
-  }
-}
+  };
+};
 
 class Level {
-  private playerInitialSpawn: { x: number, y: number };
+  private playerInitialSpawn: { x: number; y: number };
   private player: Player;
   private bagels: Bagel[];
   private map: number[][];
@@ -68,7 +79,7 @@ class Level {
 
         // Player collision logic
         if (this.gameObjects[i]?.getTag() === GameTags.PLAYER_TAG) {
-          const p = this.gameObjects[i] as Player
+          const p = this.gameObjects[i] as Player;
           if (!p.isCollidingWith(this.gameObjects[j]!)) {
             if (this.gameObjects[j]?.getTag() === GameTags.BAGEL_TAG) {
               p.setLives(p.getLives() - 1);
@@ -78,12 +89,12 @@ class Level {
             if (this.gameObjects[j]?.getTag() === GameTags.SALMON_TAG) {
               this.gameObjects[j] = undefined;
               this.player.setPlayerSpeedConstant(10);
-              setTimeout(() => this.player.setPlayerSpeedConstant(5), 5000)
+              setTimeout(() => this.player.setPlayerSpeedConstant(5), 5000);
             }
             if (this.gameObjects[j]?.getTag() === GameTags.CREAM_CHEESE_TAG) {
               this.gameObjects[j] = undefined;
               this.player.setPlayerSpeedConstant(2);
-              setTimeout(() => this.player.setPlayerSpeedConstant(5), 5000)
+              setTimeout(() => this.player.setPlayerSpeedConstant(5), 5000);
             }
           }
         }
@@ -109,10 +120,7 @@ class Level {
       }
     }
 
-
-
-    for (let i = 0; i < this.gameObjects.length; i++)
-      this.gameObjects[i]?.draw(ctx);
+    for (let i = 0; i < this.gameObjects.length; i++) this.gameObjects[i]?.draw(ctx);
   }
 
   private generateMap(canvas: HTMLCanvasElement): number[][] {
@@ -130,12 +138,12 @@ class Level {
     let attempts = 0;
     const rooms: Room[] = [];
     while (rooms.length < MAX_ROOM_COUNT && attempts < MAX_ROOM_GEN_ATTEMPTS_COUNT) {
-      const x = Math.floor(getRandomArbitrary(1, (this.map[0].length - 1) - MAX_ROOM_WIDTH));
-      const y = Math.floor(getRandomArbitrary(1, (this.map.length - 1) - MAX_ROOM_HEIGHT));
+      const x = Math.floor(getRandomArbitrary(1, this.map[0].length - 1 - MAX_ROOM_WIDTH));
+      const y = Math.floor(getRandomArbitrary(1, this.map.length - 1 - MAX_ROOM_HEIGHT));
       const width = Math.floor(getRandomArbitrary(MIN_ROOM_WIDTH, MAX_ROOM_WIDTH));
       const height = Math.floor(getRandomArbitrary(MIN_ROOM_HEIGHT, MAX_ROOM_HEIGHT));
       const room = new Room(GameTags.ROOM_TAG, x, y, width, height);
-      if (!rooms.some(r => !room.isInRadius(r))) {
+      if (!rooms.some((r) => !room.isInRadius(r))) {
         rooms.push(room);
         attempts = 0;
       }
@@ -160,7 +168,7 @@ class Level {
     const { x, y } = generateSpawnCoordinates(this.map, this.rooms);
     this.playerInitialSpawn = { x, y };
     this.map[y][x] = 3;
-    return new Player(GameTags.PLAYER_TAG, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+    return new Player(GameTags.PLAYER_TAG, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
   }
 
   private spawnBagels(): Bagel[] {

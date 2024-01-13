@@ -13,16 +13,11 @@ class GameObject {
     this.height = height;
   }
 
-  public update(_map: number[][]): void { }
-  public draw(_ctx: CanvasRenderingContext2D): void { }
+  public update(_map: number[][]): void {}
+  public draw(_ctx: CanvasRenderingContext2D): void {}
 
   public isCollidingWith(gameObject: GameObject): boolean {
-    return (
-        ((this.y + this.height) <= (gameObject.y)) ||
-        (this.y >= (gameObject.y + gameObject.height)) ||
-        ((this.x + this.width) <= gameObject.x) ||
-        (this.x >= (gameObject.x + gameObject.width))
-    );
+    return this.y + this.height <= gameObject.y || this.y >= gameObject.y + gameObject.height || this.x + this.width <= gameObject.x || this.x >= gameObject.x + gameObject.width;
   }
 
   public getTag(): string {

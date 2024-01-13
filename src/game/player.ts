@@ -29,17 +29,27 @@ class Player extends GameObject {
   }
 
   public update(map: number[][]): void {
-    if (this.velX < 0 && map[Math.floor(this.y / TILE_SIZE)][(Math.floor(this.x / TILE_SIZE)) + 1] === 0) this.velX = 0;
-    if (this.velX > 0 && map[Math.floor(this.y / TILE_SIZE)][(Math.floor(this.x / TILE_SIZE)) + 1] === 0) this.velX = 0;
-    if (this.velY < 0 && map[(Math.floor(this.y / TILE_SIZE)) + 1][Math.floor(this.x / TILE_SIZE)] === 0) this.velY = 0;
-    if (this.velY > 0 && map[(Math.floor(this.y / TILE_SIZE)) + 1][Math.floor(this.x / TILE_SIZE)] === 0) this.velY = 0;
+    if (this.velX < 0 && map[Math.floor(this.y / TILE_SIZE)][Math.floor(this.x / TILE_SIZE) + 1] === 0) this.velX = 0;
+    if (this.velX > 0 && map[Math.floor(this.y / TILE_SIZE)][Math.floor(this.x / TILE_SIZE) + 1] === 0) this.velX = 0;
+    if (this.velY < 0 && map[Math.floor(this.y / TILE_SIZE) + 1][Math.floor(this.x / TILE_SIZE)] === 0) this.velY = 0;
+    if (this.velY > 0 && map[Math.floor(this.y / TILE_SIZE) + 1][Math.floor(this.x / TILE_SIZE)] === 0) this.velY = 0;
     this.x += this.velX;
     this.y += this.velY;
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
     const frameX = Math.floor(this.currentFrameX % this.frameCount);
-    ctx.drawImage(sprite, frameX * this.width * PLAYER_SPRITE_SCALE_OFFSET, this.currentFrameY * this.height * PLAYER_SPRITE_SCALE_OFFSET, this.width * PLAYER_SPRITE_SCALE_OFFSET, this.height * PLAYER_SPRITE_SCALE_OFFSET, this.x, this.y, this.width, this.height);
+    ctx.drawImage(
+      sprite,
+      frameX * this.width * PLAYER_SPRITE_SCALE_OFFSET,
+      this.currentFrameY * this.height * PLAYER_SPRITE_SCALE_OFFSET,
+      this.width * PLAYER_SPRITE_SCALE_OFFSET,
+      this.height * PLAYER_SPRITE_SCALE_OFFSET,
+      this.x,
+      this.y,
+      this.width,
+      this.height
+    );
     ctx.font = `40px Verdana`;
     ctx.fillStyle = "#000";
     ctx.fillText(this.lives.toString(), 25, 35);
@@ -94,23 +104,20 @@ class Player extends GameObject {
   }
 
   private setupKeyboardHandlers(): void {
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
+    document.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "w") {
         this.setCurrentFrameY(1);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
         this.setVelY(-PLAYER_SPEED);
-      }
-      else if (e.key === "s") {
+      } else if (e.key === "s") {
         this.setCurrentFrameY(0);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
         this.setVelY(PLAYER_SPEED);
-      }
-      else if (e.key === "a") {
+      } else if (e.key === "a") {
         this.setCurrentFrameY(2);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
         this.setVelX(-PLAYER_SPEED);
-      }
-      else if (e.key === "d") {
+      } else if (e.key === "d") {
         this.setCurrentFrameY(3);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
         this.setVelX(PLAYER_SPEED);
@@ -121,20 +128,17 @@ class Player extends GameObject {
       if (e.key === "w") {
         this.setCurrentFrameX(0);
         this.setVelY(0);
-      }
-      else if (e.key === "s") {
+      } else if (e.key === "s") {
         this.setCurrentFrameX(0);
         this.setVelY(0);
-      }
-      else if (e.key === "a") {
+      } else if (e.key === "a") {
         this.setCurrentFrameX(0);
         this.setVelX(0);
-      }
-      else if (e.key === "d") {
+      } else if (e.key === "d") {
         this.setCurrentFrameX(3);
         this.setVelX(0);
       }
-    })
+    });
   }
 }
 

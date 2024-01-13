@@ -1,7 +1,6 @@
 # Bagel Apocalypse
 
-This is a game developed for PirateSoftware Game Jam 14! The theme is "It's Spreading!" Below are ideas and a 
-breakdown of possible functionality! Everything is being streamed live on Twitch at https://twitch.tv/cameronadams777
+This is a game developed for PirateSoftware Game Jam 14! The theme is "It's Spreading!" Below are ideas and a breakdown of possible functionality! Everything is being streamed live on Twitch at https://twitch.tv/cameronadams777
 
 ## Ideas
 
@@ -10,9 +9,9 @@ breakdown of possible functionality! Everything is being streamed live on Twitch
 - Make your way to the mail room while everyone is turning into Bagels
 - Protect yourself with spreading tool?
 - Avoid other bagels and cream cheese along the way
-    - Cream cheese is infected (I'm lactose intolerant)
+  - Cream cheese is infected (I'm lactose intolerant)
 - Start on what you think is a high floor and work your way down?
-    - Could go from bottom up for evac on roof?
+  - Could go from bottom up for evac on roof?
 
 ## GamePlay
 
@@ -21,7 +20,7 @@ breakdown of possible functionality! Everything is being streamed live on Twitch
 - Procedurally generate floor
 - Find your way to next set of stairs
 - Pickup tools/weapons along the way
-    - Something should be left behind each round?
+  - Something should be left behind each round?
 - NPCs on each floor that change to Bagels (randomly?)
 - Cream cheese slows you down
 - Potentially have some sort of screen visibility power down
@@ -30,9 +29,9 @@ breakdown of possible functionality! Everything is being streamed live on Twitch
 ### Tools
 
 - Toaster Oven
-    - Works like a fire flower from mario where you can shoot fire at bagels
+  - Works like a fire flower from mario where you can shoot fire at bagels
 - Spreading tool
-    - Prevents you from losing a life when touched and removes the bagel that you touched
+  - Prevents you from losing a life when touched and removes the bagel that you touched
 
 ### Power-Up/Downs
 

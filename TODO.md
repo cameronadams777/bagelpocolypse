@@ -3,31 +3,35 @@
 ## FEATURES
 
 - [ ] Floors
-    - [x] Randomly create a floor with a potential stair case
-    - [ ] Set spawn point for player
-    - [ ] Set NPC spawn points (there won't always be NPC)
-    - [ ] Set Bagel spawn points
+
+  - [x] Randomly create a floor with a potential stair case
+  - [ ] Set spawn point for player
+  - [ ] Set NPC spawn points (there won't always be NPC)
+  - [ ] Set Bagel spawn points
 
 - [ ] Player
-    - [x] - Movement
-    - [x] - Collisions
-    - [x] - Lives
+
+  - [x] - Movement
+  - [x] - Collisions
+  - [x] - Lives
 
 - [ ] Bagels
-    - [x] Reduce player lives on collisons
-    - [ ] Is idle
-    - [ ] Follows player when within radius
-        - [ ] Once alert, continues to follow for X amount of time
+
+  - [x] Reduce player lives on collisons
+  - [ ] Is idle
+  - [ ] Follows player when within radius
+    - [ ] Once alert, continues to follow for X amount of time
 
 - [ ] NPC
-    - [ ] Wanders the floor (looking for a way out lol)
-    - [ ] Can attract the attention of a bagel if its not alerted by player already
-    - [ ] If touched, it turns into a new bagel
+
+  - [ ] Wanders the floor (looking for a way out lol)
+  - [ ] Can attract the attention of a bagel if its not alerted by player already
+  - [ ] If touched, it turns into a new bagel
 
 - [ ] Power Ups/Downs
-    - [x] - Cream Cheese
-    - [x] - Salmon (Lox)
-    - [ ] - Butter
+  - [x] - Cream Cheese
+  - [x] - Salmon (Lox)
+  - [ ] - Butter
 
 ## BUGS
 
