@@ -1,6 +1,7 @@
 import GameObject from "./game-object";
-import PlayerSprite from "../assets/images/player-sheet.png";
-import { PLAYER_SPEED, TILE_SIZE } from "../constants";
+import { PLAYER_SPEED } from "../../constants";
+import PlayerSprite from "../../assets/images/player-sheet.png";
+import Vector2 from "../math/vector2";
 
 const sprite = new Image();
 sprite.src = PlayerSprite;
@@ -8,18 +9,16 @@ sprite.src = PlayerSprite;
 const PLAYER_SPRITE_SCALE_OFFSET = 5;
 
 class Player extends GameObject {
-  private velX: number;
-  private velY: number;
+  private velocity: Vector2;
   private lives: number;
   private frameCount: number;
   private currentFrameX: number;
   private currentFrameY: number;
   private playerSpeedConstant: number;
 
-  constructor(tag: string, x: number, y: number, width: number, height: number) {
-    super(tag, x, y, width, height);
-    this.velX = 0;
-    this.velY = 0;
+  constructor(tag: string, position: Vector2, width: number, height: number) {
+    super(tag, position, width, height);
+    this.velocity = Vector2.Zero();
     this.lives = 3;
     this.frameCount = 4;
     this.currentFrameX = 0;
@@ -28,13 +27,8 @@ class Player extends GameObject {
     this.setupKeyboardHandlers();
   }
 
-  public update(map: number[][]): void {
-    if (this.velX < 0 && map[Math.floor(this.y / TILE_SIZE)][Math.floor(this.x / TILE_SIZE) + 1] === 0) this.velX = 0;
-    if (this.velX > 0 && map[Math.floor(this.y / TILE_SIZE)][Math.floor(this.x / TILE_SIZE) + 1] === 0) this.velX = 0;
-    if (this.velY < 0 && map[Math.floor(this.y / TILE_SIZE) + 1][Math.floor(this.x / TILE_SIZE)] === 0) this.velY = 0;
-    if (this.velY > 0 && map[Math.floor(this.y / TILE_SIZE) + 1][Math.floor(this.x / TILE_SIZE)] === 0) this.velY = 0;
-    this.x += this.velX;
-    this.y += this.velY;
+  public update(): void {
+    this.position.add(this.velocity);
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
@@ -45,8 +39,8 @@ class Player extends GameObject {
       this.currentFrameY * this.height * PLAYER_SPRITE_SCALE_OFFSET,
       this.width * PLAYER_SPRITE_SCALE_OFFSET,
       this.height * PLAYER_SPRITE_SCALE_OFFSET,
-      this.x,
-      this.y,
+      this.position.x,
+      this.position.y,
       this.width,
       this.height
     );
@@ -55,20 +49,12 @@ class Player extends GameObject {
     ctx.fillText(this.lives.toString(), 25, 35);
   }
 
-  public getVelX(): number {
-    return this.velX;
+  public getVelocity(): Vector2 {
+    return this.velocity;
   }
 
-  public setVelX(velX: number): void {
-    this.velX = velX;
-  }
-
-  public getVelY(): number {
-    return this.velY;
-  }
-
-  public setVelY(velY: number): void {
-    this.velY = velY;
+  public setVelocity(velocity: Vector2): void {
+    this.velocity = velocity;
   }
 
   public getLives(): number {
@@ -108,35 +94,35 @@ class Player extends GameObject {
       if (e.key === "w") {
         this.setCurrentFrameY(1);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
-        this.setVelY(-PLAYER_SPEED);
+        this.setVelocity(new Vector2(this.velocity.x, -PLAYER_SPEED));
       } else if (e.key === "s") {
         this.setCurrentFrameY(0);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
-        this.setVelY(PLAYER_SPEED);
+        this.setVelocity(new Vector2(this.velocity.x, PLAYER_SPEED));
       } else if (e.key === "a") {
         this.setCurrentFrameY(2);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
-        this.setVelX(-PLAYER_SPEED);
+        this.setVelocity(new Vector2(-PLAYER_SPEED, this.velocity.y));
       } else if (e.key === "d") {
         this.setCurrentFrameY(3);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
-        this.setVelX(PLAYER_SPEED);
+        this.setVelocity(new Vector2(PLAYER_SPEED, this.velocity.y));
       }
     });
 
     document.addEventListener("keyup", (e: KeyboardEvent) => {
       if (e.key === "w") {
         this.setCurrentFrameX(0);
-        this.setVelY(0);
+        this.setVelocity(new Vector2(this.velocity.x, 0));
       } else if (e.key === "s") {
         this.setCurrentFrameX(0);
-        this.setVelY(0);
+        this.setVelocity(new Vector2(this.velocity.x, 0));
       } else if (e.key === "a") {
         this.setCurrentFrameX(0);
-        this.setVelX(0);
+        this.setVelocity(new Vector2(0, this.velocity.y));
       } else if (e.key === "d") {
         this.setCurrentFrameX(3);
-        this.setVelX(0);
+        this.setVelocity(new Vector2(0, this.velocity.y));
       }
     });
   }
