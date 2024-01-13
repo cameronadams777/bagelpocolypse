@@ -8,7 +8,10 @@ export class Room extends GameObject {
 
   constructor(tag: string, position: Vector2, width: number, height: number) {
     super(tag, position, width, height);
-    this.center = new Vector2(Math.floor(this.getRight() / 2), Math.floor(this.getBottom() / 2));
+    this.center = new Vector2(
+      Math.floor(this.getPosition().x + this.width / 2),
+      Math.floor(this.getPosition().y + this.height / 2)
+    );
   }
 
   public isInRadius(room: Room): boolean {

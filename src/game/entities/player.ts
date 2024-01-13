@@ -44,9 +44,9 @@ class Player extends GameObject {
       this.width,
       this.height
     );
-    ctx.font = `40px Verdana`;
+    /*ctx.font = `40px Verdana`;
     ctx.fillStyle = "#000";
-    ctx.fillText(this.lives.toString(), 25, 35);
+    ctx.fillText(this.lives.toString(), 25, 35);*/
   }
 
   public getVelocity(): Vector2 {

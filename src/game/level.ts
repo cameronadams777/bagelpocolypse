@@ -124,6 +124,7 @@ class Level {
 
   private setupLevel(): void {
     this.generateRooms();
+    this.generateCorridors();
     this.generateStairs();
     this.player = this.spawnPlayer();
     this.bagels = this.spawnBagels();
@@ -166,7 +167,50 @@ class Level {
     }
   }
 
-  private generateCooridors(): void {}
+  private generateCorridors(): void {
+    const paths: Vector2[][] = [];
+    let curr = 0;
+    let attempts = 0;
+    while (curr != this.rooms.length - 1 && attempts < 10) {
+      const currentCenter = this.rooms[curr].getCenter();
+      const nextCenter = this.rooms[curr + 1].getCenter();
+      console.log(currentCenter, nextCenter);
+      const path: Vector2[] = this.findPath(currentCenter, nextCenter);
+      paths.push(path);
+      curr += 1;
+      attempts += 1;
+    }
+    for (let j = 0; j < paths.length; j++) {
+      for (let i = 0; i < paths[j].length; i++) {
+        this.map[paths[j][i].y][paths[j][i].x] = 1;
+      }
+    }
+  }
+
+  private findPath(currentCenter: Vector2, nextCenter: Vector2): Vector2[] {
+    const path: Vector2[] = [];
+    let diffX = currentCenter.x - nextCenter.x;
+    let diffY = currentCenter.y - nextCenter.y;
+    for (let i = 0; i < Math.abs(diffX); i++) {
+      let currentTile: Vector2;
+      if (diffX > 0) currentTile = new Vector2(currentCenter.x - i, currentCenter.y);
+      else currentTile = new Vector2(currentCenter.x + i, currentCenter.y);
+      path.push(currentTile);
+    }
+    for (let i = 0; i < Math.abs(diffX); i++) {
+      let currentTile: Vector2;
+      if (diffX > 0) currentTile = new Vector2(currentCenter.x - i, currentCenter.y + 1);
+      else currentTile = new Vector2(currentCenter.x + i, currentCenter.y + 1);
+      path.push(currentTile);
+    }
+    for (let i = 0; i < Math.abs(diffY); i++) {
+      let currentTile: Vector2;
+      if (diffY > 0) currentTile = new Vector2(nextCenter.x, currentCenter.y - 1);
+      else currentTile = new Vector2(nextCenter.x, currentCenter.y + i);
+      path.push(currentTile);
+    }
+    return path;
+  }
 
   private generateStairs(): void {
     const { x, y } = generateSpawnCoordinates(this.map, this.rooms);
