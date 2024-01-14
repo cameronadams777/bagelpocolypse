@@ -51,8 +51,8 @@ const generateSpawnCoordinates = (map: number[][], rooms: Room[]): Vector2 => {
   let randPosition: Vector2 | undefined;
   while (randPosition == null || entityConstants.includes(map[randPosition.y][randPosition.x])) {
     randPosition = new Vector2(
-      getRandomArbitrary(randRoom.getPosition().x + 1, randRoom.getRight() - 1),
-      getRandomArbitrary(randRoom.getPosition().y + 1, randRoom.getBottom() - 1)
+      getRandomArbitrary(randRoom.getPosition().x + 2, randRoom.getRight() - 2),
+      getRandomArbitrary(randRoom.getPosition().y + 2, randRoom.getBottom() - 2)
     );
   }
   return randPosition;

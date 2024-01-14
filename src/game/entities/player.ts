@@ -33,32 +33,45 @@ class Player extends GameObject {
   public update(): void {
     if (
       this.velocity.x < 0 &&
-      this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+      (this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
         Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-      ] === 5
+      ] === 5 ||
+        this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+          Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
+        ] === 5)
     )
       this.velocity.x = 0;
     if (
       this.velocity.x > 0 &&
-      this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+      (this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
         Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-      ] === 5
+      ] === 5 ||
+        this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+          Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
+        ] === 5)
     )
       this.velocity.x = 0;
     if (
       this.velocity.y < 0 &&
-      this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+      (this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
         Math.floor(this.position.x / TILE_SIZE)
-      ] === 5
+      ] === 5 ||
+        this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+          Math.floor(this.getRight() / TILE_SIZE)
+        ] === 5)
     )
       this.velocity.y = 0;
     if (
       this.velocity.y > 0 &&
-      this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+      (this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
         Math.floor(this.position.x / TILE_SIZE)
-      ] === 5
+      ] === 5 ||
+        this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+          Math.floor(this.getRight() / TILE_SIZE)
+        ] === 5)
     )
       this.velocity.y = 0;
+
     this.position.add(this.velocity);
   }
 

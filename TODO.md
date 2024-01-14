@@ -5,7 +5,8 @@
 - [ ] Set Timeout on Power Ups not consistent when collecting mulitple power ups
 - [x] When generating initial Bagel spawns, there is the possibilty that no bagels will be generated
 - [x] GameObjects don't always spawn in rooms
-- [ ] Moving in the y direction allows player to exit map through corners
+- [x] GameObjects sometimes spawn in walls
+- [x] Moving in the y direction allows player to exit map through corners
 
 ## FEATURES
 
