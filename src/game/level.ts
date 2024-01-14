@@ -20,6 +20,7 @@ import Bagel from "./entities/bagel";
 import GameObject from "./entities/game-object";
 import Vector2 from "./math/vector2";
 import Camera from "./entities/camera";
+import Salmon from "./entities/salmon";
 
 const stairsSprite = new Image();
 stairsSprite.src = StairsImage;
@@ -39,10 +40,11 @@ const tileMap: Record<number, HTMLImageElement> = {
   2: stairsSprite,
   3: concreteSprite, // Player location
   4: concreteSprite, // Bagel location
-  5: stoneSprite // Wall location
+  5: stoneSprite, // Wall location
+  6: concreteSprite // Salmon location
 };
 
-const entityConstants = [2, 3, 4];
+const entityConstants = [2, 3, 4, 6];
 
 const generateSpawnCoordinates = (map: number[][], rooms: Room[]): Vector2 => {
   const randRoom = rooms[getRandomArbitrary(0, rooms.length - 1)];
@@ -66,7 +68,7 @@ class Level {
   private gameObjects: Array<GameObject | undefined>;
 
   constructor(canvas: HTMLCanvasElement) {
-    this.camera = new Camera(GameTags.CAMERA_TAG, Vector2.Zero(), canvas.width, canvas.height);
+    this.camera = new Camera(Vector2.Zero(), canvas.width, canvas.height);
     this.map = [];
     this.rooms = [];
     this.bagels = [];
@@ -120,7 +122,7 @@ class Level {
       this.gameObjects[i]?.update();
     }
 
-    this.camera.update();
+    this.camera.update(this.map);
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
@@ -143,7 +145,8 @@ class Level {
     }
 
     for (let i = 0; i < this.gameObjects.length; i++) {
-      if (!this.camera.isInRadius(this.gameObjects[i]!)) this.gameObjects[i]?.draw(ctx, this.camera);
+      if (this.gameObjects[i] != null && !this.camera.isInRadius(this.gameObjects[i]!))
+        this.gameObjects[i]?.draw(ctx, this.camera);
     }
   }
 
@@ -287,6 +290,7 @@ class Level {
     const bagels: Bagel[] = [];
     for (let i = 0; i < MAX_BAGEL_COUNT; i++) {
       const spawnPosition = generateSpawnCoordinates(this.map, this.rooms);
+      this.map[spawnPosition.y][spawnPosition.x] = 4;
       bagels.push(
         new Bagel(
           GameTags.BAGEL_TAG,

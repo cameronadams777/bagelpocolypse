@@ -95,19 +95,19 @@ class Player extends GameObject {
       if (e.key === "w") {
         this.setCurrentFrameY(1);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
-        this.setVelocity(new Vector2(this.velocity.x, -PLAYER_SPEED));
+        this.setVelocity(new Vector2(this.velocity.x, -this.playerSpeedConstant));
       } else if (e.key === "s") {
         this.setCurrentFrameY(0);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
-        this.setVelocity(new Vector2(this.velocity.x, PLAYER_SPEED));
+        this.setVelocity(new Vector2(this.velocity.x, this.playerSpeedConstant));
       } else if (e.key === "a") {
         this.setCurrentFrameY(2);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
-        this.setVelocity(new Vector2(-PLAYER_SPEED, this.velocity.y));
+        this.setVelocity(new Vector2(-this.playerSpeedConstant, this.velocity.y));
       } else if (e.key === "d") {
         this.setCurrentFrameY(3);
         this.setCurrentFrameX(this.getCurrentFrameX() + 1);
-        this.setVelocity(new Vector2(PLAYER_SPEED, this.velocity.y));
+        this.setVelocity(new Vector2(this.playerSpeedConstant, this.velocity.y));
       }
     });
 

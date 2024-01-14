@@ -12,8 +12,9 @@
   - [ ] Set NPC spawn points (there won't always be NPC)
   - [x] Set Bagel spawn points
   - [ ] Don't allow GameObjects to leave rooms/corridors (wall collisions)
+  - [ ] Spawn desks and other obstacles into rooms
 
-- [ ] Player
+- [x] Player
 
   - [x] - Movement
   - [x] - Collisions
@@ -21,8 +22,8 @@
 
 - [ ] Camera
 
-  - [ ] - Displays only part of what is rendered
-  - [ ] - Follow player
+  - [x] - Displays only part of what is rendered
+  - [x] - Follow player
   - [ ] - Doesn't exceed map bounds
 
 - [ ] Bagels
@@ -55,6 +56,8 @@
   - [x] Black outside room texture
   - [ ] Room floor
   - [ ] Room wall (Nice to have...)
+  - [ ] Obstacles
+    - [ ] Desk
 
 ## BUGS
 
