@@ -1,5 +1,12 @@
 # TODO
 
+## BUGS
+
+- [ ] Set Timeout on Power Ups not consistent when collecting mulitple power ups
+- [x] When generating initial Bagel spawns, there is the possibilty that no bagels will be generated
+- [x] GameObjects don't always spawn in rooms
+- [ ] Moving in the y direction allows player to exit map through corners
+
 ## FEATURES
 
 ### GamePlay
@@ -11,7 +18,7 @@
   - [x] Set spawn point for player
   - [ ] Set NPC spawn points (there won't always be NPC)
   - [x] Set Bagel spawn points
-  - [ ] Don't allow GameObjects to leave rooms/corridors (wall collisions)
+  - [x] Don't allow GameObjects to leave rooms/corridors (wall collisions)
   - [ ] Spawn desks and other obstacles into rooms
 
 - [x] Player
@@ -58,9 +65,3 @@
   - [ ] Room wall (Nice to have...)
   - [ ] Obstacles
     - [ ] Desk
-
-## BUGS
-
-- [ ] Set Timeout on Power Ups not consistent when collecting mulitple power ups
-- [x] When generating initial Bagel spawns, there is the possibilty that no bagels will be generated
-- [x] GameObjects don't always spawn in rooms

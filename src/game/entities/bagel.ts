@@ -1,6 +1,7 @@
 import GameObject from "./game-object";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";
+import { TILE_SIZE } from "../../constants";
 
 type BagelState = "idle" | "following";
 
@@ -10,9 +11,11 @@ class Bagel extends GameObject {
   private velocity: Vector2;
   private state: BagelState;
   private follow: GameObject | undefined;
+  private worldMap: number[][];
 
-  constructor(tag: string, position: Vector2, width: number, height: number) {
+  constructor(tag: string, position: Vector2, width: number, height: number, map: number[][]) {
     super(tag, position, width, height);
+    this.worldMap = map;
     this.velocity = Vector2.Zero();
     this.state = "idle";
     this.follow = undefined;
@@ -21,12 +24,43 @@ class Bagel extends GameObject {
   public update(): void {
     this.velocity = Vector2.Zero();
     if (this.follow == null) return;
-    if (this.state === "following") {
-      if (this.follow.getPosition().x < this.position.x) this.velocity = new Vector2(-3.5, this.velocity.y);
-      if (this.follow.getPosition().x > this.getRight()) this.velocity = new Vector2(3.5, this.velocity.y);
-      if (this.follow.getPosition().y < this.position.y) this.velocity = new Vector2(this.velocity.x, -3.5);
-      if (this.follow.getPosition().y > this.getBottom()) this.velocity = new Vector2(this.velocity.x, 3.5);
-    }
+
+    if (
+      this.follow.getPosition().x < this.position.x &&
+      !(
+        this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+          Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
+        ] === 5
+      )
+    )
+      this.velocity = new Vector2(-3.5, this.velocity.y);
+    if (
+      this.follow.getPosition().x > this.getRight() &&
+      !(
+        this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+          Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
+        ] === 5
+      )
+    )
+      this.velocity = new Vector2(3.5, this.velocity.y);
+    if (
+      this.follow.getPosition().y < this.position.y &&
+      !(
+        this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+          Math.floor(this.position.x / TILE_SIZE)
+        ] === 5
+      )
+    )
+      this.velocity = new Vector2(this.velocity.x, -3.5);
+    if (
+      this.follow.getPosition().y > this.getBottom() &&
+      !(
+        this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+          Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
+        ] === 5
+      )
+    )
+      this.velocity = new Vector2(this.velocity.x, 3.5);
 
     this.position.add(this.velocity);
   }

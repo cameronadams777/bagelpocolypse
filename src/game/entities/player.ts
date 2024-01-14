@@ -75,9 +75,10 @@ class Player extends GameObject {
       this.width,
       this.height
     );
-    /*ctx.font = `40px Verdana`;
-    ctx.fillStyle = "#000";
-    ctx.fillText(this.lives.toString(), 25, 35);*/
+    ctx.font = `40px Verdana`;
+    ctx.fillStyle = "red";
+    const livesText = `Lives: ${this.lives.toString()}`;
+    ctx.fillText(livesText, camera.getWidth() - ctx.measureText(livesText).width - 50, 50);
   }
 
   public getVelocity(): Vector2 {

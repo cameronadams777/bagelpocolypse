@@ -59,6 +59,7 @@ const generateSpawnCoordinates = (map: number[][], rooms: Room[]): Vector2 => {
 };
 
 class Level {
+  private canvas: HTMLCanvasElement;
   private camera: Camera;
   private player: Player;
   private playerInitialSpawn: Vector2;
@@ -66,15 +67,18 @@ class Level {
   private map: number[][];
   private rooms: Room[];
   private gameObjects: Array<GameObject | undefined>;
+  private floorLevel: number;
 
   constructor(canvas: HTMLCanvasElement) {
+    this.canvas = canvas;
+    this.floorLevel = 1;
     this.camera = new Camera(Vector2.Zero(), canvas.width, canvas.height);
     this.map = [];
     this.rooms = [];
     this.bagels = [];
     this.gameObjects = [];
     this.playerInitialSpawn = Vector2.Zero();
-    this.setupLevel(canvas);
+    this.setupLevel();
   }
 
   public update(): void {
@@ -123,6 +127,21 @@ class Level {
       this.gameObjects[i]?.update();
     }
 
+    if (
+      this.map[Math.round(this.player.getPosition().y / TILE_SIZE)][
+        Math.round(this.player.getPosition().x / TILE_SIZE)
+      ] === 2
+    ) {
+      this.floorLevel += 1;
+      this.setupLevel();
+    }
+
+    if (this.player.getLives() <= 0) {
+      this.player.setLives(3);
+      this.floorLevel = 1;
+      this.setupLevel();
+    }
+
     this.camera.update(this.map);
   }
 
@@ -149,11 +168,15 @@ class Level {
       if (this.gameObjects[i] != null && !this.camera.isInRadius(this.gameObjects[i]!))
         this.gameObjects[i]?.draw(ctx, this.camera);
     }
+
+    ctx.font = `40px Verdana`;
+    ctx.fillStyle = "red";
+    ctx.fillText(`Floor: ${this.floorLevel.toString()}`, 50, 50);
   }
 
-  private setupLevel(canvas: HTMLCanvasElement): void {
+  private setupLevel(): void {
     // Floor generation
-    this.map = this.generateMap(canvas);
+    this.map = this.generateMap(this.canvas);
     this.generateRooms();
     this.generateCorridors();
     this.generateWalls();
@@ -298,7 +321,8 @@ class Level {
           GameTags.BAGEL_TAG,
           new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
           TILE_SIZE,
-          TILE_SIZE
+          TILE_SIZE,
+          this.map
         )
       );
     }
