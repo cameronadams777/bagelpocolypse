@@ -20,11 +20,11 @@
   - [x] - Collisions
   - [x] - Lives
 
-- [ ] Camera
+- [x] Camera
 
   - [x] - Displays only part of what is rendered
   - [x] - Follow player
-  - [ ] - Doesn't exceed map bounds
+  - [x] - Doesn't exceed map bounds
 
 - [ ] Bagels
 

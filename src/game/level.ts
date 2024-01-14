@@ -105,6 +105,7 @@ class Level {
           }
         }
 
+        // Bagel collision logic
         if (this.gameObjects[i]?.getTag() === GameTags.BAGEL_TAG) {
           const b = this.gameObjects[i] as Bagel;
           if (prevLives != this.player.getLives()) b.setGameObjectToFollow(undefined);
@@ -282,7 +283,8 @@ class Level {
       GameTags.PLAYER_TAG,
       new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
       TILE_SIZE,
-      TILE_SIZE
+      TILE_SIZE,
+      this.map
     );
   }
 

@@ -1,5 +1,5 @@
 import GameObject from "./game-object";
-import { PLAYER_SPEED } from "../../constants";
+import { PLAYER_SPEED, TILE_SIZE } from "../../constants";
 import PlayerSprite from "../../assets/images/player-sheet.png";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";
@@ -16,9 +16,11 @@ class Player extends GameObject {
   private currentFrameX: number;
   private currentFrameY: number;
   private playerSpeedConstant: number;
+  private worldMap: number[][];
 
-  constructor(tag: string, position: Vector2, width: number, height: number) {
+  constructor(tag: string, position: Vector2, width: number, height: number, map: number[][]) {
     super(tag, position, width, height);
+    this.worldMap = map;
     this.velocity = Vector2.Zero();
     this.lives = 3;
     this.frameCount = 4;
@@ -29,6 +31,34 @@ class Player extends GameObject {
   }
 
   public update(): void {
+    if (
+      this.velocity.x < 0 &&
+      this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+        Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
+      ] === 5
+    )
+      this.velocity.x = 0;
+    if (
+      this.velocity.x > 0 &&
+      this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+        Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
+      ] === 5
+    )
+      this.velocity.x = 0;
+    if (
+      this.velocity.y < 0 &&
+      this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+        Math.floor(this.position.x / TILE_SIZE)
+      ] === 5
+    )
+      this.velocity.y = 0;
+    if (
+      this.velocity.y > 0 &&
+      this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+        Math.floor(this.position.x / TILE_SIZE)
+      ] === 5
+    )
+      this.velocity.y = 0;
     this.position.add(this.velocity);
   }
 
