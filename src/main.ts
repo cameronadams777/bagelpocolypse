@@ -1,4 +1,4 @@
-import Level from "./game/level";
+import Game from "./game";
 import "./style.css";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game-canvas");
@@ -12,15 +12,15 @@ const ctx = canvas.getContext("2d");
 
 if (!ctx) throw new Error("No context found");
 
-const level = new Level(canvas);
+const game = new Game(canvas);
 
 const loop = () => {
   if (!ctx) throw new Error("No context found");
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  level.update();
-  level.draw(ctx);
+  game.update();
+  game.draw(ctx);
 
   requestAnimationFrame(loop);
 };

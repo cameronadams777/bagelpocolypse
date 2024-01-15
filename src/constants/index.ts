@@ -24,6 +24,7 @@ export const MAX_ROOM_WIDTH = 20;
 export const MAX_ROOM_HEIGHT = 20;
 export const MAX_ROOM_COUNT = 10;
 export const MAX_ROOM_GEN_ATTEMPTS_COUNT = 10;
+export const MAP_CONSTANTS = [5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 
 export const PLAYER_SPEED = 5;
 

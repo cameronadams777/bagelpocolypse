@@ -1,7 +1,7 @@
 import GameObject from "../game-object";
 import Vector2 from "../../math/vector2";
 import Camera from "../camera";
-import { BAGEL_SPEED, TILE_SIZE } from "../../../constants";
+import { BAGEL_SPEED, MAP_CONSTANTS, TILE_SIZE } from "../../../constants";
 
 type BagelState = "idle" | "following";
 
@@ -29,48 +29,48 @@ class Bagel extends GameObject {
     if (
       this.follow.getPosition().x < this.position.x &&
       !(
-        this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
           Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-        ] === 5 ||
-        this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+        ]) ||
+        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
           Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-        ] === 5
+        ])
       )
     )
       this.velocity = new Vector2(-BAGEL_SPEED, this.velocity.y);
     if (
       this.follow.getPosition().x > this.getRight() &&
       !(
-        this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
           Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-        ] === 5 ||
-        this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+        ]) ||
+        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
           Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-        ] === 5
+        ])
       )
     )
       this.velocity = new Vector2(BAGEL_SPEED, this.velocity.y);
     if (
       this.follow.getPosition().y < this.position.y &&
       !(
-        this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+        MAP_CONSTANTS.includes(this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
           Math.floor(this.position.x / TILE_SIZE)
-        ] === 5 ||
-        this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+        ]) ||
+        MAP_CONSTANTS.includes(this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
           Math.floor(this.getBottom() / TILE_SIZE)
-        ] === 5
+        ])
       )
     )
       this.velocity = new Vector2(this.velocity.x, -BAGEL_SPEED);
     if (
       this.follow.getPosition().y > this.getBottom() &&
       !(
-        this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+        MAP_CONSTANTS.includes(this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
           Math.floor(this.position.x / TILE_SIZE)
-        ] === 5 ||
-        this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+        ]) ||
+        MAP_CONSTANTS.includes(this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
           Math.floor(this.getRight() / TILE_SIZE)
-        ] === 5
+        ])
       )
     )
       this.velocity = new Vector2(this.velocity.x, BAGEL_SPEED);

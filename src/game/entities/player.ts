@@ -1,5 +1,5 @@
 import GameObject from "./game-object";
-import { PLAYER_SPEED, TILE_SIZE } from "../../constants";
+import { MAP_CONSTANTS, PLAYER_SPEED, TILE_SIZE } from "../../constants";
 import PlayerSprite from "../../assets/images/player-sheet.png";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";
@@ -37,42 +37,42 @@ class Player extends GameObject {
   public update(): void {
     if (
       this.velocity.x < 0 &&
-      (this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+      (MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
         Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-      ] === 5 ||
-        this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+      ]) ||
+        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
           Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-        ] === 5)
+        ]))
     )
       this.velocity.x = 0;
     if (
       this.velocity.x > 0 &&
-      (this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+      (MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
         Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-      ] === 5 ||
-        this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+      ]) ||
+        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
           Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-        ] === 5)
+        ]))
     )
       this.velocity.x = 0;
     if (
       this.velocity.y < 0 &&
-      (this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+      (MAP_CONSTANTS.includes(this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
         Math.floor(this.position.x / TILE_SIZE)
-      ] === 5 ||
-        this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+      ]) ||
+        MAP_CONSTANTS.includes(this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
           Math.floor(this.getRight() / TILE_SIZE)
-        ] === 5)
+        ]))
     )
       this.velocity.y = 0;
     if (
       this.velocity.y > 0 &&
-      (this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+      (MAP_CONSTANTS.includes(this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
         Math.floor(this.position.x / TILE_SIZE)
-      ] === 5 ||
-        this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+      ]) ||
+        MAP_CONSTANTS.includes(this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
           Math.floor(this.getRight() / TILE_SIZE)
-        ] === 5)
+        ]))
     )
       this.velocity.y = 0;
 

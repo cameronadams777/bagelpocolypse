@@ -2,13 +2,17 @@ import CarpetImage from "../assets/images/floor-carpet.png";
 import BlackImage from "../assets/images/black.png";
 import StairsImage from "../assets/images/stairs.png";
 import TopLeftWallImage from "../assets/images/top-left-wall.png";
+import TopLeftInnerWallImage from "../assets/images/top-left-inner-wall.png";
 import TopWallImage from "../assets/images/top-wall.png";
 import TopRightWallImage from "../assets/images/top-right-wall.png";
+import TopRightInnerWallImage from "../assets/images/top-right-inner-wall.png";
 import RightWallImage from "../assets/images/right-wall.png";
 import BottomRightWallImage from "../assets/images/bottom-right-wall.png";
 import BottomWallImage from "../assets/images/bottom-wall.png";
 import BottomLeftWallImage from "../assets/images/bottom-left-wall.png";
+import BottomLeftInnerWallImage from "../assets/images/bottom-left-inner-wall.png";
 import LeftWallImage from "../assets/images/left-wall.png";
+import BottomRightInnerWallImage from "../assets/images/bottom-right-inner-wall.png";
 import { getRandomArbitrary } from "../helpers";
 import { Room } from "./entities/room";
 import {
@@ -39,11 +43,17 @@ floorSprite.src = CarpetImage;
 const topLeftWallSprite = new Image();
 topLeftWallSprite.src = TopLeftWallImage;
 
+const topLeftInnerWallSprite = new Image();
+topLeftInnerWallSprite.src = TopLeftInnerWallImage;
+
 const topWallSprite = new Image();
 topWallSprite.src = TopWallImage;
 
 const topRightWallSprite = new Image();
 topRightWallSprite.src = TopRightWallImage;
+
+const topRightInnerWallSprite = new Image();
+topRightInnerWallSprite.src = TopRightInnerWallImage;
 
 const rightWallSprite = new Image();
 rightWallSprite.src = RightWallImage;
@@ -51,11 +61,17 @@ rightWallSprite.src = RightWallImage;
 const bottomRightWallSprite = new Image();
 bottomRightWallSprite.src = BottomRightWallImage;
 
+const bottomRightInnerWallSprite = new Image();
+bottomRightInnerWallSprite.src = BottomRightInnerWallImage;
+
 const bottomWallSprite = new Image();
 bottomWallSprite.src = BottomWallImage;
 
 const bottomLeftWallSprite = new Image();
 bottomLeftWallSprite.src = BottomLeftWallImage;
+
+const bottomLeftInnerWallSprite = new Image();
+bottomLeftInnerWallSprite.src = BottomLeftInnerWallImage;
 
 const leftWallSprite = new Image();
 leftWallSprite.src = LeftWallImage;
@@ -78,7 +94,11 @@ const tileMap: Record<number, HTMLImageElement> = {
   11: bottomRightWallSprite,
   12: bottomWallSprite,
   13: bottomLeftWallSprite,
-  14: leftWallSprite
+  14: leftWallSprite,
+  15: bottomRightInnerWallSprite,
+  16: topLeftInnerWallSprite,
+  17: topRightInnerWallSprite,
+  18: bottomLeftInnerWallSprite
 };
 
 const entityConstants = [2, 3, 4, 6];
@@ -95,7 +115,7 @@ const generateSpawnCoordinates = (map: number[][], rooms: Room[]): Vector2 => {
   return randPosition;
 };
 
-class Level {
+class Game {
   private canvas: HTMLCanvasElement;
   private camera: Camera;
   private player: Player;
@@ -177,7 +197,7 @@ class Level {
 
     if (
       this.map[Math.round(this.player.getPosition().y / TILE_SIZE)][
-        Math.round(this.player.getPosition().x / TILE_SIZE)
+      Math.round(this.player.getPosition().x / TILE_SIZE)
       ] === 2
     ) {
       this.floorLevel += 1;
@@ -274,64 +294,44 @@ class Level {
     return map;
   }
 
-  /*[
-    [0, 0,  0, 0, 0]
-    [0, 5,  8, 9, 0]
-    [0, 1, 1, 1, 0, 0, 0, 0]
-    [0, 1, 1, 1, 1, 1, 9, 0]
-    [0, 1, 1, 1, 1, 1, 1, 0]
-    [0, 1, 1, 1, 1, 1, 1, 0]
-    [0, 1, 1, 1, 1, 1, 1, 0]
-    [0, 1, 1, 1, 0, 0, 0, 0]
-    [0, 0, 0, 0, 0]
-  ]*/
-
   private generateWalls(): void {
     for (let j = 0; j < this.map.length; j++) {
       for (let i = 0; i < this.map[j].length; i++) {
+        if (this.map[j][i] !== 1) continue;
         if (
-          (this.map[j + 1]?.[i] >= 1 &&
-            this.map[j - 1]?.[i] >= 1 &&
-            this.map[j]?.[i + 1] >= 1 &&
-            this.map[j]?.[i - 1] >= 1) ||
-          this.map[j][i] !== 1
-        )
-          continue;
-        if (
-          this.map[j][i - 1] === 0 &&
-          this.map[j - 1][i] === 0 &&
-          this.map[j + 1][i] >= 1 &&
-          this.map[j][i + 1] >= 1
-        ) {
-          // Top Left
-          this.map[j][i] = 5;
-        } else if ((this.map[j][i - 1] >= 1 && this.map[j][i + 1]) === this.map[j][i] && this.map[j - 1][i] === 0) {
-          // Top
-          this.map[j][i] = 8;
-        } else if (
-          this.map[j][i + 1] === 0 &&
-          this.map[j - 1][i] === 0 &&
-          this.map[j + 1][i] >= 1 &&
-          this.map[j][i - 1] >= 1
-        ) {
-          // Top Right
-          this.map[j][i] = 9;
-        } else if (
-          this.map[j - 1][i] >= 1 &&
-          this.map[j + 1][i] >= 1 &&
+          this.map[j][i] === 0 ||
           this.map[j][i + 1] >= 1 &&
-          this.map[j][i - 1] === 0
-        ) {
-          // Left
-          this.map[j][i] === 14;
-        } else if (
-          this.map[j - 1][i] >= 1 &&
-          this.map[j + 1][i] >= 1 &&
           this.map[j][i - 1] >= 1 &&
-          this.map[j][i + 1] === 0
-        ) {
-          // Right
-          this.map[j - 1][i] >= 1 && this.map[j + 1][i] >= 1 && this.map[j][i - 1] >= 1 && this.map[j][i + 1] === 0;
+          this.map[j + 1][i] >= 1 &&
+          this.map[j - 1][i] >= 1) {
+          if (this.map[j - 1][i - 1] === 0) this.map[j][i] = 15;
+          if (this.map[j + 1][i + 1] === 0) this.map[j][i] = 16;
+          if (this.map[j + 1][i - 1] === 0) this.map[j][i] = 17;
+          if (this.map[j - 1][i + 1] === 0) this.map[j][i] = 18;
+        } else if (this.map[j][i - 1] === this.map[j - 1][i] &&
+          this.map[j + 1][i] >= 1 && this.map[j][i + 1] >= 1) {
+          this.map[j][i] = 5
+        } else if (this.map[j][i + 1] === this.map[j - 1][i] &&
+          this.map[j + 1][i] >= 1 && this.map[j][i - 1] >= 1) {
+          this.map[j][i] = 9
+        } else if (this.map[j + 1][i] === this.map[j][i - 1] &&
+          this.map[j - 1][i] >= 1 && this.map[j][i + 1] >= 1) {
+          this.map[j][i] = 13
+        } else if ((this.map[j + 1][i] === this.map[j][i + 1] &&
+          this.map[j - 1][i] >= 1 && this.map[j][i - 1] >= 1)) {
+          this.map[j][i] = 11
+        } else if (this.map[j - 1][i] === 0 && this.map[j + 1][i] >= 1 &&
+          this.map[j][i - 1] >= 1 && this.map[j][i + 1] >= 1) {
+          this.map[j][i] = 8
+        } else if (this.map[j + 1][i] === 0 && this.map[j - 1][i] >= 1 &&
+          this.map[j][i - 1] >= 1 && this.map[j][i + 1] >= 1) {
+          this.map[j][i] = 12
+        } else if (this.map[j][i - 1] === 0 && this.map[j][i + 1] >= 1 &&
+          this.map[j + 1][i] >= 1 && this.map[j - 1][i] >= 1) {
+          this.map[j][i] = 14
+        } else if (this.map[j][i + 1] === 0 && this.map[j][i - 1] >= 1 &&
+          this.map[j + 1][i] >= 1 && this.map[j - 1][i] >= 1) {
+          this.map[j][i] = 10
         } else {
           this.map[j][i] = 0;
         }
@@ -486,4 +486,4 @@ class Level {
   }
 }
 
-export default Level;
+export default Game;
