@@ -17,7 +17,7 @@ class Camera {
     this.follow = undefined;
   }
 
-  public update(map: number[][]): void {
+  public update(deltaTime: number, map: number[][]): void {
     if (this.follow == null) return;
     let newCameraX: number;
     let newCameraY: number;

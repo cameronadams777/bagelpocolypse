@@ -14,12 +14,18 @@ if (!ctx) throw new Error("No context found");
 
 const game = new Game(canvas);
 
-const loop = () => {
+let startTime = 0;
+let accumulatedTime = 0;
+
+const loop = (now: number = 0) => {
   if (!ctx) throw new Error("No context found");
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  game.update();
+  let deltaTime = now - startTime;
+  startTime = now;
+
+  game.update(deltaTime);
   game.draw(ctx);
 
   requestAnimationFrame(loop);

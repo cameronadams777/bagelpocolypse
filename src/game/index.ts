@@ -139,7 +139,7 @@ class Game {
     this.setupDungeonLevel();
   }
 
-  public update(): void {
+  public update(deltaTime: number): void {
     const prevLives = this.player.getLives();
     for (let i = 0; i < this.gameObjects.length; i++) {
       for (let j = 0; j < this.gameObjects.length; j++) {
@@ -192,7 +192,7 @@ class Game {
         }
       }
 
-      this.gameObjects[i]?.update();
+      this.gameObjects[i]?.update(deltaTime);
     }
 
     if (
@@ -212,7 +212,7 @@ class Game {
       this.setupDungeonLevel();
     }
 
-    this.camera.update(this.map);
+    this.camera.update(deltaTime, this.map);
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
