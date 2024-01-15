@@ -12,10 +12,12 @@ const PLAYER_SPRITE_SCALE_OFFSET = 5;
 class Player extends GameObject {
   private velocity: Vector2;
   private lives: number;
+  private frameX: number;
   private frameCount: number;
   private currentFrameX: number;
   private currentFrameY: number;
   private playerSpeedConstant: number;
+  private spreadingToolCount: number;
   private worldMap: number[][];
 
   constructor(tag: string, position: Vector2, width: number, height: number, map: number[][]) {
@@ -23,10 +25,12 @@ class Player extends GameObject {
     this.worldMap = map;
     this.velocity = Vector2.Zero();
     this.lives = 3;
+    this.frameX = 0;
     this.frameCount = 4;
     this.currentFrameX = 0;
     this.currentFrameY = 0;
     this.playerSpeedConstant = PLAYER_SPEED;
+    this.spreadingToolCount = 0;
     this.setupKeyboardHandlers();
   }
 
@@ -76,18 +80,20 @@ class Player extends GameObject {
   }
 
   public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
-    const frameX = Math.floor(this.currentFrameX % this.frameCount);
+    if (this.currentFrameX >= this.frameCount) this.currentFrameX = 0;
+    this.frameX = this.currentFrameX;
     ctx.drawImage(
       sprite,
-      frameX * this.width * PLAYER_SPRITE_SCALE_OFFSET,
-      this.currentFrameY * this.height * PLAYER_SPRITE_SCALE_OFFSET,
-      this.width * PLAYER_SPRITE_SCALE_OFFSET,
-      this.height * PLAYER_SPRITE_SCALE_OFFSET,
+      this.frameX * this.width,
+      this.currentFrameY * this.height,
+      this.width,
+      this.height,
       this.position.x - camera.getPosition().x,
       this.position.y - camera.getPosition().y,
       this.width,
       this.height
     );
+
     ctx.font = `40px Verdana`;
     ctx.fillStyle = "red";
     const livesText = `Lives: ${this.lives.toString()}`;
@@ -134,23 +140,31 @@ class Player extends GameObject {
     this.playerSpeedConstant = speed;
   }
 
+  public getSpreadingToolCount(): number {
+    return this.spreadingToolCount;
+  }
+
+  public setSpreadingToolCount(count: number): void {
+    this.spreadingToolCount = count;
+  }
+
   private setupKeyboardHandlers(): void {
     document.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "w") {
         this.setCurrentFrameY(1);
-        this.setCurrentFrameX(this.getCurrentFrameX() + 1);
+        this.setCurrentFrameX(this.currentFrameX + 1);
         this.setVelocity(new Vector2(this.velocity.x, -this.playerSpeedConstant));
       } else if (e.key === "s") {
         this.setCurrentFrameY(0);
-        this.setCurrentFrameX(this.getCurrentFrameX() + 1);
+        this.setCurrentFrameX(this.currentFrameX + 1);
         this.setVelocity(new Vector2(this.velocity.x, this.playerSpeedConstant));
       } else if (e.key === "a") {
         this.setCurrentFrameY(2);
-        this.setCurrentFrameX(this.getCurrentFrameX() + 1);
+        this.setCurrentFrameX(this.currentFrameX + 1);
         this.setVelocity(new Vector2(-this.playerSpeedConstant, this.velocity.y));
       } else if (e.key === "d") {
         this.setCurrentFrameY(3);
-        this.setCurrentFrameX(this.getCurrentFrameX() + 1);
+        this.setCurrentFrameX(this.currentFrameX + 1);
         this.setVelocity(new Vector2(this.playerSpeedConstant, this.velocity.y));
       }
     });
@@ -166,7 +180,7 @@ class Player extends GameObject {
         this.setCurrentFrameX(0);
         this.setVelocity(new Vector2(0, this.velocity.y));
       } else if (e.key === "d") {
-        this.setCurrentFrameX(3);
+        this.setCurrentFrameX(0);
         this.setVelocity(new Vector2(0, this.velocity.y));
       }
     });

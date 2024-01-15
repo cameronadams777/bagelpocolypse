@@ -4,7 +4,8 @@ export enum GameTags {
   SALMON_TAG = "salmon",
   CREAM_CHEESE_TAG = "cream_cheese",
   ROOM_TAG = "room",
-  CAMERA_TAG = "camera"
+  CAMERA_TAG = "camera",
+  SPREADING_TOOL_TAG = "spreading_tool"
 }
 
 export enum TileMapSprites {
@@ -26,4 +27,5 @@ export const MAX_ROOM_GEN_ATTEMPTS_COUNT = 10;
 
 export const PLAYER_SPEED = 5;
 
+export const BAGEL_SPEED = 3;
 export const MAX_BAGEL_COUNT = 10;

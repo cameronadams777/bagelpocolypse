@@ -1,7 +1,14 @@
-import ConcreteImage from "../assets/images/concrete.png";
+import CarpetImage from "../assets/images/floor-carpet.png";
 import BlackImage from "../assets/images/black.png";
 import StairsImage from "../assets/images/stairs.png";
-import StoneImage from "../assets/images/stone.png";
+import TopLeftWallImage from "../assets/images/top-left-wall.png";
+import TopWallImage from "../assets/images/top-wall.png";
+import TopRightWallImage from "../assets/images/top-right-wall.png";
+import RightWallImage from "../assets/images/right-wall.png";
+import BottomRightWallImage from "../assets/images/bottom-right-wall.png";
+import BottomWallImage from "../assets/images/bottom-wall.png";
+import BottomLeftWallImage from "../assets/images/bottom-left-wall.png";
+import LeftWallImage from "../assets/images/left-wall.png";
 import { getRandomArbitrary } from "../helpers";
 import { Room } from "./entities/room";
 import {
@@ -16,32 +23,62 @@ import {
   TILE_SIZE
 } from "../constants";
 import Player from "./entities/player";
-import Bagel from "./entities/bagel";
+import Bagel from "./entities/enemies/bagel";
 import GameObject from "./entities/game-object";
 import Vector2 from "./math/vector2";
 import Camera from "./entities/camera";
 import Salmon from "./entities/salmon";
+import SpreadingTool from "./entities/weapons/spreading-tool";
 
 const stairsSprite = new Image();
 stairsSprite.src = StairsImage;
 
-const concreteSprite = new Image();
-concreteSprite.src = ConcreteImage;
+const floorSprite = new Image();
+floorSprite.src = CarpetImage;
 
-const stoneSprite = new Image();
-stoneSprite.src = StoneImage;
+const topLeftWallSprite = new Image();
+topLeftWallSprite.src = TopLeftWallImage;
+
+const topWallSprite = new Image();
+topWallSprite.src = TopWallImage;
+
+const topRightWallSprite = new Image();
+topRightWallSprite.src = TopRightWallImage;
+
+const rightWallSprite = new Image();
+rightWallSprite.src = RightWallImage;
+
+const bottomRightWallSprite = new Image();
+bottomRightWallSprite.src = BottomRightWallImage;
+
+const bottomWallSprite = new Image();
+bottomWallSprite.src = BottomWallImage;
+
+const bottomLeftWallSprite = new Image();
+bottomLeftWallSprite.src = BottomLeftWallImage;
+
+const leftWallSprite = new Image();
+leftWallSprite.src = LeftWallImage;
 
 const blackSprite = new Image();
 blackSprite.src = BlackImage;
 
 const tileMap: Record<number, HTMLImageElement> = {
   0: blackSprite,
-  1: concreteSprite,
+  1: floorSprite,
   2: stairsSprite,
-  3: concreteSprite, // Player location
-  4: concreteSprite, // Bagel location
-  5: stoneSprite, // Wall location
-  6: concreteSprite // Salmon location
+  3: floorSprite, // Player location
+  4: floorSprite, // Bagel location
+  5: topLeftWallSprite, // Wall location
+  6: floorSprite, // Salmon location
+  7: floorSprite, // Spreading tool location
+  8: topWallSprite,
+  9: topRightWallSprite,
+  10: rightWallSprite,
+  11: bottomRightWallSprite,
+  12: bottomWallSprite,
+  13: bottomLeftWallSprite,
+  14: leftWallSprite
 };
 
 const entityConstants = [2, 3, 4, 6];
@@ -78,7 +115,8 @@ class Level {
     this.bagels = [];
     this.gameObjects = [];
     this.playerInitialSpawn = Vector2.Zero();
-    this.setupLevel();
+    //this.setupBossLevel();
+    this.setupDungeonLevel();
   }
 
   public update(): void {
@@ -93,8 +131,15 @@ class Level {
           const p = this.gameObjects[i] as Player;
           if (!p.isCollidingWith(this.gameObjects[j]!)) {
             if (this.gameObjects[j]?.getTag() === GameTags.BAGEL_TAG) {
-              p.setLives(p.getLives() - 1);
-              p.setPosition(new Vector2(this.playerInitialSpawn.x * TILE_SIZE, this.playerInitialSpawn.y * TILE_SIZE));
+              if (p.getSpreadingToolCount() > 0) {
+                this.gameObjects[j] = undefined;
+                p.setSpreadingToolCount(p.getSpreadingToolCount() - 1);
+              } else {
+                p.setLives(p.getLives() - 1);
+                p.setPosition(
+                  new Vector2(this.playerInitialSpawn.x * TILE_SIZE, this.playerInitialSpawn.y * TILE_SIZE)
+                );
+              }
             }
             if (this.gameObjects[j]?.getTag() === GameTags.SALMON_TAG) {
               this.gameObjects[j] = undefined;
@@ -105,6 +150,10 @@ class Level {
               this.gameObjects[j] = undefined;
               this.player.setPlayerSpeedConstant(2);
               setTimeout(() => this.player.setPlayerSpeedConstant(5), 5000);
+            }
+            if (this.gameObjects[j]?.getTag() === GameTags.SPREADING_TOOL_TAG) {
+              this.gameObjects[j] = undefined;
+              this.player.setSpreadingToolCount(this.player.getSpreadingToolCount() + 1);
             }
           }
         }
@@ -118,7 +167,6 @@ class Level {
             !b.isInRadius(this.gameObjects[j]!) &&
             b.isFollowableItem(this.gameObjects[j]?.getTag()!)
           ) {
-            b.setState("following");
             b.setGameObjectToFollow(this.gameObjects[j]!);
           }
         }
@@ -133,13 +181,15 @@ class Level {
       ] === 2
     ) {
       this.floorLevel += 1;
-      this.setupLevel();
+
+      if (this.floorLevel % 5 === 0) this.setupBossLevel();
+      else this.setupDungeonLevel();
     }
 
     if (this.player.getLives() <= 0) {
       this.player.setLives(3);
       this.floorLevel = 1;
-      this.setupLevel();
+      this.setupDungeonLevel();
     }
 
     this.camera.update(this.map);
@@ -174,9 +224,30 @@ class Level {
     ctx.fillText(`Floor: ${this.floorLevel.toString()}`, 50, 50);
   }
 
-  private setupLevel(): void {
+  private setupBossLevel(): void {
+    this.map = this.generateMap(this.canvas.width, this.canvas.height);
+    this.generateBossRoom();
+    this.generateWalls();
+
+    this.player = new Player(
+      GameTags.PLAYER_TAG,
+      new Vector2(
+        Math.floor(this.rooms[0].getWidth() * 0.75 * TILE_SIZE),
+        Math.floor(this.rooms[0].getHeight() * 0.75 * TILE_SIZE)
+      ),
+      TILE_SIZE,
+      TILE_SIZE,
+      this.map
+    );
+    this.gameObjects = [this.player];
+
+    this.camera.setFollowedObject(undefined);
+    this.camera.setPosition(Vector2.Zero());
+  }
+
+  private setupDungeonLevel(): void {
     // Floor generation
-    this.map = this.generateMap(this.canvas);
+    this.map = this.generateMap(this.canvas.width * 4, this.canvas.height * 4);
     this.generateRooms();
     this.generateCorridors();
     this.generateWalls();
@@ -185,44 +256,99 @@ class Level {
     // Entity creation
     this.player = this.spawnPlayer();
     this.bagels = this.spawnBagels();
-    this.gameObjects = [this.player, ...this.bagels];
+    const weaponsAndPowerUps = this.spawnWeaponsAndPowerUps();
+    this.gameObjects = [this.player, ...this.bagels, ...weaponsAndPowerUps];
 
     // Set camera
     this.camera.setFollowedObject(this.player);
   }
 
-  private generateMap(canvas: HTMLCanvasElement): number[][] {
+  private generateMap(sizeX: number, sizeY: number): number[][] {
     let map: number[][] = [];
-    for (let j = 0; j < Math.ceil((canvas.height * 4) / TILE_SIZE); j++) {
+    for (let j = 0; j < Math.ceil(sizeY / TILE_SIZE); j++) {
       map.push([]);
-      for (let i = 0; i < Math.ceil((canvas.width * 4) / TILE_SIZE); i++) {
+      for (let i = 0; i < Math.ceil(sizeX / TILE_SIZE); i++) {
         map[j].push(0);
       }
     }
     return map;
   }
 
+  /*[
+    [0, 0,  0, 0, 0]
+    [0, 5,  8, 9, 0]
+    [0, 1, 1, 1, 0, 0, 0, 0]
+    [0, 1, 1, 1, 1, 1, 9, 0]
+    [0, 1, 1, 1, 1, 1, 1, 0]
+    [0, 1, 1, 1, 1, 1, 1, 0]
+    [0, 1, 1, 1, 1, 1, 1, 0]
+    [0, 1, 1, 1, 0, 0, 0, 0]
+    [0, 0, 0, 0, 0]
+  ]*/
+
   private generateWalls(): void {
     for (let j = 0; j < this.map.length; j++) {
       for (let i = 0; i < this.map[j].length; i++) {
-        if (this.map[j][i] !== 1) continue;
-        if (this.map?.[j - 1]?.[i - 1] === 0) {
+        if (
+          (this.map[j + 1]?.[i] >= 1 &&
+            this.map[j - 1]?.[i] >= 1 &&
+            this.map[j]?.[i + 1] >= 1 &&
+            this.map[j]?.[i - 1] >= 1) ||
+          this.map[j][i] !== 1
+        )
+          continue;
+        if (
+          this.map[j][i - 1] === 0 &&
+          this.map[j - 1][i] === 0 &&
+          this.map[j + 1][i] >= 1 &&
+          this.map[j][i + 1] >= 1
+        ) {
+          // Top Left
           this.map[j][i] = 5;
-        } else if (this.map?.[j - 1]?.[i] === 0) {
-          this.map[j][i] = 5;
-        } else if (this.map?.[j - 1]?.[i + 1] === 0) {
-          this.map[j][i] = 5;
-        } else if (this.map?.[j]?.[i + 1] === 0) {
-          this.map[j][i] = 5;
-        } else if (this.map?.[j + 1]?.[i + 1] === 0) {
-          this.map[j][i] = 5;
-        } else if (this.map?.[j + 1]?.[i] === 0) {
-          this.map[j][i] = 5;
-        } else if (this.map?.[j + 1]?.[i - 1] === 0) {
-          this.map[j][i] = 5;
-        } else if (this.map?.[j]?.[i - 1] === 0) {
-          this.map[j][i] = 5;
+        } else if ((this.map[j][i - 1] >= 1 && this.map[j][i + 1]) === this.map[j][i] && this.map[j - 1][i] === 0) {
+          // Top
+          this.map[j][i] = 8;
+        } else if (
+          this.map[j][i + 1] === 0 &&
+          this.map[j - 1][i] === 0 &&
+          this.map[j + 1][i] >= 1 &&
+          this.map[j][i - 1] >= 1
+        ) {
+          // Top Right
+          this.map[j][i] = 9;
+        } else if (
+          this.map[j - 1][i] >= 1 &&
+          this.map[j + 1][i] >= 1 &&
+          this.map[j][i + 1] >= 1 &&
+          this.map[j][i - 1] === 0
+        ) {
+          // Left
+          this.map[j][i] === 14;
+        } else if (
+          this.map[j - 1][i] >= 1 &&
+          this.map[j + 1][i] >= 1 &&
+          this.map[j][i - 1] >= 1 &&
+          this.map[j][i + 1] === 0
+        ) {
+          // Right
+          this.map[j - 1][i] >= 1 && this.map[j + 1][i] >= 1 && this.map[j][i - 1] >= 1 && this.map[j][i + 1] === 0;
+        } else {
+          this.map[j][i] = 0;
         }
+      }
+    }
+  }
+
+  private generateBossRoom(): void {
+    const startX = Math.floor(this.map[0].length / 8);
+    const startY = Math.floor(this.map.length / 8);
+    const roomWidth = Math.floor(this.map[0].length * 0.9);
+    const roomHeight = Math.floor(this.map.length * 0.9);
+    const room = new Room(GameTags.ROOM_TAG, new Vector2(startX, startY), roomWidth, roomHeight);
+    this.rooms = [room];
+    for (let j = startY; j < roomHeight; j++) {
+      for (let i = startX; i < roomWidth; i++) {
+        this.map[j][i] = 1;
       }
     }
   }
@@ -327,6 +453,36 @@ class Level {
       );
     }
     return bagels;
+  }
+
+  private spawnWeaponsAndPowerUps(): GameObject[] {
+    const objects: GameObject[] = [];
+    const randoms = [6, 7];
+    for (let i = 0; i < 5; i++) {
+      const randomIndex = Math.round(getRandomArbitrary(0, randoms.length - 1));
+      const spawnPosition = generateSpawnCoordinates(this.map, this.rooms);
+      this.map[spawnPosition.y][spawnPosition.x] = randoms[randomIndex];
+      if (randoms[randomIndex] === 6) {
+        objects.push(
+          new Salmon(
+            GameTags.SALMON_TAG,
+            new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
+            TILE_SIZE,
+            TILE_SIZE
+          )
+        );
+      } else {
+        objects.push(
+          new SpreadingTool(
+            GameTags.SPREADING_TOOL_TAG,
+            new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
+            TILE_SIZE,
+            TILE_SIZE
+          )
+        );
+      }
+    }
+    return objects;
   }
 }
 

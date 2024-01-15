@@ -20,9 +20,9 @@ class GameObject {
   public isCollidingWith(gameObject: GameObject): boolean {
     return (
       this.getBottom() <= gameObject.position.y ||
-      this.position.y >= gameObject.getBottom() ||
+      this.position.y >= gameObject.getBottom() + 1 ||
       this.getRight() <= gameObject.position.x ||
-      this.position.x >= gameObject.getRight()
+      this.position.x >= gameObject.getRight() + 1
     );
   }
 

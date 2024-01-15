@@ -1,15 +1,14 @@
-import GameObject from "./game-object";
-import Vector2 from "../math/vector2";
-import Camera from "./camera";
-import { TILE_SIZE } from "../../constants";
+import GameObject from "../game-object";
+import Vector2 from "../../math/vector2";
+import Camera from "../camera";
+import { BAGEL_SPEED, TILE_SIZE } from "../../../constants";
 
 type BagelState = "idle" | "following";
 
-const DETECTION_RADIUS_OFFSET = 100;
+const DETECTION_RADIUS_OFFSET = 150;
 
 class Bagel extends GameObject {
   private velocity: Vector2;
-  private state: BagelState;
   private follow: GameObject | undefined;
   private worldMap: number[][];
   private followTimer: number;
@@ -18,7 +17,6 @@ class Bagel extends GameObject {
     super(tag, position, width, height);
     this.worldMap = map;
     this.velocity = Vector2.Zero();
-    this.state = "idle";
     this.follow = undefined;
     this.followTimer = 0;
   }
@@ -39,7 +37,7 @@ class Bagel extends GameObject {
         ] === 5
       )
     )
-      this.velocity = new Vector2(-3.5, this.velocity.y);
+      this.velocity = new Vector2(-BAGEL_SPEED, this.velocity.y);
     if (
       this.follow.getPosition().x > this.getRight() &&
       !(
@@ -51,7 +49,7 @@ class Bagel extends GameObject {
         ] === 5
       )
     )
-      this.velocity = new Vector2(3.5, this.velocity.y);
+      this.velocity = new Vector2(BAGEL_SPEED, this.velocity.y);
     if (
       this.follow.getPosition().y < this.position.y &&
       !(
@@ -63,7 +61,7 @@ class Bagel extends GameObject {
         ] === 5
       )
     )
-      this.velocity = new Vector2(this.velocity.x, -3.5);
+      this.velocity = new Vector2(this.velocity.x, -BAGEL_SPEED);
     if (
       this.follow.getPosition().y > this.getBottom() &&
       !(
@@ -75,7 +73,7 @@ class Bagel extends GameObject {
         ] === 5
       )
     )
-      this.velocity = new Vector2(this.velocity.x, 3.5);
+      this.velocity = new Vector2(this.velocity.x, BAGEL_SPEED);
 
     this.followTimer += 1;
 
@@ -103,14 +101,6 @@ class Bagel extends GameObject {
 
   public setVelocity(velocity: Vector2): void {
     this.velocity = velocity;
-  }
-
-  public getState(): BagelState {
-    return this.state;
-  }
-
-  public setState(state: BagelState): void {
-    this.state = state;
   }
 
   public getGameObjectToFollow(): GameObject | undefined {
