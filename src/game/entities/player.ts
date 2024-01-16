@@ -1,5 +1,5 @@
 import GameObject from "./game-object";
-import { MAP_CONSTANTS, PLAYER_SPEED, TILE_SIZE } from "../../constants";
+import { GameTags, MAP_CONSTANTS, PLAYER_SPEED, TILE_SIZE } from "../../constants";
 import PlayerSprite from "../../assets/images/player-sheet.png";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";
@@ -7,8 +7,6 @@ import { clamp } from "../../helpers";
 
 const sprite = new Image();
 sprite.src = PlayerSprite;
-
-const PLAYER_SPRITE_SCALE_OFFSET = 5;
 
 class Player extends GameObject {
   private velocity: Vector2;
@@ -21,8 +19,8 @@ class Player extends GameObject {
   private spreadingToolCount: number;
   private worldMap: number[][];
 
-  constructor(tag: string, position: Vector2, width: number, height: number, map: number[][]) {
-    super(tag, position, width, height);
+  constructor(position: Vector2, width: number, height: number, map: number[][]) {
+    super(GameTags.PLAYER_TAG, position, width, height);
     this.worldMap = map;
     this.velocity = Vector2.Zero();
     this.lives = 3;
@@ -84,7 +82,6 @@ class Player extends GameObject {
       this.position.y -= 0.5;
       this.velocity.y = 0;
     }
-
 
     this.velocity.x = clamp(this.velocity.x * deltaTime, -5, 5);
     this.velocity.y = clamp(this.velocity.y * deltaTime, -5, 5);

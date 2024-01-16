@@ -135,7 +135,6 @@ class Game {
     this.bagels = [];
     this.gameObjects = [];
     this.playerInitialSpawn = Vector2.Zero();
-    //this.setupBossLevel();
     this.setupDungeonLevel();
   }
 
@@ -212,7 +211,7 @@ class Game {
       this.setupDungeonLevel();
     }
 
-    this.camera.update(deltaTime, this.map);
+    this.camera.update(this.map);
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
@@ -250,7 +249,6 @@ class Game {
     this.generateWalls();
 
     this.player = new Player(
-      GameTags.PLAYER_TAG,
       new Vector2(
         Math.floor(this.rooms[0].getWidth() * 0.75 * TILE_SIZE),
         Math.floor(this.rooms[0].getHeight() * 0.75 * TILE_SIZE)
@@ -344,7 +342,7 @@ class Game {
     const startY = Math.floor(this.map.length / 8);
     const roomWidth = Math.floor(this.map[0].length * 0.9);
     const roomHeight = Math.floor(this.map.length * 0.9);
-    const room = new Room(GameTags.ROOM_TAG, new Vector2(startX, startY), roomWidth, roomHeight);
+    const room = new Room(new Vector2(startX, startY), roomWidth, roomHeight);
     this.rooms = [room];
     for (let j = startY; j < roomHeight; j++) {
       for (let i = startX; i < roomWidth; i++) {
@@ -361,7 +359,7 @@ class Game {
       const y = Math.floor(getRandomArbitrary(1, this.map.length - 1 - MAX_ROOM_HEIGHT));
       const width = Math.floor(getRandomArbitrary(MIN_ROOM_WIDTH, MAX_ROOM_WIDTH));
       const height = Math.floor(getRandomArbitrary(MIN_ROOM_HEIGHT, MAX_ROOM_HEIGHT));
-      const room = new Room(GameTags.ROOM_TAG, new Vector2(x, y), width, height);
+      const room = new Room(new Vector2(x, y), width, height);
       if (!rooms.some((r) => !room.isInRadius(r))) {
         rooms.push(room);
         attempts = 0;
@@ -429,7 +427,6 @@ class Game {
     this.playerInitialSpawn = spawnPosition;
     this.map[spawnPosition.y][spawnPosition.x] = 3;
     return new Player(
-      GameTags.PLAYER_TAG,
       new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
       TILE_SIZE,
       TILE_SIZE,
@@ -444,7 +441,6 @@ class Game {
       this.map[spawnPosition.y][spawnPosition.x] = 4;
       bagels.push(
         new Bagel(
-          GameTags.BAGEL_TAG,
           new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
           TILE_SIZE,
           TILE_SIZE,
@@ -465,7 +461,6 @@ class Game {
       if (randoms[randomIndex] === 6) {
         objects.push(
           new Salmon(
-            GameTags.SALMON_TAG,
             new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
             TILE_SIZE,
             TILE_SIZE
@@ -474,7 +469,6 @@ class Game {
       } else {
         objects.push(
           new SpreadingTool(
-            GameTags.SPREADING_TOOL_TAG,
             new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
             TILE_SIZE,
             TILE_SIZE

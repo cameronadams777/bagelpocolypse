@@ -1,4 +1,5 @@
 import SalmonImage from "../../assets/images/salmon.png";
+import { GameTags } from "../../constants";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";
 import GameObject from "./game-object";
@@ -9,8 +10,8 @@ salmonSprite.src = SalmonImage;
 class Salmon extends GameObject {
   private frameX: number;
   private frameCounter: number;
-  constructor(tag: string, position: Vector2, width: number, height: number) {
-    super(tag, position, width, height);
+  constructor(position: Vector2, width: number, height: number) {
+    super(GameTags.SALMON_TAG, position, width, height);
     this.frameX = 0;
     this.frameCounter = 0;
   }

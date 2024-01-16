@@ -1,7 +1,7 @@
 import GameObject from "../game-object";
 import Vector2 from "../../math/vector2";
 import Camera from "../camera";
-import { BAGEL_SPEED, MAP_CONSTANTS, TILE_SIZE } from "../../../constants";
+import { BAGEL_SPEED, GameTags, MAP_CONSTANTS, TILE_SIZE } from "../../../constants";
 import { clamp } from "../../../helpers";
 
 const DETECTION_RADIUS_OFFSET = 150;
@@ -12,8 +12,8 @@ class Bagel extends GameObject {
   private worldMap: number[][];
   private followTimer: number;
 
-  constructor(tag: string, position: Vector2, width: number, height: number, map: number[][]) {
-    super(tag, position, width, height);
+  constructor(position: Vector2, width: number, height: number, map: number[][]) {
+    super(GameTags.BAGEL_TAG, position, width, height);
     this.worldMap = map;
     this.velocity = Vector2.Zero();
     this.follow = undefined;

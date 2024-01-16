@@ -15,7 +15,6 @@ if (!ctx) throw new Error("No context found");
 const game = new Game(canvas);
 
 let startTime = 0;
-let accumulatedTime = 0;
 
 const loop = (now: number = 0) => {
   if (!ctx) throw new Error("No context found");
