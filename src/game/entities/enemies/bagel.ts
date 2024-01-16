@@ -2,8 +2,7 @@ import GameObject from "../game-object";
 import Vector2 from "../../math/vector2";
 import Camera from "../camera";
 import { BAGEL_SPEED, MAP_CONSTANTS, TILE_SIZE } from "../../../constants";
-
-type BagelState = "idle" | "following";
+import { clamp } from "../../../helpers";
 
 const DETECTION_RADIUS_OFFSET = 150;
 
@@ -21,7 +20,7 @@ class Bagel extends GameObject {
     this.followTimer = 0;
   }
 
-  public update(): void {
+  public update(deltaTime: number): void {
     this.velocity = Vector2.Zero();
 
     if (this.follow == null) return;
@@ -37,7 +36,7 @@ class Bagel extends GameObject {
         ])
       )
     )
-      this.velocity = new Vector2(-BAGEL_SPEED, this.velocity.y);
+      this.velocity.x = -BAGEL_SPEED * deltaTime;
     if (
       this.follow.getPosition().x > this.getRight() &&
       !(
@@ -49,7 +48,7 @@ class Bagel extends GameObject {
         ])
       )
     )
-      this.velocity = new Vector2(BAGEL_SPEED, this.velocity.y);
+      this.velocity.x = BAGEL_SPEED;
     if (
       this.follow.getPosition().y < this.position.y &&
       !(
@@ -61,7 +60,7 @@ class Bagel extends GameObject {
         ])
       )
     )
-      this.velocity = new Vector2(this.velocity.x, -BAGEL_SPEED);
+      this.velocity.y = -BAGEL_SPEED;
     if (
       this.follow.getPosition().y > this.getBottom() &&
       !(
@@ -73,14 +72,16 @@ class Bagel extends GameObject {
         ])
       )
     )
-      this.velocity = new Vector2(this.velocity.x, BAGEL_SPEED);
+      this.velocity.y = BAGEL_SPEED;
 
     this.followTimer += 1;
-
-    if (this.followTimer >= 1000 && this.isInRadius(this.follow)) {
+    if (this.followTimer >= 500 && this.isInRadius(this.follow)) {
       this.follow = undefined;
       this.followTimer = 0;
     }
+
+    this.velocity.x = clamp(this.velocity.x * deltaTime, -BAGEL_SPEED, BAGEL_SPEED);
+    this.velocity.y = clamp(this.velocity.y * deltaTime, -BAGEL_SPEED, BAGEL_SPEED);
 
     this.position.add(this.velocity);
   }

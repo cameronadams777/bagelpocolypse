@@ -14,7 +14,7 @@ class GameObject {
     this.height = height;
   }
 
-  public update(): void {}
+  public update(_deltaTime: number): void {}
   public draw(_ctx: CanvasRenderingContext2D, _camera: Camera): void {}
 
   public isCollidingWith(gameObject: GameObject): boolean {
