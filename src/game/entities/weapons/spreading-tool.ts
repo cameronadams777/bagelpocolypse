@@ -1,11 +1,11 @@
-import { TILE_SIZE } from "../../../constants";
+import { GameTags, TILE_SIZE } from "../../../constants";
 import Vector2 from "../../math/vector2";
 import Camera from "../camera";
 import GameObject from "../game-object";
 
 class SpreadingTool extends GameObject {
-  constructor(tag: string, position: Vector2, width: number, height: number) {
-    super(tag, position, width, height);
+  constructor(position: Vector2, width: number, height: number) {
+    super(GameTags.SPREADING_TOOL_TAG, position, width, height);
   }
 
   public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {

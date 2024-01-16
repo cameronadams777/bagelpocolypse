@@ -1,13 +1,14 @@
 import GameObject from "./game-object";
 import Vector2 from "../math/vector2";
+import { GameTags } from "../../constants";
 
 const PROXIMITY_RADIUS_OFFSET = 3;
 
 export class Room extends GameObject {
   private center: Vector2;
 
-  constructor(tag: string, position: Vector2, width: number, height: number) {
-    super(tag, position, width, height);
+  constructor(position: Vector2, width: number, height: number) {
+    super(GameTags.ROOM_TAG, position, width, height);
     this.center = new Vector2(
       Math.floor(this.getPosition().x + this.width / 2),
       Math.floor(this.getPosition().y + this.height / 2)
