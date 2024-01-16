@@ -84,8 +84,8 @@ class Player extends GameObject {
       this.velocity.y = 0;
     }
 
-    this.velocity.x = clamp(this.velocity.x * deltaTime, -10, 10);
-    this.velocity.y = clamp(this.velocity.y * deltaTime, -10, 10);
+    this.velocity.x = clamp(this.velocity.x * deltaTime, -5, 5);
+    this.velocity.y = clamp(this.velocity.y * deltaTime, -5, 5);
 
     this.position.add(this.velocity);
   }
