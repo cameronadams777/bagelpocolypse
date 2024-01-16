@@ -18,7 +18,6 @@ class Player extends GameObject {
   private playerSpeedConstant: number;
   private spreadingToolCount: number;
   private worldMap: number[][];
-  private currentKeyPressed: string;
 
   constructor(position: Vector2, width: number, height: number, map: number[][]) {
     super(GameTags.PLAYER_TAG, position, width, height);
@@ -91,6 +90,11 @@ class Player extends GameObject {
   }
 
   public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
+
+    if (this.velocity.x > 0) this.currentFrameY = 3;
+    if (this.velocity.x < 0) this.currentFrameY = 2;
+    if (this.velocity.y > 0) this.currentFrameY = 0;
+    if (this.velocity.y < 0) this.currentFrameY = 1;
 
     if (Math.abs(this.velocity.x) > 0) this.deltaFrameX += 1;
     if (Math.abs(this.velocity.y) > 0) this.deltaFrameX += 1;
@@ -165,46 +169,38 @@ class Player extends GameObject {
 
   private setupKeyboardHandlers(): void {
     document.addEventListener("keydown", (e: KeyboardEvent) => {
-      if (e.key === "w" && !this.currentKeyPressed) {
+      if (e.key === "w") {
         this.currentFrameY = 1;
         this.velocity.y = -this.playerSpeedConstant;
-        this.currentKeyPressed = "w";
-      } else if (e.key === "s" && !this.currentKeyPressed) {
+      } else if (e.key === "s") {
         this.currentFrameY = 0;
         this.velocity.y = this.playerSpeedConstant;
-        this.currentKeyPressed = "s";
-      } else if (e.key === "a" && !this.currentKeyPressed) {
+      } else if (e.key === "a") {
         this.currentFrameY = 2
         this.velocity.x = -this.playerSpeedConstant;
-        this.currentKeyPressed = "a";
-      } else if (e.key === "d" && !this.currentKeyPressed) {
+      } else if (e.key === "d") {
         this.currentFrameY = 3;
         this.velocity.x = this.playerSpeedConstant;
-        this.currentKeyPressed = "d";
       }
     });
 
     document.addEventListener("keyup", (e: KeyboardEvent) => {
-      if (e.key === "w" && this.currentKeyPressed === "w") {
+      if (e.key === "w") {
         this.deltaFrameX = 0;
         this.frameX = 0;
         this.velocity.y = 0;
-        this.currentKeyPressed = "";
-      } else if (e.key === "s" && this.currentKeyPressed === "s") {
+      } else if (e.key === "s") {
         this.deltaFrameX = 0;
         this.frameX = 0;
         this.velocity.y = 0;
-        this.currentKeyPressed = "";
-      } else if (e.key === "a" && this.currentKeyPressed === "a") {
+      } else if (e.key === "a") {
         this.deltaFrameX = 0;
         this.frameX = 0;
         this.velocity.x = 0;
-        this.currentKeyPressed = "";
-      } else if (e.key === "d" && this.currentKeyPressed === "d") {
+      } else if (e.key === "d") {
         this.deltaFrameX = 0;
         this.frameX = 0;
         this.velocity.x = 0;
-        this.currentKeyPressed = "";
       }
     });
   }

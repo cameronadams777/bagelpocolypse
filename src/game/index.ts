@@ -201,8 +201,8 @@ class Game {
     ) {
       this.floorLevel += 1;
 
-      //if (this.floorLevel % 5 === 0) this.setupBossLevel();
-      this.setupDungeonLevel();
+      if (this.floorLevel % 15 === 0) this.setupBossLevel();
+      else this.setupDungeonLevel();
     }
 
     if (this.player.getLives() <= 0) {
