@@ -13,11 +13,12 @@ class Player extends GameObject {
   private lives: number;
   private frameX: number;
   private frameCount: number;
-  private currentFrameX: number;
+  private deltaFrameX: number;
   private currentFrameY: number;
   private playerSpeedConstant: number;
   private spreadingToolCount: number;
   private worldMap: number[][];
+  private currentKeyPressed: string;
 
   constructor(position: Vector2, width: number, height: number, map: number[][]) {
     super(GameTags.PLAYER_TAG, position, width, height);
@@ -26,7 +27,7 @@ class Player extends GameObject {
     this.lives = 3;
     this.frameX = 0;
     this.frameCount = 4;
-    this.currentFrameX = 0;
+    this.deltaFrameX = 0;
     this.currentFrameY = 0;
     this.playerSpeedConstant = PLAYER_SPEED;
     this.spreadingToolCount = 0;
@@ -83,15 +84,19 @@ class Player extends GameObject {
       this.velocity.y = 0;
     }
 
-    this.velocity.x = clamp(this.velocity.x * deltaTime, -5, 5);
-    this.velocity.y = clamp(this.velocity.y * deltaTime, -5, 5);
+    this.velocity.x = clamp(this.velocity.x * deltaTime, -10, 10);
+    this.velocity.y = clamp(this.velocity.y * deltaTime, -10, 10);
 
     this.position.add(this.velocity);
   }
 
   public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
-    if (this.currentFrameX >= this.frameCount) this.currentFrameX = 0;
-    this.frameX = this.currentFrameX;
+
+    if (Math.abs(this.velocity.x) > 0) this.deltaFrameX += 1;
+    if (Math.abs(this.velocity.y) > 0) this.deltaFrameX += 1;
+
+    if (this.deltaFrameX % 5 === 1) this.frameX += 1;
+    if (this.frameX >= this.frameCount) this.frameX = 0;
     ctx.drawImage(
       sprite,
       this.frameX * this.width,
@@ -127,11 +132,11 @@ class Player extends GameObject {
   }
 
   public getCurrentFrameX(): number {
-    return this.currentFrameX;
+    return this.deltaFrameX;
   }
 
-  public setCurrentFrameX(currentFrameX: number): void {
-    this.currentFrameX = currentFrameX;
+  public setCurrentFrameX(deltaFrameX: number): void {
+    this.deltaFrameX = deltaFrameX;
   }
 
   public getCurrentFrameY(): number {
@@ -160,38 +165,46 @@ class Player extends GameObject {
 
   private setupKeyboardHandlers(): void {
     document.addEventListener("keydown", (e: KeyboardEvent) => {
-      if (e.key === "w") {
+      if (e.key === "w" && !this.currentKeyPressed) {
         this.currentFrameY = 1;
-        this.currentFrameX += 1;
         this.velocity.y = -this.playerSpeedConstant;
-      } else if (e.key === "s") {
+        this.currentKeyPressed = "w";
+      } else if (e.key === "s" && !this.currentKeyPressed) {
         this.currentFrameY = 0;
-        this.currentFrameX += 1;
         this.velocity.y = this.playerSpeedConstant;
-      } else if (e.key === "a") {
+        this.currentKeyPressed = "s";
+      } else if (e.key === "a" && !this.currentKeyPressed) {
         this.currentFrameY = 2
-        this.currentFrameX += 1;
         this.velocity.x = -this.playerSpeedConstant;
-      } else if (e.key === "d") {
+        this.currentKeyPressed = "a";
+      } else if (e.key === "d" && !this.currentKeyPressed) {
         this.currentFrameY = 3;
-        this.currentFrameX += 1;
         this.velocity.x = this.playerSpeedConstant;
+        this.currentKeyPressed = "d";
       }
     });
 
     document.addEventListener("keyup", (e: KeyboardEvent) => {
-      if (e.key === "w") {
-        this.currentFrameX = 0;
+      if (e.key === "w" && this.currentKeyPressed === "w") {
+        this.deltaFrameX = 0;
+        this.frameX = 0;
         this.velocity.y = 0;
-      } else if (e.key === "s") {
-        this.currentFrameX = 0;
+        this.currentKeyPressed = "";
+      } else if (e.key === "s" && this.currentKeyPressed === "s") {
+        this.deltaFrameX = 0;
+        this.frameX = 0;
         this.velocity.y = 0;
-      } else if (e.key === "a") {
-        this.currentFrameX = 0;
+        this.currentKeyPressed = "";
+      } else if (e.key === "a" && this.currentKeyPressed === "a") {
+        this.deltaFrameX = 0;
+        this.frameX = 0;
         this.velocity.x = 0;
-      } else if (e.key === "d") {
-        this.currentFrameX = 0;
+        this.currentKeyPressed = "";
+      } else if (e.key === "d" && this.currentKeyPressed === "d") {
+        this.deltaFrameX = 0;
+        this.frameX = 0;
         this.velocity.x = 0;
+        this.currentKeyPressed = "";
       }
     });
   }
