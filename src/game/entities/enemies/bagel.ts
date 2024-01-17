@@ -28,48 +28,64 @@ class Bagel extends GameObject {
     if (
       this.follow.getPosition().x < this.position.x &&
       !(
-        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
-          Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-        ]) ||
-        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
-          Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-        ])
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+            Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
+          ]
+        ) ||
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+            Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
+          ]
+        )
       )
     )
       this.velocity.x = -BAGEL_SPEED * deltaTime;
     if (
       this.follow.getPosition().x > this.getRight() &&
       !(
-        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
-          Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-        ]) ||
-        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
-          Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-        ])
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+            Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
+          ]
+        ) ||
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+            Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
+          ]
+        )
       )
     )
       this.velocity.x = BAGEL_SPEED;
     if (
       this.follow.getPosition().y < this.position.y &&
       !(
-        MAP_CONSTANTS.includes(this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
-          Math.floor(this.position.x / TILE_SIZE)
-        ]) ||
-        MAP_CONSTANTS.includes(this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
-          Math.floor(this.getBottom() / TILE_SIZE)
-        ])
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+            Math.floor(this.position.x / TILE_SIZE)
+          ]
+        ) ||
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+            Math.floor(this.getBottom() / TILE_SIZE)
+          ]
+        )
       )
     )
       this.velocity.y = -BAGEL_SPEED;
     if (
       this.follow.getPosition().y > this.getBottom() &&
       !(
-        MAP_CONSTANTS.includes(this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
-          Math.floor(this.position.x / TILE_SIZE)
-        ]) ||
-        MAP_CONSTANTS.includes(this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
-          Math.floor(this.getRight() / TILE_SIZE)
-        ])
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+            Math.floor(this.position.x / TILE_SIZE)
+          ]
+        ) ||
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+            Math.floor(this.getRight() / TILE_SIZE)
+          ]
+        )
       )
     )
       this.velocity.y = BAGEL_SPEED;
@@ -110,6 +126,15 @@ class Bagel extends GameObject {
 
   public setGameObjectToFollow(gameObject: GameObject | undefined): void {
     this.follow = gameObject;
+  }
+
+  public isInDynamicRadius(gameObject: GameObject, radius: number) {
+    return (
+      this.getBottom() + radius <= gameObject.getPosition().y ||
+      this.position.y - radius >= gameObject.getBottom() ||
+      this.getRight() + radius <= gameObject.getPosition().x ||
+      this.position.x - radius >= gameObject.getRight()
+    );
   }
 
   public isInRadius(gameObject: GameObject): boolean {

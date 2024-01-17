@@ -15,6 +15,12 @@ class Vector2 {
   public static Zero(): Vector2 {
     return new Vector2(0, 0);
   }
+
+  public static Normalize(vector: Vector2): Vector2 {
+    const magnitude = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
+    if (magnitude === 0) return vector;
+    return new Vector2(Math.round(vector.x / magnitude), Math.round(vector.y / magnitude));
+  }
 }
 
 export default Vector2;

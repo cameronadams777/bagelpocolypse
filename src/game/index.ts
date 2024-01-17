@@ -103,7 +103,7 @@ const tileMap: Record<number, HTMLImageElement> = {
 
 const entityConstants = [2, 3, 4, 6];
 
-const generateSpawnCoordinates = (map: number[][], rooms: Room[]): Vector2 => {
+const generateSpawnCoordinates = (map: number[][], rooms: Room[]): { position: Vector2; room: Room } => {
   const randRoom = rooms[getRandomArbitrary(0, rooms.length - 1)];
   let randPosition: Vector2 | undefined;
   while (randPosition == null || entityConstants.includes(map[randPosition.y][randPosition.x])) {
@@ -112,7 +112,10 @@ const generateSpawnCoordinates = (map: number[][], rooms: Room[]): Vector2 => {
       getRandomArbitrary(randRoom.getPosition().y + 2, randRoom.getBottom() - 2)
     );
   }
-  return randPosition;
+  return {
+    position: randPosition,
+    room: randRoom
+  };
 };
 
 class Game {
@@ -196,7 +199,7 @@ class Game {
 
     if (
       this.map[Math.round(this.player.getPosition().y / TILE_SIZE)][
-      Math.round(this.player.getPosition().x / TILE_SIZE)
+        Math.round(this.player.getPosition().x / TILE_SIZE)
       ] === 2
     ) {
       this.floorLevel += 1;
@@ -298,38 +301,48 @@ class Game {
         if (this.map[j][i] !== 1) continue;
         if (
           this.map[j][i] === 0 ||
-          this.map[j][i + 1] >= 1 &&
-          this.map[j][i - 1] >= 1 &&
-          this.map[j + 1][i] >= 1 &&
-          this.map[j - 1][i] >= 1) {
+          (this.map[j][i + 1] >= 1 && this.map[j][i - 1] >= 1 && this.map[j + 1][i] >= 1 && this.map[j - 1][i] >= 1)
+        ) {
           if (this.map[j - 1][i - 1] === 0) this.map[j][i] = 15;
           if (this.map[j + 1][i + 1] === 0) this.map[j][i] = 16;
           if (this.map[j + 1][i - 1] === 0) this.map[j][i] = 17;
           if (this.map[j - 1][i + 1] === 0) this.map[j][i] = 18;
-        } else if (this.map[j][i - 1] === this.map[j - 1][i] &&
-          this.map[j + 1][i] >= 1 && this.map[j][i + 1] >= 1) {
-          this.map[j][i] = 5
-        } else if (this.map[j][i + 1] === this.map[j - 1][i] &&
-          this.map[j + 1][i] >= 1 && this.map[j][i - 1] >= 1) {
-          this.map[j][i] = 9
-        } else if (this.map[j + 1][i] === this.map[j][i - 1] &&
-          this.map[j - 1][i] >= 1 && this.map[j][i + 1] >= 1) {
-          this.map[j][i] = 13
-        } else if ((this.map[j + 1][i] === this.map[j][i + 1] &&
-          this.map[j - 1][i] >= 1 && this.map[j][i - 1] >= 1)) {
-          this.map[j][i] = 11
-        } else if (this.map[j - 1][i] === 0 && this.map[j + 1][i] >= 1 &&
-          this.map[j][i - 1] >= 1 && this.map[j][i + 1] >= 1) {
-          this.map[j][i] = 8
-        } else if (this.map[j + 1][i] === 0 && this.map[j - 1][i] >= 1 &&
-          this.map[j][i - 1] >= 1 && this.map[j][i + 1] >= 1) {
-          this.map[j][i] = 12
-        } else if (this.map[j][i - 1] === 0 && this.map[j][i + 1] >= 1 &&
-          this.map[j + 1][i] >= 1 && this.map[j - 1][i] >= 1) {
-          this.map[j][i] = 14
-        } else if (this.map[j][i + 1] === 0 && this.map[j][i - 1] >= 1 &&
-          this.map[j + 1][i] >= 1 && this.map[j - 1][i] >= 1) {
-          this.map[j][i] = 10
+        } else if (this.map[j][i - 1] === this.map[j - 1][i] && this.map[j + 1][i] >= 1 && this.map[j][i + 1] >= 1) {
+          this.map[j][i] = 5;
+        } else if (this.map[j][i + 1] === this.map[j - 1][i] && this.map[j + 1][i] >= 1 && this.map[j][i - 1] >= 1) {
+          this.map[j][i] = 9;
+        } else if (this.map[j + 1][i] === this.map[j][i - 1] && this.map[j - 1][i] >= 1 && this.map[j][i + 1] >= 1) {
+          this.map[j][i] = 13;
+        } else if (this.map[j + 1][i] === this.map[j][i + 1] && this.map[j - 1][i] >= 1 && this.map[j][i - 1] >= 1) {
+          this.map[j][i] = 11;
+        } else if (
+          this.map[j - 1][i] === 0 &&
+          this.map[j + 1][i] >= 1 &&
+          this.map[j][i - 1] >= 1 &&
+          this.map[j][i + 1] >= 1
+        ) {
+          this.map[j][i] = 8;
+        } else if (
+          this.map[j + 1][i] === 0 &&
+          this.map[j - 1][i] >= 1 &&
+          this.map[j][i - 1] >= 1 &&
+          this.map[j][i + 1] >= 1
+        ) {
+          this.map[j][i] = 12;
+        } else if (
+          this.map[j][i - 1] === 0 &&
+          this.map[j][i + 1] >= 1 &&
+          this.map[j + 1][i] >= 1 &&
+          this.map[j - 1][i] >= 1
+        ) {
+          this.map[j][i] = 14;
+        } else if (
+          this.map[j][i + 1] === 0 &&
+          this.map[j][i - 1] >= 1 &&
+          this.map[j + 1][i] >= 1 &&
+          this.map[j - 1][i] >= 1
+        ) {
+          this.map[j][i] = 10;
         } else {
           this.map[j][i] = 0;
         }
@@ -418,35 +431,33 @@ class Game {
   }
 
   private generateStairs(): void {
-    const spawnPosition = generateSpawnCoordinates(this.map, this.rooms);
-    this.map[spawnPosition.y][spawnPosition.x] = 2;
+    const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
+    this.map[position.y][position.x] = 2;
+    room.setHasStairs(true);
   }
 
   private spawnPlayer(): Player {
-    const spawnPosition = generateSpawnCoordinates(this.map, this.rooms);
-    this.playerInitialSpawn = spawnPosition;
-    this.map[spawnPosition.y][spawnPosition.x] = 3;
-    return new Player(
-      new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
-      TILE_SIZE,
-      TILE_SIZE,
-      this.map
-    );
+    const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
+    this.playerInitialSpawn = position;
+    this.map[position.y][position.x] = 3;
+    room.setHasPlayer(true);
+    return new Player(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map);
   }
 
   private spawnBagels(): Bagel[] {
+    let attempts = 0;
     const bagels: Bagel[] = [];
-    for (let i = 0; i < MAX_BAGEL_COUNT; i++) {
-      const spawnPosition = generateSpawnCoordinates(this.map, this.rooms);
-      this.map[spawnPosition.y][spawnPosition.x] = 4;
-      bagels.push(
-        new Bagel(
-          new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
-          TILE_SIZE,
-          TILE_SIZE,
-          this.map
-        )
-      );
+    while (bagels.length < MAX_BAGEL_COUNT && attempts < 10) {
+      const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
+      if (!room.getHasPlayer() && !room.getHasStairs()) {
+        this.map[position.y][position.x] = 4;
+        bagels.push(
+          new Bagel(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map)
+        );
+        attempts = 0;
+        continue;
+      }
+      attempts += 1;
     }
     return bagels;
   }
@@ -456,23 +467,13 @@ class Game {
     const randoms = [6, 7];
     for (let i = 0; i < 5; i++) {
       const randomIndex = Math.round(getRandomArbitrary(0, randoms.length - 1));
-      const spawnPosition = generateSpawnCoordinates(this.map, this.rooms);
-      this.map[spawnPosition.y][spawnPosition.x] = randoms[randomIndex];
+      const { position } = generateSpawnCoordinates(this.map, this.rooms);
+      this.map[position.y][position.x] = randoms[randomIndex];
       if (randoms[randomIndex] === 6) {
-        objects.push(
-          new Salmon(
-            new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
-            TILE_SIZE,
-            TILE_SIZE
-          )
-        );
+        objects.push(new Salmon(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE));
       } else {
         objects.push(
-          new SpreadingTool(
-            new Vector2(spawnPosition.x * TILE_SIZE, spawnPosition.y * TILE_SIZE),
-            TILE_SIZE,
-            TILE_SIZE
-          )
+          new SpreadingTool(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE)
         );
       }
     }

@@ -36,48 +36,64 @@ class Player extends GameObject {
   public update(deltaTime: number): void {
     if (
       this.velocity.x < 0 &&
-      (MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
-        Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-      ]) ||
-        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+      (MAP_CONSTANTS.includes(
+        this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
           Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-        ]))
+        ]
+      ) ||
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+            Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
+          ]
+        ))
     ) {
       this.position.x += 0.5;
       this.velocity.x = 0;
     }
     if (
       this.velocity.x > 0 &&
-      (MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
-        Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-      ]) ||
-        MAP_CONSTANTS.includes(this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+      (MAP_CONSTANTS.includes(
+        this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
           Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-        ]))
+        ]
+      ) ||
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+            Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
+          ]
+        ))
     ) {
       this.position.x -= 0.5;
       this.velocity.x = 0;
     }
     if (
       this.velocity.y < 0 &&
-      (MAP_CONSTANTS.includes(this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
-        Math.floor(this.position.x / TILE_SIZE)
-      ]) ||
-        MAP_CONSTANTS.includes(this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
-          Math.floor(this.getRight() / TILE_SIZE)
-        ]))
+      (MAP_CONSTANTS.includes(
+        this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+          Math.floor(this.position.x / TILE_SIZE)
+        ]
+      ) ||
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+            Math.floor(this.getRight() / TILE_SIZE)
+          ]
+        ))
     ) {
       this.position.y += 0.5;
       this.velocity.y = 0;
     }
     if (
       this.velocity.y > 0 &&
-      (MAP_CONSTANTS.includes(this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
-        Math.floor(this.position.x / TILE_SIZE)
-      ]) ||
-        MAP_CONSTANTS.includes(this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
-          Math.floor(this.getRight() / TILE_SIZE)
-        ]))
+      (MAP_CONSTANTS.includes(
+        this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+          Math.floor(this.position.x / TILE_SIZE)
+        ]
+      ) ||
+        MAP_CONSTANTS.includes(
+          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+            Math.floor(this.getRight() / TILE_SIZE)
+          ]
+        ))
     ) {
       this.position.y -= 0.5;
       this.velocity.y = 0;
@@ -90,7 +106,6 @@ class Player extends GameObject {
   }
 
   public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
-
     if (this.velocity.x > 0) this.currentFrameY = 3;
     if (this.velocity.x < 0) this.currentFrameY = 2;
     if (this.velocity.y > 0) this.currentFrameY = 0;
@@ -176,7 +191,7 @@ class Player extends GameObject {
         this.currentFrameY = 0;
         this.velocity.y = this.playerSpeedConstant;
       } else if (e.key === "a") {
-        this.currentFrameY = 2
+        this.currentFrameY = 2;
         this.velocity.x = -this.playerSpeedConstant;
       } else if (e.key === "d") {
         this.currentFrameY = 3;
