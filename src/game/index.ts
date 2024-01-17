@@ -227,8 +227,8 @@ class Game {
         ) {
           ctx.drawImage(
             tileMap[this.map[j][i]],
-            i * TILE_SIZE - this.camera.getPosition().x,
-            j * TILE_SIZE - this.camera.getPosition().y,
+            Math.round(i * TILE_SIZE - this.camera.getPosition().x),
+            Math.round(j * TILE_SIZE - this.camera.getPosition().y),
             TILE_SIZE,
             TILE_SIZE
           );
