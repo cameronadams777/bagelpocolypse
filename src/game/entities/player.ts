@@ -1,12 +1,20 @@
 import GameObject from "./game-object";
 import { GameTags, MAP_CONSTANTS, PLAYER_SPEED, TILE_SIZE } from "../../constants";
 import PlayerSprite from "../../assets/images/player-sheet.png";
+import SpreadingToolImage from "../../assets/images/spreading-tool-Sheet.png";
+import HeartSprite from "../../assets/images/heart.png";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";
 import { clamp } from "../../helpers";
 
 const sprite = new Image();
 sprite.src = PlayerSprite;
+
+const spreadingToolSprite = new Image();
+spreadingToolSprite.src = SpreadingToolImage;
+
+const heartSprite = new Image();
+heartSprite.src = HeartSprite;
 
 class Player extends GameObject {
   private velocity: Vector2;
@@ -128,10 +136,23 @@ class Player extends GameObject {
       this.height
     );
 
-    ctx.font = `40px Verdana`;
-    ctx.fillStyle = "red";
-    const livesText = `Lives: ${this.lives.toString()}`;
-    ctx.fillText(livesText, camera.getWidth() - ctx.measureText(livesText).width - 50, 50);
+    for (let i = 0; i < this.lives; i++) {
+      ctx.drawImage(heartSprite, camera.getWidth() - TILE_SIZE - 50 * (i + 1), 25);
+    }
+
+    for (let i = 0; i < this.spreadingToolCount; i++) {
+      ctx.drawImage(
+        spreadingToolSprite,
+        1,
+        1,
+        TILE_SIZE,
+        TILE_SIZE,
+        camera.getWidth() - TILE_SIZE - 50 * (i + 1),
+        75,
+        TILE_SIZE,
+        TILE_SIZE
+      );
+    }
   }
 
   public getVelocity(): Vector2 {

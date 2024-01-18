@@ -3,14 +3,21 @@ import Vector2 from "../../math/vector2";
 import Camera from "../camera";
 import { BAGEL_SPEED, GameTags, MAP_CONSTANTS, TILE_SIZE } from "../../../constants";
 import { clamp } from "../../../helpers";
+import BasicBagelSpriteSheet from "../../../assets/images/basic-bagel-Sheet.png";
 
 const DETECTION_RADIUS_OFFSET = 150;
+
+const spriteSheet = new Image();
+spriteSheet.src = BasicBagelSpriteSheet;
 
 class Bagel extends GameObject {
   private velocity: Vector2;
   private follow: GameObject | undefined;
   private worldMap: number[][];
   private followTimer: number;
+  private frameX: number;
+  private frameY: number;
+  private frameCounter: number;
 
   constructor(position: Vector2, width: number, height: number, map: number[][]) {
     super(GameTags.BAGEL_TAG, position, width, height);
@@ -18,6 +25,8 @@ class Bagel extends GameObject {
     this.velocity = Vector2.Zero();
     this.follow = undefined;
     this.followTimer = 0;
+    this.frameX = 0;
+    this.frameCounter = 0;
   }
 
   public update(deltaTime: number): void {
@@ -103,13 +112,28 @@ class Bagel extends GameObject {
   }
 
   public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
-    ctx.fillStyle = "red";
-    ctx.fillRect(
+    if (this.velocity.y > 0) this.frameY = 3;
+    else if (this.velocity.y < 0) this.frameY = 4;
+    else if (this.velocity.x > 0) this.frameY = 1;
+    else if (this.velocity.x < 0) this.frameY = 2;
+    else this.frameY = 0;
+
+    if (this.frameCounter % 7 === 0) {
+      if (this.frameX + 1 > 2) this.frameX = 0;
+      else this.frameX++;
+    }
+    ctx.drawImage(
+      spriteSheet,
+      this.frameX * this.width,
+      this.frameY * this.height,
+      this.width,
+      this.height,
       this.position.x - camera.getPosition().x,
       this.position.y - camera.getPosition().y,
       this.width,
       this.height
     );
+    this.frameCounter += 1;
   }
 
   public getVelocity(): Vector2 {
