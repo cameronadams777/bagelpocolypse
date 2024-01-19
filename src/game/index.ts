@@ -137,6 +137,7 @@ class Game {
     this.rooms = [];
     this.bagels = [];
     this.gameObjects = [];
+    this.player = new Player(Vector2.Zero(), TILE_SIZE, TILE_SIZE, this.map);
     this.playerInitialSpawn = Vector2.Zero();
     this.setupDungeonLevel();
   }
@@ -173,7 +174,7 @@ class Game {
               this.player.setPlayerSpeedConstant(2);
               setTimeout(() => this.player.setPlayerSpeedConstant(5), 5000);
             }
-            if (this.gameObjects[j]?.getTag() === GameTags.SPREADING_TOOL_TAG) {
+            if (this.gameObjects[j]?.getTag() === GameTags.SPREADING_TOOL_TAG && p.getSpreadingToolCount() < MAX_SPREADING_TOOL_COUNT) {
               this.gameObjects[j] = undefined;
               this.player.setSpreadingToolCount(this.player.getSpreadingToolCount() + 1);
             }
@@ -199,7 +200,7 @@ class Game {
 
     if (
       this.map[Math.round(this.player.getPosition().y / TILE_SIZE)][
-        Math.round(this.player.getPosition().x / TILE_SIZE)
+      Math.round(this.player.getPosition().x / TILE_SIZE)
       ] === 2
     ) {
       this.floorLevel += 1;
@@ -251,14 +252,12 @@ class Game {
     this.generateBossRoom();
     this.generateWalls();
 
-    this.player = new Player(
+    this.player.setWorldMap(this.map);
+    this.player.setPosition(
       new Vector2(
         Math.floor(this.rooms[0].getWidth() * 0.75 * TILE_SIZE),
         Math.floor(this.rooms[0].getHeight() * 0.75 * TILE_SIZE)
       ),
-      TILE_SIZE,
-      TILE_SIZE,
-      this.map
     );
     this.gameObjects = [this.player];
 
@@ -275,7 +274,7 @@ class Game {
     this.generateStairs();
 
     // Entity creation
-    this.player = this.spawnPlayer();
+    this.spawnPlayer();
     this.bagels = this.spawnBagels();
     const weaponsAndPowerUps = this.spawnWeaponsAndPowerUps();
     this.gameObjects = [this.player, ...this.bagels, ...weaponsAndPowerUps];
@@ -436,12 +435,13 @@ class Game {
     room.setHasStairs(true);
   }
 
-  private spawnPlayer(): Player {
+  private spawnPlayer(): void  {
     const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
     this.playerInitialSpawn = position;
     this.map[position.y][position.x] = 3;
     room.setHasPlayer(true);
-    return new Player(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map);
+    this.player.setWorldMap(this.map)
+    this.player.setPosition(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE));
   }
 
   private spawnBagels(): Bagel[] {

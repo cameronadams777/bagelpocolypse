@@ -203,6 +203,10 @@ class Player extends GameObject {
     this.spreadingToolCount = count;
   }
 
+  public setWorldMap(map: number[][]): void {
+    this.worldMap = map;
+  }
+
   private setupKeyboardHandlers(): void {
     document.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "w") {
