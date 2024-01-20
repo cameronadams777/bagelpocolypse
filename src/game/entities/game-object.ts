@@ -15,7 +15,7 @@ class GameObject {
   }
 
   public update(_deltaTime: number): void {}
-  public draw(_ctx: CanvasRenderingContext2D, _camera: Camera): void {}
+  public draw(_ctx: CanvasRenderingContext2D, _camera?: Camera): void {}
 
   public isCollidingWith(gameObject: GameObject): boolean {
     return (

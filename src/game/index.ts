@@ -22,6 +22,7 @@ import {
   MAX_ROOM_GEN_ATTEMPTS_COUNT,
   MAX_ROOM_HEIGHT,
   MAX_ROOM_WIDTH,
+  MAX_SPREADING_TOOL_COUNT,
   MIN_ROOM_HEIGHT,
   MIN_ROOM_WIDTH,
   TILE_SIZE
@@ -33,6 +34,8 @@ import Vector2 from "./math/vector2";
 import Camera from "./entities/camera";
 import Salmon from "./entities/salmon";
 import SpreadingTool from "./entities/weapons/spreading-tool";
+import WizardBoss, { BagelMagic } from "./entities/enemies/wizard-boss";
+import ToasterGun from "./entities/weapons/toaster-gun";
 
 const stairsSprite = new Image();
 stairsSprite.src = StairsImage;
@@ -98,7 +101,9 @@ const tileMap: Record<number, HTMLImageElement> = {
   15: bottomRightInnerWallSprite,
   16: topLeftInnerWallSprite,
   17: topRightInnerWallSprite,
-  18: bottomLeftInnerWallSprite
+  18: bottomLeftInnerWallSprite,
+  19: floorSprite,
+  20: floorSprite // Boss location
 };
 
 const entityConstants = [2, 3, 4, 6];
@@ -122,6 +127,7 @@ class Game {
   private canvas: HTMLCanvasElement;
   private camera: Camera;
   private player: Player;
+  private boss: WizardBoss;
   private playerInitialSpawn: Vector2;
   private bagels: Bagel[];
   private map: number[][];
@@ -138,6 +144,7 @@ class Game {
     this.bagels = [];
     this.gameObjects = [];
     this.player = new Player(Vector2.Zero(), TILE_SIZE, TILE_SIZE, this.map);
+    this.boss = new WizardBoss(Vector2.Zero(), TILE_SIZE, TILE_SIZE, this.player);
     this.playerInitialSpawn = Vector2.Zero();
     this.setupDungeonLevel();
   }
@@ -174,9 +181,16 @@ class Game {
               this.player.setPlayerSpeedConstant(2);
               setTimeout(() => this.player.setPlayerSpeedConstant(5), 5000);
             }
-            if (this.gameObjects[j]?.getTag() === GameTags.SPREADING_TOOL_TAG && p.getSpreadingToolCount() < MAX_SPREADING_TOOL_COUNT) {
+            if (
+              this.gameObjects[j]?.getTag() === GameTags.SPREADING_TOOL_TAG &&
+              p.getSpreadingToolCount() < MAX_SPREADING_TOOL_COUNT
+            ) {
               this.gameObjects[j] = undefined;
               this.player.setSpreadingToolCount(this.player.getSpreadingToolCount() + 1);
+            }
+            if (this.gameObjects[j]?.getTag() === GameTags.TOASTER_GUN) {
+              this.gameObjects[j] = undefined;
+              this.player.setHasToastGun(true);
             }
           }
         }
@@ -193,6 +207,15 @@ class Game {
             b.setGameObjectToFollow(this.gameObjects[j]!);
           }
         }
+
+        if (this.gameObjects[i]?.getTag() === GameTags.WIZARD_BOSS) {
+          const boss = this.gameObjects[i] as WizardBoss;
+          if (boss.getRelocationTimer() >= 250) {
+            const { position } = generateSpawnCoordinates(this.map, this.rooms);
+            boss.setPosition(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE));
+            boss.setRelocationTimer(0);
+          }
+        }
       }
 
       this.gameObjects[i]?.update(deltaTime);
@@ -200,7 +223,7 @@ class Game {
 
     if (
       this.map[Math.round(this.player.getPosition().y / TILE_SIZE)][
-      Math.round(this.player.getPosition().x / TILE_SIZE)
+        Math.round(this.player.getPosition().x / TILE_SIZE)
       ] === 2
     ) {
       this.floorLevel += 1;
@@ -213,6 +236,43 @@ class Game {
       this.player.setLives(3);
       this.floorLevel = 1;
       this.setupDungeonLevel();
+    }
+
+    if (this.boss.getHealth() <= 0) {
+      this.setupDungeonLevel();
+      this.floorLevel += 1;
+      this.boss.setPosition(Vector2.Zero());
+      this.boss.setHealth(50);
+    }
+
+    for (let i = 0; i < this.player.getAttackObjects().length; i++) {
+      const object = this.player.getAttackObjects()[i];
+      if (!object) continue;
+      if (!object.isCollidingWith(this.boss)) {
+        this.player.removeAttackObject(i);
+        this.boss.setHealth(this.boss.getHealth() - 5);
+      }
+    }
+
+    for (let i = 0; i < this.boss.getAttackObjects().length; i++) {
+      const object = this.boss.getAttackObjects()[i];
+      if (!object) continue;
+
+      object?.update(deltaTime);
+
+      if (!object?.isCollidingWith(this.player)) {
+        if (this.player.getSpreadingToolCount() > 0) {
+          this.boss.removeAttackObject(i);
+          this.player.setSpreadingToolCount(this.player.getSpreadingToolCount() - 1);
+        } else {
+          this.boss.removeAttackObject(i);
+          this.player.setLives(this.player.getLives() - 1);
+        }
+      }
+
+      if (!this.boss.getAttackObjects()[i]?.nearTarget()) {
+        this.boss.removeAttackObject(i);
+      }
     }
 
     this.camera.update(this.map);
@@ -242,6 +302,10 @@ class Game {
         this.gameObjects[i]?.draw(ctx, this.camera);
     }
 
+    for (let i = 0; i < this.boss.getAttackObjects().length; i++) {
+      this.boss.getAttackObjects()[i]?.draw(ctx);
+    }
+
     ctx.font = `40px Verdana`;
     ctx.fillStyle = "red";
     ctx.fillText(`Floor: ${this.floorLevel.toString()}`, 50, 50);
@@ -257,9 +321,10 @@ class Game {
       new Vector2(
         Math.floor(this.rooms[0].getWidth() * 0.75 * TILE_SIZE),
         Math.floor(this.rooms[0].getHeight() * 0.75 * TILE_SIZE)
-      ),
+      )
     );
-    this.gameObjects = [this.player];
+    this.boss = this.spawnBoss();
+    this.gameObjects = [this.player, this.boss];
 
     this.camera.setFollowedObject(undefined);
     this.camera.setPosition(Vector2.Zero());
@@ -435,12 +500,12 @@ class Game {
     room.setHasStairs(true);
   }
 
-  private spawnPlayer(): void  {
+  private spawnPlayer(): void {
     const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
     this.playerInitialSpawn = position;
     this.map[position.y][position.x] = 3;
     room.setHasPlayer(true);
-    this.player.setWorldMap(this.map)
+    this.player.setWorldMap(this.map);
     this.player.setPosition(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE));
   }
 
@@ -464,13 +529,15 @@ class Game {
 
   private spawnWeaponsAndPowerUps(): GameObject[] {
     const objects: GameObject[] = [];
-    const randoms = [6, 7];
+    const randoms = [6, 7, 20];
     for (let i = 0; i < 5; i++) {
       const randomIndex = Math.round(getRandomArbitrary(0, randoms.length - 1));
       const { position } = generateSpawnCoordinates(this.map, this.rooms);
       this.map[position.y][position.x] = randoms[randomIndex];
       if (randoms[randomIndex] === 6) {
         objects.push(new Salmon(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE));
+      } else if (randoms[randomIndex] === 20) {
+        objects.push(new ToasterGun(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE));
       } else {
         objects.push(
           new SpreadingTool(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE)
@@ -478,6 +545,17 @@ class Game {
       }
     }
     return objects;
+  }
+
+  private spawnBoss(): WizardBoss {
+    const { position } = generateSpawnCoordinates(this.map, this.rooms);
+    this.map[position.y][position.x] = 19;
+    return new WizardBoss(
+      new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE),
+      TILE_SIZE,
+      TILE_SIZE,
+      this.player
+    );
   }
 }
 

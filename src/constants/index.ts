@@ -5,7 +5,11 @@ export enum GameTags {
   CREAM_CHEESE_TAG = "cream_cheese",
   ROOM_TAG = "room",
   CAMERA_TAG = "camera",
-  SPREADING_TOOL_TAG = "spreading_tool"
+  SPREADING_TOOL_TAG = "spreading_tool",
+  WIZARD_BOSS = "wizard_boss",
+  BAGEL_MAGIC = "bagel_magic",
+  FIREBALL = "fireball",
+  TOASTER_GUN = "toaster_gun"
 }
 
 export enum TileMapSprites {
@@ -24,7 +28,7 @@ export const MAX_ROOM_WIDTH = 20;
 export const MAX_ROOM_HEIGHT = 20;
 export const MAX_ROOM_COUNT = 10;
 export const MAX_ROOM_GEN_ATTEMPTS_COUNT = 10;
-export const MAP_CONSTANTS = [5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+export const MAP_CONSTANTS = [5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 
 export const PLAYER_SPEED = 0.05;
 export const MAX_SPREADING_TOOL_COUNT = 3;

@@ -16,6 +16,42 @@ spreadingToolSprite.src = SpreadingToolImage;
 const heartSprite = new Image();
 heartSprite.src = HeartSprite;
 
+const FIREBALL_SPEED = 7;
+
+class Fireball extends GameObject {
+  private velocity: Vector2;
+  private liveTime: number;
+
+  constructor(position: Vector2, width: number, height: number, velocity: Vector2) {
+    super(GameTags.FIREBALL, position, width, height);
+    this.velocity = velocity;
+    this.liveTime = 0;
+  }
+
+  public update(deltaTime: number): void {
+    this.liveTime += 1;
+
+    this.velocity.x = clamp(this.velocity.x * deltaTime, -FIREBALL_SPEED, FIREBALL_SPEED);
+    this.velocity.y = clamp(this.velocity.y * deltaTime, -FIREBALL_SPEED, FIREBALL_SPEED);
+
+    this.position.add(this.velocity);
+  }
+
+  public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
+    ctx.fillStyle = "red";
+    ctx.fillRect(
+      this.position.x - camera.getPosition().x,
+      this.position.y - camera.getPosition().y,
+      this.width,
+      this.height
+    );
+  }
+
+  public getLiveTime(): number {
+    return this.liveTime;
+  }
+}
+
 class Player extends GameObject {
   private velocity: Vector2;
   private lives: number;
@@ -26,6 +62,8 @@ class Player extends GameObject {
   private playerSpeedConstant: number;
   private spreadingToolCount: number;
   private worldMap: number[][];
+  private hasToastGun: boolean;
+  private attackObjects: Array<Fireball | undefined>;
 
   constructor(position: Vector2, width: number, height: number, map: number[][]) {
     super(GameTags.PLAYER_TAG, position, width, height);
@@ -38,10 +76,22 @@ class Player extends GameObject {
     this.currentFrameY = 0;
     this.playerSpeedConstant = PLAYER_SPEED;
     this.spreadingToolCount = 0;
+    this.hasToastGun = false;
+    this.attackObjects = [];
     this.setupKeyboardHandlers();
   }
 
   public update(deltaTime: number): void {
+    for (let i = 0; i < this.attackObjects.length; i++) {
+      if (this.attackObjects[i] == null) continue;
+      const object = this.attackObjects[i] as Fireball;
+      object.update(deltaTime);
+
+      if (object.getLiveTime() > 75) {
+        this.attackObjects[i] = undefined;
+      }
+    }
+
     if (
       this.velocity.x < 0 &&
       (MAP_CONSTANTS.includes(
@@ -153,6 +203,11 @@ class Player extends GameObject {
         TILE_SIZE
       );
     }
+
+    for (let i = 0; i < this.attackObjects.length; i++) {
+      if (this.attackObjects[i] == null) continue;
+      this.attackObjects[i]?.draw(ctx, camera);
+    }
   }
 
   public getVelocity(): Vector2 {
@@ -207,20 +262,55 @@ class Player extends GameObject {
     this.worldMap = map;
   }
 
+  public getHasToastGun(): boolean {
+    return this.hasToastGun;
+  }
+
+  public setHasToastGun(hasToastGun: boolean): void {
+    this.hasToastGun = hasToastGun;
+  }
+
+  public getAttackObjects(): Array<Fireball | undefined> {
+    return this.attackObjects;
+  }
+
+  public setAttackObjects(attackObjects: Array<Fireball | undefined>) {
+    this.attackObjects = attackObjects;
+  }
+
+  public removeAttackObject(index: number): void {
+    this.attackObjects[index] = undefined;
+  }
+
   private setupKeyboardHandlers(): void {
     document.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "w") {
         this.currentFrameY = 1;
         this.velocity.y = -this.playerSpeedConstant;
-      } else if (e.key === "s") {
+      }
+      if (e.key === "s") {
         this.currentFrameY = 0;
         this.velocity.y = this.playerSpeedConstant;
-      } else if (e.key === "a") {
+      }
+      if (e.key === "a") {
         this.currentFrameY = 2;
         this.velocity.x = -this.playerSpeedConstant;
-      } else if (e.key === "d") {
+      }
+      if (e.key === "d") {
         this.currentFrameY = 3;
         this.velocity.x = this.playerSpeedConstant;
+      }
+      if (e.code === "Space" && this.hasToastGun) {
+        const xVel = this.currentFrameY === 2 ? -FIREBALL_SPEED : this.currentFrameY === 3 ? FIREBALL_SPEED : 0;
+        const yVel = this.currentFrameY === 1 ? -FIREBALL_SPEED : this.currentFrameY === 0 ? FIREBALL_SPEED : 0;
+        this.attackObjects.push(
+          new Fireball(
+            new Vector2(this.position.x, this.position.y),
+            TILE_SIZE / 2,
+            TILE_SIZE / 2,
+            new Vector2(xVel, yVel)
+          )
+        );
       }
     });
 
