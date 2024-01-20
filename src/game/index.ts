@@ -23,6 +23,7 @@ import {
   MAX_ROOM_HEIGHT,
   MAX_ROOM_WIDTH,
   MAX_SPREADING_TOOL_COUNT,
+  MAX_TOASTER_GUN_SHOT_COUNT,
   MIN_ROOM_HEIGHT,
   MIN_ROOM_WIDTH,
   TILE_SIZE
@@ -192,7 +193,10 @@ class Game {
             }
             if (this.gameObjects[j]?.getTag() === GameTags.TOASTER_GUN) {
               this.gameObjects[j] = undefined;
-              this.player.setHasToastGun(true);
+              console.log(this.player.getToastGunShotCount(), MAX_TOASTER_GUN_SHOT_COUNT);
+              if (this.player.getToastGunShotCount() < MAX_TOASTER_GUN_SHOT_COUNT) {
+                this.player.setToasterGunShotCount(this.player.getToastGunShotCount() + 5);
+              }
             }
           }
         }
@@ -253,6 +257,13 @@ class Game {
       if (!object.isCollidingWith(this.boss)) {
         this.player.removeAttackObject(i);
         this.boss.setHealth(this.boss.getHealth() - 5);
+      }
+      for (let j = 0; j < this.gameObjects.length; j++) {
+        if (this.gameObjects[j]?.getTag() !== GameTags.BAGEL_TAG) continue;
+        if (!object.isCollidingWith(this.gameObjects[j]!)) {
+          this.gameObjects[j] = undefined;
+          this.player.removeAttackObject(i);
+        }
       }
     }
 

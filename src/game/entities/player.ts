@@ -62,7 +62,8 @@ class Player extends GameObject {
   private playerSpeedConstant: number;
   private spreadingToolCount: number;
   private worldMap: number[][];
-  private hasToastGun: boolean;
+  private shotTimer: number;
+  private toasterGunShotCount: number;
   private attackObjects: Array<Fireball | undefined>;
 
   constructor(position: Vector2, width: number, height: number, map: number[][]) {
@@ -76,7 +77,8 @@ class Player extends GameObject {
     this.currentFrameY = 0;
     this.playerSpeedConstant = MAX_PLAYER_SPEED;
     this.spreadingToolCount = 0;
-    this.hasToastGun = true;
+    this.shotTimer = 0;
+    this.toasterGunShotCount = 5;
     this.attackObjects = [];
     this.setupKeyboardHandlers();
   }
@@ -157,6 +159,14 @@ class Player extends GameObject {
       this.velocity.y = 0;
     }
 
+    if (this.shotTimer > 0) {
+      this.shotTimer += 1;
+
+      if (this.shotTimer >= 50) {
+        this.shotTimer = 0;
+      }
+    }
+
     this.velocity.x = clamp(this.velocity.x * deltaTime, -this.playerSpeedConstant, this.playerSpeedConstant);
     this.velocity.y = clamp(this.velocity.y * deltaTime, -this.playerSpeedConstant, this.playerSpeedConstant);
 
@@ -203,6 +213,9 @@ class Player extends GameObject {
         TILE_SIZE
       );
     }
+
+    ctx.fillStyle = "orange";
+    ctx.fillRect(camera.getWidth() - 50, 135, -(this.toasterGunShotCount * 4), 25);
 
     for (let i = 0; i < this.attackObjects.length; i++) {
       if (this.attackObjects[i] == null) continue;
@@ -262,12 +275,12 @@ class Player extends GameObject {
     this.worldMap = map;
   }
 
-  public getHasToastGun(): boolean {
-    return this.hasToastGun;
+  public getToastGunShotCount(): number {
+    return this.toasterGunShotCount;
   }
 
-  public setHasToastGun(hasToastGun: boolean): void {
-    this.hasToastGun = hasToastGun;
+  public setToasterGunShotCount(shotCount: number): void {
+    this.toasterGunShotCount = shotCount;
   }
 
   public getAttackObjects(): Array<Fireball | undefined> {
@@ -300,7 +313,8 @@ class Player extends GameObject {
         this.currentFrameY = 3;
         this.velocity.x = this.playerSpeedConstant;
       }
-      if (e.code === "Space" && this.hasToastGun) {
+      if (e.code === "Space" && this.toasterGunShotCount > 0 && this.shotTimer === 0) {
+        this.toasterGunShotCount -= 1;
         const xVel = this.currentFrameY === 2 ? -FIREBALL_SPEED : this.currentFrameY === 3 ? FIREBALL_SPEED : 0;
         const yVel = this.currentFrameY === 1 ? -FIREBALL_SPEED : this.currentFrameY === 0 ? FIREBALL_SPEED : 0;
         this.attackObjects.push(
@@ -311,6 +325,7 @@ class Player extends GameObject {
             new Vector2(xVel, yVel)
           )
         );
+        this.shotTimer += 1;
       }
     });
 
