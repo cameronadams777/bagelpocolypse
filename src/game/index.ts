@@ -34,8 +34,9 @@ import Vector2 from "./math/vector2";
 import Camera from "./entities/camera";
 import Salmon from "./entities/salmon";
 import SpreadingTool from "./entities/weapons/spreading-tool";
-import WizardBoss, { BagelMagic } from "./entities/enemies/wizard-boss";
+import WizardBoss from "./entities/enemies/wizard-boss";
 import ToasterGun from "./entities/weapons/toaster-gun";
+import CreamCheese from "./entities/cream-cheese";
 
 const stairsSprite = new Image();
 stairsSprite.src = StairsImage;
@@ -103,10 +104,11 @@ const tileMap: Record<number, HTMLImageElement> = {
   17: topRightInnerWallSprite,
   18: bottomLeftInnerWallSprite,
   19: floorSprite,
-  20: floorSprite // Boss location
+  20: floorSprite, // Boss location
+  21: floorSprite // Cream cheese location
 };
 
-const entityConstants = [2, 3, 4, 6];
+const entityConstants = [2, 3, 4, 6, 7, 20];
 
 const generateSpawnCoordinates = (map: number[][], rooms: Room[]): { position: Vector2; room: Room } => {
   const randRoom = rooms[getRandomArbitrary(0, rooms.length - 1)];
@@ -529,7 +531,7 @@ class Game {
 
   private spawnWeaponsAndPowerUps(): GameObject[] {
     const objects: GameObject[] = [];
-    const randoms = [6, 7, 20];
+    const randoms = [6, 7, 20, 21];
     for (let i = 0; i < 5; i++) {
       const randomIndex = Math.round(getRandomArbitrary(0, randoms.length - 1));
       const { position } = generateSpawnCoordinates(this.map, this.rooms);
@@ -538,6 +540,10 @@ class Game {
         objects.push(new Salmon(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE));
       } else if (randoms[randomIndex] === 20) {
         objects.push(new ToasterGun(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE));
+      } else if (randoms[randomIndex] === 21) {
+        objects.push(
+          new CreamCheese(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE)
+        );
       } else {
         objects.push(
           new SpreadingTool(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE)

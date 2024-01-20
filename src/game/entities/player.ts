@@ -1,5 +1,5 @@
 import GameObject from "./game-object";
-import { GameTags, MAP_CONSTANTS, PLAYER_SPEED, TILE_SIZE } from "../../constants";
+import { GameTags, MAP_CONSTANTS, MAX_PLAYER_SPEED, PLAYER_SPEED, TILE_SIZE } from "../../constants";
 import PlayerSprite from "../../assets/images/player-sheet.png";
 import SpreadingToolImage from "../../assets/images/spreading-tool-Sheet.png";
 import HeartSprite from "../../assets/images/heart.png";
@@ -74,9 +74,9 @@ class Player extends GameObject {
     this.frameCount = 4;
     this.deltaFrameX = 0;
     this.currentFrameY = 0;
-    this.playerSpeedConstant = PLAYER_SPEED;
+    this.playerSpeedConstant = MAX_PLAYER_SPEED;
     this.spreadingToolCount = 0;
-    this.hasToastGun = false;
+    this.hasToastGun = true;
     this.attackObjects = [];
     this.setupKeyboardHandlers();
   }
@@ -157,8 +157,8 @@ class Player extends GameObject {
       this.velocity.y = 0;
     }
 
-    this.velocity.x = clamp(this.velocity.x * deltaTime, -5, 5);
-    this.velocity.y = clamp(this.velocity.y * deltaTime, -5, 5);
+    this.velocity.x = clamp(this.velocity.x * deltaTime, -this.playerSpeedConstant, this.playerSpeedConstant);
+    this.velocity.y = clamp(this.velocity.y * deltaTime, -this.playerSpeedConstant, this.playerSpeedConstant);
 
     this.position.add(this.velocity);
   }
