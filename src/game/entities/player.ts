@@ -1,11 +1,13 @@
 import GameObject from "./game-object";
-import { GameTag, MAP_CONSTANTS, MAX_PLAYER_SPEED, PLAYER_SPEED, TILE_SIZE } from "../../constants";
-import PlayerSprite from "../../assets/images/player-sheet.png";
-import SpreadingToolImage from "../../assets/images/spreading-tool-Sheet.png";
-import HeartSprite from "../../assets/images/heart.png";
+import { GameTag, MAP_CONSTANTS, MAX_PLAYER_SPEED, PLAYER_SPEED, TILE_SIZE } from "@/constants";
+import PlayerSprite from "@/assets/images/player-sheet.png";
+import SpreadingToolImage from "@/assets/images/spreading-tool-Sheet.png";
+import HeartSprite from "@/assets/images/heart.png";
+import ToasterGunSprite from "@/assets/images/toaster-gun-sheet.png";
+import FireballSprite from "@/assets/images/fire-attack-sheet.png";
+import { clamp } from "@/helpers";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";
-import { clamp } from "../../helpers";
 
 const sprite = new Image();
 sprite.src = PlayerSprite;
@@ -16,16 +18,24 @@ spreadingToolSprite.src = SpreadingToolImage;
 const heartSprite = new Image();
 heartSprite.src = HeartSprite;
 
+const toasterGunSprite = new Image();
+toasterGunSprite.src = ToasterGunSprite;
+
+const fireballSprite = new Image();
+fireballSprite.src = FireballSprite;
+
 const FIREBALL_SPEED = 7;
 
 class Fireball extends GameObject {
   private velocity: Vector2;
   private liveTime: number;
+  private frameY: number;
 
   constructor(position: Vector2, width: number, height: number, velocity: Vector2) {
     super(GameTag.FIREBALL, position, width, height);
     this.velocity = velocity;
     this.liveTime = 0;
+    this.frameY = 0;
   }
 
   public update(deltaTime: number): void {
@@ -38,8 +48,17 @@ class Fireball extends GameObject {
   }
 
   public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
-    ctx.fillStyle = "red";
-    ctx.fillRect(
+    if (this.velocity.y < 0) this.frameY = 0;
+    else if (this.velocity.y > 0) this.frameY = 2;
+    else if (this.velocity.x > 0) this.frameY = 1;
+    else if (this.velocity.x < 0) this.frameY = 3;
+
+    ctx.drawImage(
+      fireballSprite,
+      1,
+      this.frameY * this.height,
+      this.width,
+      this.height,
       this.position.x - camera.getPosition().x,
       this.position.y - camera.getPosition().y,
       this.width,
@@ -200,22 +219,33 @@ class Player extends GameObject {
       ctx.drawImage(heartSprite, camera.getWidth() - TILE_SIZE - 50 * (i + 1), 25);
     }
 
+    ctx.drawImage(
+      toasterGunSprite,
+      1,
+      1,
+      TILE_SIZE - 1,
+      TILE_SIZE,
+      camera.getWidth() - TILE_SIZE - 50,
+      85,
+      TILE_SIZE,
+      TILE_SIZE
+    );
+    ctx.fillStyle = "orange";
+    ctx.fillRect(camera.getWidth() - 100, 87, -(this.toasterGunShotCount * 4), 25);
+
     for (let i = 0; i < this.spreadingToolCount; i++) {
       ctx.drawImage(
         spreadingToolSprite,
         1,
         1,
-        TILE_SIZE,
+        TILE_SIZE - 1,
         TILE_SIZE,
         camera.getWidth() - TILE_SIZE - 50 * (i + 1),
-        75,
+        135,
         TILE_SIZE,
         TILE_SIZE
       );
     }
-
-    ctx.fillStyle = "orange";
-    ctx.fillRect(camera.getWidth() - 50, 135, -(this.toasterGunShotCount * 4), 25);
 
     for (let i = 0; i < this.attackObjects.length; i++) {
       if (this.attackObjects[i] == null) continue;
@@ -318,12 +348,7 @@ class Player extends GameObject {
         const xVel = this.currentFrameY === 2 ? -FIREBALL_SPEED : this.currentFrameY === 3 ? FIREBALL_SPEED : 0;
         const yVel = this.currentFrameY === 1 ? -FIREBALL_SPEED : this.currentFrameY === 0 ? FIREBALL_SPEED : 0;
         this.attackObjects.push(
-          new Fireball(
-            new Vector2(this.position.x, this.position.y),
-            TILE_SIZE / 2,
-            TILE_SIZE / 2,
-            new Vector2(xVel, yVel)
-          )
+          new Fireball(new Vector2(this.position.x, this.position.y), TILE_SIZE, TILE_SIZE, new Vector2(xVel, yVel))
         );
         this.shotTimer += 1;
       }
