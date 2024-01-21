@@ -1,13 +1,14 @@
-import { TILE_SIZE } from "../constants";
+import { TILE_SIZE, LevelType } from "../constants";
 import Player from "./entities/player";
-import Level, { LevelType } from "./levels";
+import GameMap from "./game-map";
+import Level from "./levels";
 import BossLevel from "./levels/boss-level";
 import DungeonLevel from "./levels/dungeon-level";
 import Vector2 from "./math/vector2";
 
 class GameManager {
   private static instance: GameManager;
-  private map: number[][];
+  private map: GameMap;
   private floorNumber: number;
   private currentLevel: Level;
   private player: Player;
@@ -36,7 +37,7 @@ class GameManager {
     return this.currentLevel;
   }
 
-  public getMap(): number[][] {
+  public getMap(): GameMap {
     return this.map;
   }
 
@@ -63,6 +64,7 @@ class GameManager {
     this.floorNumber = 1;
     this.currentLevel = new DungeonLevel();
     this.player = new Player(Vector2.Zero(), TILE_SIZE, TILE_SIZE);
+    this.map = new GameMap();
   }
 }
 

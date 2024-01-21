@@ -1,38 +1,47 @@
+import { LevelType, TILE_SIZE } from "../../constants";
 import Camera from "../entities/camera";
 import WizardBoss from "../entities/enemies/wizard-boss";
+import GameObject from "../entities/game-object";
 import GameManager from "../game-manager";
 import Vector2 from "../math/vector2";
 
 class BossLevel {
-  private map: number[][];
   private camera: Camera;
+  private gameObjects: Array<GameObject | undefined>;
   private boss: WizardBoss;
 
   constructor() {
-    this.map = GameManager.getInstance().generateMap(this.canvas.width, this.canvas.height);
-    this.generateBossRoom();
-    this.generateWalls();
-
-    GameManager.getInstance().getPlayer().setWorldMap(this.map);
+    const map = GameManager.getInstance().getMap();
     GameManager.getInstance()
       .getPlayer()
       .setPosition(
         new Vector2(
-          Math.floor(this.rooms[0].getWidth() * 0.75 * TILE_SIZE),
-          Math.floor(this.rooms[0].getHeight() * 0.75 * TILE_SIZE)
+          Math.floor(map.getRooms()[0].getWidth() * 0.75 * TILE_SIZE),
+          Math.floor(map.getRooms()[0].getHeight() * 0.75 * TILE_SIZE)
         )
       );
     this.boss = this.spawnBoss();
-    this.gameObjects = [this.player, this.boss];
+    this.gameObjects = [GameManager.getInstance().getPlayer(), this.boss];
   }
 
   public update(deltaTime: number): void {
     if (this.boss.getHealth() <= 0) {
-      GameManager.getInstance().goToNextFloor();
+      GameManager.getInstance().goToNextFloor(LevelType.DUNGEON_LEVEL);
     }
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {}
+
+  private spawnBoss(): WizardBoss {
+    const { position } = generateSpawnCoordinates(this.map, this.rooms);
+    GameManager.getInstance().getMap()[position.y][position.x] = 19;
+    return new WizardBoss(
+      new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE),
+      TILE_SIZE,
+      TILE_SIZE,
+      GameManager.getInstance().getPlayer()
+    );
+  }
 }
 
 export default BossLevel;
