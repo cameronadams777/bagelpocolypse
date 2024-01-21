@@ -1,11 +1,12 @@
 import GameObject from "./game-object";
-import { GameTags, MAP_CONSTANTS, MAX_PLAYER_SPEED, PLAYER_SPEED, TILE_SIZE } from "../../constants";
+import { GameTags, MAP_CONSTANTS, MAX_PLAYER_SPEED, TILE_SIZE } from "../../constants";
 import PlayerSprite from "../../assets/images/player-sheet.png";
 import SpreadingToolImage from "../../assets/images/spreading-tool-Sheet.png";
 import HeartSprite from "../../assets/images/heart.png";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";
 import { clamp } from "../../helpers";
+import GameManager from "../game-manager";
 
 const sprite = new Image();
 sprite.src = PlayerSprite;
@@ -61,14 +62,12 @@ class Player extends GameObject {
   private currentFrameY: number;
   private playerSpeedConstant: number;
   private spreadingToolCount: number;
-  private worldMap: number[][];
   private shotTimer: number;
   private toasterGunShotCount: number;
   private attackObjects: Array<Fireball | undefined>;
 
-  constructor(position: Vector2, width: number, height: number, map: number[][]) {
+  constructor(position: Vector2, width: number, height: number) {
     super(GameTags.PLAYER_TAG, position, width, height);
-    this.worldMap = map;
     this.velocity = Vector2.Zero();
     this.lives = 3;
     this.frameX = 0;
@@ -97,12 +96,12 @@ class Player extends GameObject {
     if (
       this.velocity.x < 0 &&
       (MAP_CONSTANTS.includes(
-        this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+        GameManager.getInstance().getMap()[Math.floor(this.getBottom() / TILE_SIZE)][
           Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
         ]
       ) ||
         MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+          GameManager.getInstance().getMap()[Math.floor(this.position.y / TILE_SIZE)][
             Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
           ]
         ))
@@ -113,12 +112,12 @@ class Player extends GameObject {
     if (
       this.velocity.x > 0 &&
       (MAP_CONSTANTS.includes(
-        this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+        GameManager.getInstance().getMap()[Math.floor(this.position.y / TILE_SIZE)][
           Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
         ]
       ) ||
         MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+          GameManager.getInstance().getMap()[Math.floor(this.getBottom() / TILE_SIZE)][
             Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
           ]
         ))
@@ -129,12 +128,12 @@ class Player extends GameObject {
     if (
       this.velocity.y < 0 &&
       (MAP_CONSTANTS.includes(
-        this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+        GameManager.getInstance().getMap()[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
           Math.floor(this.position.x / TILE_SIZE)
         ]
       ) ||
         MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+          GameManager.getInstance().getMap()[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
             Math.floor(this.getRight() / TILE_SIZE)
           ]
         ))
@@ -145,12 +144,12 @@ class Player extends GameObject {
     if (
       this.velocity.y > 0 &&
       (MAP_CONSTANTS.includes(
-        this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+        GameManager.getInstance().getMap()[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
           Math.floor(this.position.x / TILE_SIZE)
         ]
       ) ||
         MAP_CONSTANTS.includes(
-          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+          GameManager.getInstance().getMap()[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
             Math.floor(this.getRight() / TILE_SIZE)
           ]
         ))
@@ -269,10 +268,6 @@ class Player extends GameObject {
 
   public setSpreadingToolCount(count: number): void {
     this.spreadingToolCount = count;
-  }
-
-  public setWorldMap(map: number[][]): void {
-    this.worldMap = map;
   }
 
   public getToastGunShotCount(): number {

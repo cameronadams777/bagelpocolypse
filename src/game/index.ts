@@ -149,11 +149,11 @@ class Game {
     this.player = new Player(Vector2.Zero(), TILE_SIZE, TILE_SIZE, this.map);
     this.boss = new WizardBoss(Vector2.Zero(), TILE_SIZE, TILE_SIZE, this.player);
     this.playerInitialSpawn = Vector2.Zero();
-    this.setupDungeonLevel();
+    this.setupBossLevel();
+    // this.setupDungeonLevel();
   }
 
   public update(deltaTime: number): void {
-    const prevLives = this.player.getLives();
     for (let i = 0; i < this.gameObjects.length; i++) {
       for (let j = 0; j < this.gameObjects.length; j++) {
         if (this.gameObjects[i] == null || this.gameObjects[j] == null || this.gameObjects[i] === this.gameObjects[j])
@@ -201,19 +201,6 @@ class Game {
           }
         }
 
-        // Bagel collision logic
-        if (this.gameObjects[i]?.getTag() === GameTags.BAGEL_TAG) {
-          const b = this.gameObjects[i] as Bagel;
-          if (prevLives != this.player.getLives()) b.setGameObjectToFollow(undefined);
-          if (
-            !b.getGameObjectToFollow() &&
-            !b.isInRadius(this.gameObjects[j]!) &&
-            b.isFollowableItem(this.gameObjects[j]?.getTag()!)
-          ) {
-            b.setGameObjectToFollow(this.gameObjects[j]!);
-          }
-        }
-
         if (this.gameObjects[i]?.getTag() === GameTags.WIZARD_BOSS) {
           const boss = this.gameObjects[i] as WizardBoss;
           if (boss.getRelocationTimer() >= 250) {
@@ -242,13 +229,6 @@ class Game {
       this.player.setLives(3);
       this.floorLevel = 1;
       this.setupDungeonLevel();
-    }
-
-    if (this.boss.getHealth() <= 0) {
-      this.setupDungeonLevel();
-      this.floorLevel += 1;
-      this.boss.setPosition(Vector2.Zero());
-      this.boss.setHealth(50);
     }
 
     for (let i = 0; i < this.player.getAttackObjects().length; i++) {
@@ -359,17 +339,6 @@ class Game {
 
     // Set camera
     this.camera.setFollowedObject(this.player);
-  }
-
-  private generateMap(sizeX: number, sizeY: number): number[][] {
-    let map: number[][] = [];
-    for (let j = 0; j < Math.ceil(sizeY / TILE_SIZE); j++) {
-      map.push([]);
-      for (let i = 0; i < Math.ceil(sizeX / TILE_SIZE); i++) {
-        map[j].push(0);
-      }
-    }
-    return map;
   }
 
   private generateWalls(): void {

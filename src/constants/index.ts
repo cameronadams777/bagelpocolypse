@@ -20,6 +20,11 @@ export enum TileMapSprites {
   BAGEL = 4
 }
 
+export enum LevelType {
+  DUNGEON_LEVEL = "dungeon_level",
+  BOSS_LEVEL = "boss_level"
+}
+
 export const TILE_SIZE = 32;
 
 export const MIN_ROOM_WIDTH = 10;
