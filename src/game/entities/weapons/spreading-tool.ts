@@ -1,4 +1,4 @@
-import { GameTags } from "../../../constants";
+import { GameTag } from "../../../constants";
 import Vector2 from "../../math/vector2";
 import Camera from "../camera";
 import GameObject from "../game-object";
@@ -11,7 +11,7 @@ class SpreadingTool extends GameObject {
   private frameCounter: number;
   private frameX: number;
   constructor(position: Vector2, width: number, height: number) {
-    super(GameTags.SPREADING_TOOL_TAG, position, width, height);
+    super(GameTag.SPREADING_TOOL_TAG, position, width, height);
     this.frameX = 0;
     this.frameCounter = 0;
   }

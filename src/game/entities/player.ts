@@ -1,5 +1,5 @@
 import GameObject from "./game-object";
-import { GameTags, MAP_CONSTANTS, MAX_PLAYER_SPEED, PLAYER_SPEED, TILE_SIZE } from "../../constants";
+import { GameTag, MAP_CONSTANTS, MAX_PLAYER_SPEED, PLAYER_SPEED, TILE_SIZE } from "../../constants";
 import PlayerSprite from "../../assets/images/player-sheet.png";
 import SpreadingToolImage from "../../assets/images/spreading-tool-Sheet.png";
 import HeartSprite from "../../assets/images/heart.png";
@@ -23,7 +23,7 @@ class Fireball extends GameObject {
   private liveTime: number;
 
   constructor(position: Vector2, width: number, height: number, velocity: Vector2) {
-    super(GameTags.FIREBALL, position, width, height);
+    super(GameTag.FIREBALL, position, width, height);
     this.velocity = velocity;
     this.liveTime = 0;
   }
@@ -67,7 +67,7 @@ class Player extends GameObject {
   private attackObjects: Array<Fireball | undefined>;
 
   constructor(position: Vector2, width: number, height: number, map: number[][]) {
-    super(GameTags.PLAYER_TAG, position, width, height);
+    super(GameTag.PLAYER_TAG, position, width, height);
     this.worldMap = map;
     this.velocity = Vector2.Zero();
     this.lives = 3;

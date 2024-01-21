@@ -1,7 +1,7 @@
 import GameObject from "../game-object";
 import Vector2 from "../../math/vector2";
 import Camera from "../camera";
-import { BAGEL_SPEED, GameTags, MAP_CONSTANTS, TILE_SIZE } from "../../../constants";
+import { BAGEL_SPEED, GameTag, MAP_CONSTANTS, TILE_SIZE } from "../../../constants";
 import { clamp } from "../../../helpers";
 import BasicBagelSpriteSheet from "../../../assets/images/basic-bagel-Sheet.png";
 
@@ -20,12 +20,13 @@ class Bagel extends GameObject {
   private frameCounter: number;
 
   constructor(position: Vector2, width: number, height: number, map: number[][]) {
-    super(GameTags.BAGEL_TAG, position, width, height);
+    super(GameTag.BAGEL_TAG, position, width, height);
     this.worldMap = map;
     this.velocity = Vector2.Zero();
     this.follow = undefined;
     this.followTimer = 0;
     this.frameX = 0;
+    this.frameY = 0;
     this.frameCounter = 0;
   }
 

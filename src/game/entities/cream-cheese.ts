@@ -1,10 +1,10 @@
-import { GameTags } from "../../constants";
+import { GameTag } from "../../constants";
 import Vector2 from "../math/vector2";
 import GameObject from "./game-object";
 
 class CreamCheese extends GameObject {
   constructor(position: Vector2, width: number, height: number) {
-    super(GameTags.CREAM_CHEESE_TAG, position, width, height);
+    super(GameTag.CREAM_CHEESE_TAG, position, width, height);
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {

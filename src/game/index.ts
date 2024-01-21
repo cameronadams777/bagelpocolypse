@@ -16,8 +16,10 @@ import BottomRightInnerWallImage from "../assets/images/bottom-right-inner-wall.
 import { getRandomArbitrary } from "../helpers";
 import { Room } from "./entities/room";
 import {
-  GameTags,
+  GameTag,
+  LevelType,
   MAX_BAGEL_COUNT,
+  MAX_POWER_UPS_PER_FLOOR,
   MAX_ROOM_COUNT,
   MAX_ROOM_GEN_ATTEMPTS_COUNT,
   MAX_ROOM_HEIGHT,
@@ -26,7 +28,8 @@ import {
   MAX_TOASTER_GUN_SHOT_COUNT,
   MIN_ROOM_HEIGHT,
   MIN_ROOM_WIDTH,
-  TILE_SIZE
+  TILE_SIZE,
+  TileMap
 } from "../constants";
 import Player from "./entities/player";
 import Bagel from "./entities/enemies/bagel";
@@ -84,32 +87,40 @@ leftWallSprite.src = LeftWallImage;
 const blackSprite = new Image();
 blackSprite.src = BlackImage;
 
-const tileMap: Record<number, HTMLImageElement> = {
-  0: blackSprite,
-  1: floorSprite,
-  2: stairsSprite,
-  3: floorSprite, // Player location
-  4: floorSprite, // Bagel location
-  5: topLeftWallSprite, // Wall location
-  6: floorSprite, // Salmon location
-  7: floorSprite, // Spreading tool location
-  8: topWallSprite,
-  9: topRightWallSprite,
-  10: rightWallSprite,
-  11: bottomRightWallSprite,
-  12: bottomWallSprite,
-  13: bottomLeftWallSprite,
-  14: leftWallSprite,
-  15: bottomRightInnerWallSprite,
-  16: topLeftInnerWallSprite,
-  17: topRightInnerWallSprite,
-  18: bottomLeftInnerWallSprite,
-  19: floorSprite,
-  20: floorSprite, // Boss location
-  21: floorSprite // Cream cheese location
+const tileMap: Record<TileMap, HTMLImageElement> = {
+  [TileMap.BLACK]: blackSprite,
+  [TileMap.FLOOR]: floorSprite,
+  [TileMap.STAIRS]: stairsSprite,
+  [TileMap.PLAYER]: floorSprite,
+  [TileMap.BAGEL]: floorSprite,
+  [TileMap.SALMON]: floorSprite,
+  [TileMap.SPREADING_TOOL]: floorSprite,
+  [TileMap.TOP_LEFT_WALL]: topLeftWallSprite,
+  [TileMap.TOP_WALL]: topWallSprite,
+  [TileMap.TOP_RIGHT_WALL]: topRightWallSprite,
+  [TileMap.RIGHT_WALL]: rightWallSprite,
+  [TileMap.BOTTOM_RIGHT_WALL]: bottomRightWallSprite,
+  [TileMap.BOTTOM_WALL]: bottomWallSprite,
+  [TileMap.BOTTOM_LEFT_WALL]: bottomLeftWallSprite,
+  [TileMap.LEFT_WALL]: leftWallSprite,
+  [TileMap.BOTTOM_RIGHT_WALL_INNER]: bottomRightInnerWallSprite,
+  [TileMap.TOP_LEFT_WALL_INNER]: topLeftInnerWallSprite,
+  [TileMap.TOP_RIGHT_WALL_INNER]: topRightInnerWallSprite,
+  [TileMap.BOTTOM_LEFT_WALL_INNER]: bottomLeftInnerWallSprite,
+  [TileMap.BOSS]: floorSprite,
+  [TileMap.TOASTER_GUN]: floorSprite,
+  [TileMap.CREAM_CHEESE]: floorSprite
 };
 
-const entityConstants = [2, 3, 4, 6, 7, 20];
+const entityConstants = [
+  TileMap.STAIRS,
+  TileMap.PLAYER,
+  TileMap.BAGEL,
+  TileMap.SPREADING_TOOL,
+  TileMap.SALMON,
+  TileMap.TOASTER_GUN,
+  TileMap.CREAM_CHEESE
+];
 
 const generateSpawnCoordinates = (map: number[][], rooms: Room[]): { position: Vector2; room: Room } => {
   const randRoom = rooms[getRandomArbitrary(0, rooms.length - 1)];
@@ -137,6 +148,7 @@ class Game {
   private rooms: Room[];
   private gameObjects: Array<GameObject | undefined>;
   private floorLevel: number;
+  private currentLevelType: LevelType;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -149,6 +161,7 @@ class Game {
     this.player = new Player(Vector2.Zero(), TILE_SIZE, TILE_SIZE, this.map);
     this.boss = new WizardBoss(Vector2.Zero(), TILE_SIZE, TILE_SIZE, this.player);
     this.playerInitialSpawn = Vector2.Zero();
+    this.currentLevelType = LevelType.DUNGEON_LEVEL;
     this.setupDungeonLevel();
   }
 
@@ -160,10 +173,10 @@ class Game {
           continue;
 
         // Player collision logic
-        if (this.gameObjects[i]?.getTag() === GameTags.PLAYER_TAG) {
+        if (this.gameObjects[i]?.getTag() === GameTag.PLAYER_TAG) {
           const p = this.gameObjects[i] as Player;
           if (!p.isCollidingWith(this.gameObjects[j]!)) {
-            if (this.gameObjects[j]?.getTag() === GameTags.BAGEL_TAG) {
+            if (this.gameObjects[j]?.getTag() === GameTag.BAGEL_TAG) {
               if (p.getSpreadingToolCount() > 0) {
                 this.gameObjects[j] = undefined;
                 p.setSpreadingToolCount(p.getSpreadingToolCount() - 1);
@@ -174,26 +187,25 @@ class Game {
                 );
               }
             }
-            if (this.gameObjects[j]?.getTag() === GameTags.SALMON_TAG) {
+            if (this.gameObjects[j]?.getTag() === GameTag.SALMON_TAG) {
               this.gameObjects[j] = undefined;
               this.player.setPlayerSpeedConstant(10);
               setTimeout(() => this.player.setPlayerSpeedConstant(5), 5000);
             }
-            if (this.gameObjects[j]?.getTag() === GameTags.CREAM_CHEESE_TAG) {
+            if (this.gameObjects[j]?.getTag() === GameTag.CREAM_CHEESE_TAG) {
               this.gameObjects[j] = undefined;
               this.player.setPlayerSpeedConstant(2);
               setTimeout(() => this.player.setPlayerSpeedConstant(5), 5000);
             }
             if (
-              this.gameObjects[j]?.getTag() === GameTags.SPREADING_TOOL_TAG &&
+              this.gameObjects[j]?.getTag() === GameTag.SPREADING_TOOL_TAG &&
               p.getSpreadingToolCount() < MAX_SPREADING_TOOL_COUNT
             ) {
               this.gameObjects[j] = undefined;
               this.player.setSpreadingToolCount(this.player.getSpreadingToolCount() + 1);
             }
-            if (this.gameObjects[j]?.getTag() === GameTags.TOASTER_GUN) {
+            if (this.gameObjects[j]?.getTag() === GameTag.TOASTER_GUN) {
               this.gameObjects[j] = undefined;
-              console.log(this.player.getToastGunShotCount(), MAX_TOASTER_GUN_SHOT_COUNT);
               if (this.player.getToastGunShotCount() < MAX_TOASTER_GUN_SHOT_COUNT) {
                 this.player.setToasterGunShotCount(this.player.getToastGunShotCount() + 5);
               }
@@ -202,7 +214,7 @@ class Game {
         }
 
         // Bagel collision logic
-        if (this.gameObjects[i]?.getTag() === GameTags.BAGEL_TAG) {
+        if (this.gameObjects[i]?.getTag() === GameTag.BAGEL_TAG) {
           const b = this.gameObjects[i] as Bagel;
           if (prevLives != this.player.getLives()) b.setGameObjectToFollow(undefined);
           if (
@@ -214,7 +226,7 @@ class Game {
           }
         }
 
-        if (this.gameObjects[i]?.getTag() === GameTags.WIZARD_BOSS) {
+        if (this.gameObjects[i]?.getTag() === GameTag.WIZARD_BOSS) {
           const boss = this.gameObjects[i] as WizardBoss;
           if (boss.getRelocationTimer() >= 250) {
             const { position } = generateSpawnCoordinates(this.map, this.rooms);
@@ -251,6 +263,9 @@ class Game {
       this.boss.setHealth(50);
     }
 
+    if (this.currentLevelType === LevelType.BOSS_LEVEL) {
+    }
+
     for (let i = 0; i < this.player.getAttackObjects().length; i++) {
       const object = this.player.getAttackObjects()[i];
       if (!object) continue;
@@ -259,7 +274,7 @@ class Game {
         this.boss.setHealth(this.boss.getHealth() - 5);
       }
       for (let j = 0; j < this.gameObjects.length; j++) {
-        if (this.gameObjects[j]?.getTag() !== GameTags.BAGEL_TAG) continue;
+        if (this.gameObjects[j]?.getTag() !== GameTag.BAGEL_TAG) continue;
         if (!object.isCollidingWith(this.gameObjects[j]!)) {
           this.gameObjects[j] = undefined;
           this.player.removeAttackObject(i);
@@ -296,7 +311,7 @@ class Game {
       for (let i = 0; i < this.map[j].length; i++) {
         if (
           !this.camera.isInRadius(
-            new GameObject(GameTags.ROOM_TAG, new Vector2(i * TILE_SIZE, j * TILE_SIZE), TILE_SIZE, TILE_SIZE)
+            new GameObject(GameTag.ROOM_TAG, new Vector2(i * TILE_SIZE, j * TILE_SIZE), TILE_SIZE, TILE_SIZE)
           )
         ) {
           ctx.drawImage(
@@ -366,7 +381,7 @@ class Game {
     for (let j = 0; j < Math.ceil(sizeY / TILE_SIZE); j++) {
       map.push([]);
       for (let i = 0; i < Math.ceil(sizeX / TILE_SIZE); i++) {
-        map[j].push(0);
+        map[j].push(TileMap.BLACK);
       }
     }
     return map;
@@ -380,48 +395,48 @@ class Game {
           this.map[j][i] === 0 ||
           (this.map[j][i + 1] >= 1 && this.map[j][i - 1] >= 1 && this.map[j + 1][i] >= 1 && this.map[j - 1][i] >= 1)
         ) {
-          if (this.map[j - 1][i - 1] === 0) this.map[j][i] = 15;
-          if (this.map[j + 1][i + 1] === 0) this.map[j][i] = 16;
-          if (this.map[j + 1][i - 1] === 0) this.map[j][i] = 17;
-          if (this.map[j - 1][i + 1] === 0) this.map[j][i] = 18;
+          if (this.map[j - 1][i - 1] === 0) this.map[j][i] = TileMap.BOTTOM_RIGHT_WALL_INNER;
+          if (this.map[j + 1][i + 1] === 0) this.map[j][i] = TileMap.TOP_LEFT_WALL_INNER;
+          if (this.map[j + 1][i - 1] === 0) this.map[j][i] = TileMap.TOP_RIGHT_WALL_INNER;
+          if (this.map[j - 1][i + 1] === 0) this.map[j][i] = TileMap.BOTTOM_LEFT_WALL_INNER;
         } else if (this.map[j][i - 1] === this.map[j - 1][i] && this.map[j + 1][i] >= 1 && this.map[j][i + 1] >= 1) {
-          this.map[j][i] = 5;
+          this.map[j][i] = TileMap.TOP_LEFT_WALL;
         } else if (this.map[j][i + 1] === this.map[j - 1][i] && this.map[j + 1][i] >= 1 && this.map[j][i - 1] >= 1) {
-          this.map[j][i] = 9;
+          this.map[j][i] = TileMap.TOP_RIGHT_WALL;
         } else if (this.map[j + 1][i] === this.map[j][i - 1] && this.map[j - 1][i] >= 1 && this.map[j][i + 1] >= 1) {
-          this.map[j][i] = 13;
+          this.map[j][i] = TileMap.BOTTOM_LEFT_WALL;
         } else if (this.map[j + 1][i] === this.map[j][i + 1] && this.map[j - 1][i] >= 1 && this.map[j][i - 1] >= 1) {
-          this.map[j][i] = 11;
+          this.map[j][i] = TileMap.BOTTOM_RIGHT_WALL;
         } else if (
           this.map[j - 1][i] === 0 &&
           this.map[j + 1][i] >= 1 &&
           this.map[j][i - 1] >= 1 &&
           this.map[j][i + 1] >= 1
         ) {
-          this.map[j][i] = 8;
+          this.map[j][i] = TileMap.TOP_WALL;
         } else if (
           this.map[j + 1][i] === 0 &&
           this.map[j - 1][i] >= 1 &&
           this.map[j][i - 1] >= 1 &&
           this.map[j][i + 1] >= 1
         ) {
-          this.map[j][i] = 12;
+          this.map[j][i] = TileMap.BOTTOM_WALL;
         } else if (
           this.map[j][i - 1] === 0 &&
           this.map[j][i + 1] >= 1 &&
           this.map[j + 1][i] >= 1 &&
           this.map[j - 1][i] >= 1
         ) {
-          this.map[j][i] = 14;
+          this.map[j][i] = TileMap.LEFT_WALL;
         } else if (
           this.map[j][i + 1] === 0 &&
           this.map[j][i - 1] >= 1 &&
           this.map[j + 1][i] >= 1 &&
           this.map[j - 1][i] >= 1
         ) {
-          this.map[j][i] = 10;
+          this.map[j][i] = TileMap.RIGHT_WALL;
         } else {
-          this.map[j][i] = 0;
+          this.map[j][i] = TileMap.BLACK;
         }
       }
     }
@@ -436,7 +451,7 @@ class Game {
     this.rooms = [room];
     for (let j = startY; j < roomHeight; j++) {
       for (let i = startX; i < roomWidth; i++) {
-        this.map[j][i] = 1;
+        this.map[j][i] = TileMap.FLOOR;
       }
     }
   }
@@ -460,7 +475,7 @@ class Game {
     for (let i = 0; i < rooms.length; i++) {
       for (let j = rooms[i].getPosition().y; j < rooms[i].getBottom(); j++) {
         for (let k = rooms[i].getPosition().x; k < rooms[i].getRight(); k++) {
-          this.map[j][k] = 1;
+          this.map[j][k] = TileMap.FLOOR;
         }
       }
     }
@@ -509,14 +524,14 @@ class Game {
 
   private generateStairs(): void {
     const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
-    this.map[position.y][position.x] = 2;
+    this.map[position.y][position.x] = TileMap.PLAYER;
     room.setHasStairs(true);
   }
 
   private spawnPlayer(): void {
     const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
     this.playerInitialSpawn = position;
-    this.map[position.y][position.x] = 3;
+    this.map[position.y][position.x] = TileMap.PLAYER;
     room.setHasPlayer(true);
     this.player.setWorldMap(this.map);
     this.player.setPosition(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE));
@@ -528,7 +543,7 @@ class Game {
     while (bagels.length < MAX_BAGEL_COUNT && attempts < 10) {
       const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
       if (!room.getHasPlayer() && !room.getHasStairs()) {
-        this.map[position.y][position.x] = 4;
+        this.map[position.y][position.x] = TileMap.BAGEL;
         bagels.push(
           new Bagel(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map)
         );
@@ -542,16 +557,16 @@ class Game {
 
   private spawnWeaponsAndPowerUps(): GameObject[] {
     const objects: GameObject[] = [];
-    const randoms = [6, 7, 20, 21];
-    for (let i = 0; i < 5; i++) {
+    const randoms = [TileMap.SALMON, TileMap.SPREADING_TOOL, TileMap.TOASTER_GUN, TileMap.CREAM_CHEESE];
+    for (let i = 0; i < MAX_POWER_UPS_PER_FLOOR; i++) {
       const randomIndex = Math.round(getRandomArbitrary(0, randoms.length - 1));
       const { position } = generateSpawnCoordinates(this.map, this.rooms);
       this.map[position.y][position.x] = randoms[randomIndex];
-      if (randoms[randomIndex] === 6) {
+      if (randoms[randomIndex] === TileMap.SALMON) {
         objects.push(new Salmon(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE));
-      } else if (randoms[randomIndex] === 20) {
+      } else if (randoms[randomIndex] === TileMap.TOASTER_GUN) {
         objects.push(new ToasterGun(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE));
-      } else if (randoms[randomIndex] === 21) {
+      } else if (randoms[randomIndex] === TileMap.CREAM_CHEESE) {
         objects.push(
           new CreamCheese(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE)
         );
@@ -566,7 +581,7 @@ class Game {
 
   private spawnBoss(): WizardBoss {
     const { position } = generateSpawnCoordinates(this.map, this.rooms);
-    this.map[position.y][position.x] = 19;
+    this.map[position.y][position.x] = TileMap.BOSS;
     return new WizardBoss(
       new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE),
       TILE_SIZE,

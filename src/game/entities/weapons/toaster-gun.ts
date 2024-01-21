@@ -1,11 +1,11 @@
-import { GameTags } from "../../../constants";
+import { GameTag } from "../../../constants";
 import Vector2 from "../../math/vector2";
 import Camera from "../camera";
 import GameObject from "../game-object";
 
 class ToasterGun extends GameObject {
   constructor(position: Vector2, width: number, height: number) {
-    super(GameTags.TOASTER_GUN, position, width, height);
+    super(GameTag.TOASTER_GUN, position, width, height);
   }
 
   public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {

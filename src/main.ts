@@ -18,7 +18,6 @@ if (!ctx) throw new Error("No context found");
 const game = new Game(canvas);
 
 let startTime = 0;
-
 let gameStart = false;
 
 const mainMenu = new Menu(canvas)

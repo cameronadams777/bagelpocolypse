@@ -1,4 +1,4 @@
-import { BAGEL_SPEED, GameTags, TILE_SIZE } from "../../../constants";
+import { BAGEL_SPEED, GameTag, TILE_SIZE } from "../../../constants";
 import { clamp } from "../../../helpers";
 import Vector2 from "../../math/vector2";
 import Camera from "../camera";
@@ -12,7 +12,7 @@ class BagelMagic extends GameObject {
   private velocity: Vector2;
 
   constructor(position: Vector2, width: number, height: number, target: Vector2) {
-    super(GameTags.BAGEL_MAGIC, position, width, height);
+    super(GameTag.BAGEL_MAGIC, position, width, height);
     this.target = target;
     this.velocity = Vector2.Zero();
   }
@@ -53,7 +53,7 @@ class WizardBoss extends GameObject {
   private attackObjects: Array<BagelMagic | undefined>;
 
   constructor(position: Vector2, width: number, height: number, player: Player) {
-    super(GameTags.WIZARD_BOSS, position, width, height);
+    super(GameTag.WIZARD_BOSS, position, width, height);
     this.player = player;
     this.health = 50;
     this.attackSpawnTimer = 0;
