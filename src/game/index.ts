@@ -154,6 +154,7 @@ class Game {
   private gameObjects: Array<GameObject | undefined>;
   private floorLevel: number;
   private currentLevelType: LevelType;
+  private randomSpawnTimer: number;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -167,7 +168,9 @@ class Game {
     this.boss = new WizardBoss(Vector2.Zero(), TILE_SIZE, TILE_SIZE, this.player);
     this.playerInitialSpawn = Vector2.Zero();
     this.currentLevelType = LevelType.DUNGEON_LEVEL;
-    this.setupDungeonLevel();
+    this.randomSpawnTimer = 0;
+    this.setupBossLevel();
+    //this.setupDungeonLevel();
   }
 
   public update(deltaTime: number): void {
@@ -252,7 +255,7 @@ class Game {
     if (
       this.map[Math.round(this.player.getPosition().y / TILE_SIZE)][
         Math.round(this.player.getPosition().x / TILE_SIZE)
-      ] === 2
+      ] === TileMap.STAIRS
     ) {
       this.floorLevel += 1;
 
@@ -276,6 +279,13 @@ class Game {
     }
 
     if (this.currentLevelType === LevelType.BOSS_LEVEL) {
+      if (this.randomSpawnTimer >= 1000) {
+        const { position } = generateSpawnCoordinates(this.map, this.rooms);
+        this.gameObjects.push(new ToasterGun(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE));
+        this.randomSpawnTimer = 0;
+      }
+
+      this.randomSpawnTimer += 1;
     }
 
     for (let i = 0; i < this.player.getAttackObjects().length; i++) {
@@ -352,6 +362,8 @@ class Game {
   }
 
   private setupBossLevel(): void {
+    this.currentLevelType = LevelType.BOSS_LEVEL;
+
     this.map = this.generateMap(this.canvas.width, this.canvas.height);
     this.generateBossRoom();
     this.generateWalls();
@@ -371,6 +383,8 @@ class Game {
   }
 
   private setupDungeonLevel(): void {
+    this.currentLevelType = LevelType.DUNGEON_LEVEL;
+
     // Floor generation
     this.map = this.generateMap(this.canvas.width * 4, this.canvas.height * 4);
     this.generateRooms();
