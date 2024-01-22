@@ -16,9 +16,11 @@ import BottomRightInnerWallImage from "../assets/images/bottom-right-inner-wall.
 import { getRandomArbitrary } from "../helpers";
 import { Room } from "./entities/room";
 import {
+  BOSS_RELOCATION_TIMER_CONST,
   GameTag,
   LevelType,
   MAX_BAGEL_COUNT,
+  MAX_OFFICE_WORKERS_PER_FLOOR,
   MAX_POWER_UPS_PER_FLOOR,
   MAX_ROOM_COUNT,
   MAX_ROOM_GEN_ATTEMPTS_COUNT,
@@ -41,6 +43,7 @@ import SpreadingTool from "./entities/weapons/spreading-tool";
 import WizardBoss from "./entities/enemies/wizard-boss";
 import ToasterGun from "./entities/weapons/toaster-gun";
 import CreamCheese from "./entities/cream-cheese";
+import OfficeWorker from "./entities/office-worker";
 
 const stairsSprite = new Image();
 stairsSprite.src = StairsImage;
@@ -109,7 +112,8 @@ const tileMap: Record<TileMap, HTMLImageElement> = {
   [TileMap.BOTTOM_LEFT_WALL_INNER]: bottomLeftInnerWallSprite,
   [TileMap.BOSS]: floorSprite,
   [TileMap.TOASTER_GUN]: floorSprite,
-  [TileMap.CREAM_CHEESE]: floorSprite
+  [TileMap.CREAM_CHEESE]: floorSprite,
+  [TileMap.OFFICE_WORKER]: floorSprite
 };
 
 const entityConstants = [
@@ -119,7 +123,8 @@ const entityConstants = [
   TileMap.SPREADING_TOOL,
   TileMap.SALMON,
   TileMap.TOASTER_GUN,
-  TileMap.CREAM_CHEESE
+  TileMap.CREAM_CHEESE,
+  TileMap.OFFICE_WORKER
 ];
 
 const generateSpawnCoordinates = (map: number[][], rooms: Room[]): { position: Vector2; room: Room } => {
@@ -224,11 +229,16 @@ class Game {
           ) {
             b.setGameObjectToFollow(this.gameObjects[j]!);
           }
+          if (!b.isCollidingWith(this.gameObjects[j]!) && this.gameObjects[j]?.getTag() === GameTag.OFFICE_WORKER) {
+            b.setGameObjectToFollow(undefined);
+            const tempPosition = this.gameObjects[j]?.getPosition()!;
+            this.gameObjects[j] = new Bagel(tempPosition, TILE_SIZE, TILE_SIZE, this.map);
+          }
         }
 
         if (this.gameObjects[i]?.getTag() === GameTag.WIZARD_BOSS) {
           const boss = this.gameObjects[i] as WizardBoss;
-          if (boss.getRelocationTimer() >= 250) {
+          if (boss.getRelocationTimer() >= BOSS_RELOCATION_TIMER_CONST) {
             const { position } = generateSpawnCoordinates(this.map, this.rooms);
             boss.setPosition(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE));
             boss.setRelocationTimer(0);
@@ -252,6 +262,8 @@ class Game {
 
     if (this.player.getLives() <= 0) {
       this.player.setLives(3);
+      this.player.setAttackObjects([]);
+      this.player.setToasterGunShotCount(5);
       this.floorLevel = 1;
       this.setupDungeonLevel();
     }
@@ -369,8 +381,9 @@ class Game {
     // Entity creation
     this.spawnPlayer();
     this.bagels = this.spawnBagels();
+    const npcs = this.spawnNPCs();
     const weaponsAndPowerUps = this.spawnWeaponsAndPowerUps();
-    this.gameObjects = [this.player, ...this.bagels, ...weaponsAndPowerUps];
+    this.gameObjects = [this.player, ...this.bagels, ...weaponsAndPowerUps, ...npcs];
 
     // Set camera
     this.camera.setFollowedObject(this.player);
@@ -543,6 +556,7 @@ class Game {
     while (bagels.length < MAX_BAGEL_COUNT && attempts < 10) {
       const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
       if (!room.getHasPlayer() && !room.getHasStairs()) {
+        room.setHasBagels(true);
         this.map[position.y][position.x] = TileMap.BAGEL;
         bagels.push(
           new Bagel(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map)
@@ -588,6 +602,24 @@ class Game {
       TILE_SIZE,
       this.player
     );
+  }
+
+  private spawnNPCs(): OfficeWorker[] {
+    let attempts = 0;
+    const workers: OfficeWorker[] = [];
+    while (workers.length < MAX_OFFICE_WORKERS_PER_FLOOR && attempts < 10) {
+      const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
+      if (!room.getHasBagels()) {
+        this.map[position.y][position.x] = TileMap.OFFICE_WORKER;
+        workers.push(
+          new OfficeWorker(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map)
+        );
+        attempts = 0;
+        continue;
+      }
+      attempts += 1;
+    }
+    return workers;
   }
 }
 

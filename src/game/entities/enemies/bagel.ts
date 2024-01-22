@@ -50,7 +50,7 @@ class Bagel extends GameObject {
         )
       )
     )
-      this.velocity.x = -BAGEL_SPEED * deltaTime;
+      this.velocity.x = -BAGEL_SPEED;
     if (
       this.follow.getPosition().x > this.getRight() &&
       !(
@@ -171,8 +171,8 @@ class Bagel extends GameObject {
     );
   }
 
-  public isFollowableItem(tag: string): boolean {
-    return ["player"].includes(tag);
+  public isFollowableItem(tag: GameTag): boolean {
+    return [GameTag.PLAYER_TAG, GameTag.OFFICE_WORKER].includes(tag);
   }
 }
 

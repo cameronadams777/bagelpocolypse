@@ -9,7 +9,8 @@ export enum GameTag {
   WIZARD_BOSS = "wizard_boss",
   BAGEL_MAGIC = "bagel_magic",
   FIREBALL = "fireball",
-  TOASTER_GUN = "toaster_gun"
+  TOASTER_GUN = "toaster_gun",
+  OFFICE_WORKER = "office_worker"
 }
 
 export enum TileMap {
@@ -34,7 +35,8 @@ export enum TileMap {
   BOTTOM_LEFT_WALL_INNER = 18,
   BOSS = 19,
   TOASTER_GUN = 20,
-  CREAM_CHEESE = 21
+  CREAM_CHEESE = 21,
+  OFFICE_WORKER = 22
 }
 
 export enum LevelType {
@@ -50,6 +52,7 @@ export const MAX_ROOM_WIDTH = 20;
 export const MAX_ROOM_HEIGHT = 20;
 export const MAX_ROOM_COUNT = 10;
 export const MAX_ROOM_GEN_ATTEMPTS_COUNT = 10;
+export const MAX_OFFICE_WORKERS_PER_FLOOR = 5;
 export const MAX_POWER_UPS_PER_FLOOR = 5;
 export const MAP_CONSTANTS = [
   TileMap.TOP_LEFT_WALL_INNER,
@@ -73,3 +76,5 @@ export const MAX_SPREADING_TOOL_COUNT = 3;
 
 export const BAGEL_SPEED = 3;
 export const MAX_BAGEL_COUNT = 10;
+
+export const BOSS_RELOCATION_TIMER_CONST = 250;

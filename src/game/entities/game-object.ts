@@ -1,17 +1,23 @@
+import { GameTag } from "@/constants";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";
 
 class GameObject {
-  protected tag: string;
+  protected tag: GameTag;
   protected position: Vector2;
   protected width: number;
   protected height: number;
+  protected center: Vector2;
 
-  constructor(tag: string, position: Vector2, width: number, height: number) {
+  constructor(tag: GameTag, position: Vector2, width: number, height: number) {
     this.tag = tag;
     this.position = position;
     this.width = width;
     this.height = height;
+    this.center = new Vector2(
+      Math.floor(this.getPosition().x + this.width / 2),
+      Math.floor(this.getPosition().y + this.height / 2)
+    );
   }
 
   public update(_deltaTime: number): void {}
@@ -26,7 +32,7 @@ class GameObject {
     );
   }
 
-  public getTag(): string {
+  public getTag(): GameTag {
     return this.tag;
   }
 
@@ -60,6 +66,10 @@ class GameObject {
 
   public getBottom(): number {
     return this.position.y + this.height;
+  }
+
+  public getCenter(): Vector2 {
+    return this.center;
   }
 }
 

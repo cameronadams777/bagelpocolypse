@@ -39,7 +39,7 @@
   - [x] Reduce player lives on collisons
   - [x] Is idle
   - [x] Follows player when within radius
-    - [ ] Once alert, continues to follow for X amount of time
+    - [x] Once alert, continues to follow for X amount of time
 
 - [ ] NPC
 
@@ -54,15 +54,15 @@
 
 ### Assets (Artwork)
 
-- [ ] Player
-- [ ] Bagels
+- [x] Player
+- [x] Bagels
   - [ ] Normal Bagel
   - [ ] Everything Bagel
 - [ ] Cream Cheese
-- [ ] Lox (Salmon)
+- [x] Lox (Salmon)
 - [ ] Game World
   - [x] Black outside room texture
-  - [ ] Room floor
-  - [ ] Room wall (Nice to have...)
+  - [x] Room floor
+  - [x] Room wall (Nice to have...)
   - [ ] Obstacles
     - [ ] Desk

@@ -7,16 +7,13 @@ const PROXIMITY_RADIUS_OFFSET = 3;
 export class Room extends GameObject {
   private hasPlayer: boolean;
   private hasStairs: boolean;
-  private center: Vector2;
+  private hasBagels: boolean;
 
   constructor(position: Vector2, width: number, height: number) {
     super(GameTag.ROOM_TAG, position, width, height);
     this.hasPlayer = false;
     this.hasStairs = false;
-    this.center = new Vector2(
-      Math.floor(this.getPosition().x + this.width / 2),
-      Math.floor(this.getPosition().y + this.height / 2)
-    );
+    this.hasBagels = false;
   }
 
   public isInRadius(room: Room): boolean {
@@ -26,14 +23,6 @@ export class Room extends GameObject {
       this.getRight() + PROXIMITY_RADIUS_OFFSET <= room.getPosition().x ||
       this.position.x - PROXIMITY_RADIUS_OFFSET >= room.getRight()
     );
-  }
-
-  public getCenter(): Vector2 {
-    return this.center;
-  }
-
-  public setCenter(center: Vector2): void {
-    this.center = center;
   }
 
   public getHasPlayer(): boolean {
@@ -50,5 +39,13 @@ export class Room extends GameObject {
 
   public setHasStairs(hasStairs: boolean): void {
     this.hasStairs = hasStairs;
+  }
+
+  public getHasBagels(): boolean {
+    return this.hasBagels;
+  }
+
+  public setHasBagels(hasBagels: boolean): void {
+    this.hasBagels = hasBagels;
   }
 }
