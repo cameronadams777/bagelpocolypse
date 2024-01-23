@@ -552,7 +552,7 @@ class Game {
 
   private generateStairs(): void {
     const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
-    this.map[position.y][position.x] = TileMap.PLAYER;
+    this.map[position.y][position.x] = TileMap.STAIRS;
     room.setHasStairs(true);
   }
 

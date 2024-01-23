@@ -112,7 +112,7 @@ class OfficeWorker extends GameObject {
     else this.frameY = 0;
 
     if (this.frameCounter % 7 === 0) {
-      if (this.frameX + 1 > 2) this.frameX = 0;
+      if (this.frameX + 1 > 3) this.frameX = 0;
       else this.frameX++;
     }
     ctx.drawImage(
