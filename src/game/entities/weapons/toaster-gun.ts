@@ -2,7 +2,7 @@ import { GameTag } from "../../../constants";
 import Vector2 from "../../math/vector2";
 import Camera from "../camera";
 import GameObject from "../game-object";
-import ToasterGunSheet from "@/assets/images/toaster-gun-sheet.png";
+import ToasterGunSheet from "@/assets/images/toaster-gun-Sheet.png";
 
 const toasterGunSpriteSheet = new Image();
 toasterGunSpriteSheet.src = ToasterGunSheet;

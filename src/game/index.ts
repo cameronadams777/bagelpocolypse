@@ -169,8 +169,7 @@ class Game {
     this.playerInitialSpawn = Vector2.Zero();
     this.currentLevelType = LevelType.DUNGEON_LEVEL;
     this.randomSpawnTimer = 0;
-    this.setupBossLevel();
-    //this.setupDungeonLevel();
+    this.setupDungeonLevel();
   }
 
   public update(deltaTime: number): void {
@@ -281,7 +280,9 @@ class Game {
     if (this.currentLevelType === LevelType.BOSS_LEVEL) {
       if (this.randomSpawnTimer >= 1000) {
         const { position } = generateSpawnCoordinates(this.map, this.rooms);
-        this.gameObjects.push(new ToasterGun(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE));
+        this.gameObjects.push(
+          new ToasterGun(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE)
+        );
         this.randomSpawnTimer = 0;
       }
 

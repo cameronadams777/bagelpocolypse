@@ -1,10 +1,10 @@
 import GameObject from "./game-object";
-import { GameTag, MAP_CONSTANTS, MAX_PLAYER_SPEED, PLAYER_SPEED, TILE_SIZE } from "@/constants";
+import { GameTag, MAP_CONSTANTS, MAX_PLAYER_SPEED, TILE_SIZE } from "@/constants";
 import PlayerSprite from "@/assets/images/player-sheet.png";
 import SpreadingToolImage from "@/assets/images/spreading-tool-Sheet.png";
 import HeartSprite from "@/assets/images/heart.png";
-import ToasterGunSprite from "@/assets/images/toaster-gun-sheet.png";
-import FireballSprite from "@/assets/images/fire-attack-sheet.png";
+import ToasterGunSprite from "@/assets/images/toaster-gun-Sheet.png";
+import FireballSprite from "@/assets/images/fire-attack-Sheet.png";
 import { clamp } from "@/helpers";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";

@@ -1,5 +1,5 @@
 import { GameTag, MAP_CONSTANTS, TILE_SIZE } from "@/constants";
-import OfficeWorkerSprite from "@/assets/images/office-worker-sheet.png";
+import OfficeWorkerSprite from "@/assets/images/office-worker-Sheet.png";
 import Vector2 from "../math/vector2";
 import GameObject from "./game-object";
 import { clamp, getRandomArbitrary } from "@/helpers";
