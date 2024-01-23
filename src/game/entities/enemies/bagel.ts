@@ -71,13 +71,13 @@ class Bagel extends GameObject {
       this.follow.getPosition().y < this.position.y &&
       !(
         MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
+          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
             Math.floor(this.position.x / TILE_SIZE)
           ]
         ) ||
         MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
-            Math.floor(this.getBottom() / TILE_SIZE)
+          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+            Math.floor(this.getRight() / TILE_SIZE)
           ]
         )
       )
