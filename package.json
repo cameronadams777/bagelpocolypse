@@ -11,8 +11,12 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
+    "@types/pathfinding": "^0.0.9",
     "prettier": "^3.2.1",
     "typescript": "^5.2.2",
     "vite": "^5.0.8"
+  },
+  "dependencies": {
+    "pathfinding": "^0.4.18"
   }
 }

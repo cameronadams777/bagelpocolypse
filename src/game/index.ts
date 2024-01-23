@@ -19,6 +19,7 @@ import {
   BOSS_RELOCATION_TIMER_CONST,
   GameTag,
   LevelType,
+  MAP_CONSTANTS,
   MAX_BAGEL_COUNT,
   MAX_OFFICE_WORKERS_PER_FLOOR,
   MAX_POWER_UPS_PER_FLOOR,
@@ -44,6 +45,7 @@ import WizardBoss from "./entities/enemies/wizard-boss";
 import ToasterGun from "./entities/weapons/toaster-gun";
 import CreamCheese from "./entities/cream-cheese";
 import OfficeWorker from "./entities/office-worker";
+import { Grid } from "pathfinding";
 
 const stairsSprite = new Image();
 stairsSprite.src = StairsImage;
@@ -149,7 +151,8 @@ class Game {
   private boss: WizardBoss;
   private playerInitialSpawn: Vector2;
   private bagels: Bagel[];
-  private map: number[][];
+  private map: TileMap[][];
+  private grid: Grid;
   private rooms: Room[];
   private gameObjects: Array<GameObject | undefined>;
   private floorLevel: number;

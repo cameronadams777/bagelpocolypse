@@ -12,6 +12,10 @@ class Vector2 {
     this.y += vec.y;
   }
 
+  public toString(): string {
+    return `${this.x}_${this.y}`;
+  }
+
   public static Zero(): Vector2 {
     return new Vector2(0, 0);
   }
