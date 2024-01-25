@@ -13,6 +13,14 @@ class Menu {
   public draw(ctx: CanvasRenderingContext2D): void {
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    const title = "Bagelpocolypse";
+    const titleMeasurements = ctx.measureText(title);
+    ctx.font = "100px Creepster";
+    ctx.fillStyle = "red";
+    ctx.textAlign = "left";
+    ctx.fillText(title, this.canvas.width / 2 - titleMeasurements.width * 1.75, this.canvas.height * 0.25);
+
     for (let i = 0; i < this.buttons.length; i++) {
       this.buttons[i].draw(ctx);
     }
