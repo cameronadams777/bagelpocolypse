@@ -58,7 +58,6 @@ class OfficeWorker extends GameObject {
   }
 
   public update(deltaTime: number): void {
-    this.velocity = Vector2.Zero();
     this.followPath();
     // Determine if we should change direction
     /*if (
@@ -178,10 +177,21 @@ class OfficeWorker extends GameObject {
     ) {
       this.pathToFollow = this.pathToFollow.slice(1, this.pathToFollow.length - 1);
     } else {
-      if (mapBasedPosition.x < currentPathPosition[0]) this.velocity.x = BAGEL_SPEED;
-      else if (mapBasedPosition.x > currentPathPosition[0]) this.velocity.x = -BAGEL_SPEED;
-      else if (mapBasedPosition.y < currentPathPosition[1]) this.velocity.y = BAGEL_SPEED;
-      else if (mapBasedPosition.y > currentPathPosition[1]) this.velocity.y = -BAGEL_SPEED;
+      if (mapBasedPosition.x < currentPathPosition[0]) {
+        this.velocity.x = BAGEL_SPEED;
+        this.velocity.y = 0;
+      } else if (mapBasedPosition.x > currentPathPosition[0]) {
+        this.velocity.x = -BAGEL_SPEED;
+        this.velocity.y = 0;
+      } else if (mapBasedPosition.y < currentPathPosition[1]) {
+        this.velocity.y = BAGEL_SPEED;
+        this.velocity.x = 0;
+      } else if (mapBasedPosition.y > currentPathPosition[1]) {
+        this.velocity.y = -BAGEL_SPEED;
+        this.velocity.x = 0;
+      } else {
+        this.velocity = Vector2.Zero();
+      }
     }
 
     if (!this.pathToFollow.length) {

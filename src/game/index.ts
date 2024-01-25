@@ -249,7 +249,6 @@ class Game {
           if (boss.getRelocationTimer() >= BOSS_RELOCATION_TIMER_CONST) {
             const { position } = generateSpawnCoordinates(this.map, this.rooms);
             boss.setPosition(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE));
-            boss.setRelocationTimer(0);
           }
         }
       }
@@ -405,7 +404,7 @@ class Game {
 
     this.generateCorridors();
     this.generateWalls();
-    //this.generateStairs();
+    this.generateStairs();
 
     // Entity creation
     this.spawnPlayer();
@@ -652,15 +651,11 @@ class Game {
     const workers: OfficeWorker[] = [];
     while (workers.length < MAX_OFFICE_WORKERS_PER_FLOOR && attempts < 10) {
       const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
-      if (!room.getHasBagels()) {
-        this.map[position.y][position.x] = TileMap.OFFICE_WORKER;
-        workers.push(
-          new OfficeWorker(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map)
-        );
-        attempts = 0;
-        continue;
-      }
-      attempts += 1;
+      this.map[position.y][position.x] = TileMap.OFFICE_WORKER;
+      workers.push(
+        new OfficeWorker(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map)
+      );
+      attempts = 0;
     }
     return workers;
   }
