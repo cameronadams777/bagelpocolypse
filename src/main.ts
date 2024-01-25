@@ -1,4 +1,6 @@
+import { Scenes } from "./constants";
 import Game from "./game";
+import OpeningScene from "./game/cutscenes/opening-scene";
 import Vector2 from "./game/math/vector2";
 import Button from "./game/ui/button";
 import Menu from "./game/ui/menu";
@@ -18,7 +20,12 @@ if (!ctx) throw new Error("No context found");
 const game = new Game(canvas);
 
 let startTime = 0;
-let gameStart = false;
+
+let currentScene = Scenes.MAIN_MENU;
+
+const openingScene = new OpeningScene(canvas, () => {
+  currentScene = Scenes.GAME;
+});
 
 const mainMenu = new Menu(canvas)
   .setBackgroundColor("#000")
@@ -30,7 +37,7 @@ const mainMenu = new Menu(canvas)
       "Play Demo",
       "red",
       "#fff",
-      () => (gameStart = true)
+      () => (currentScene = Scenes.OPENING_SCENE)
     )
   )
   .addButton(
@@ -48,11 +55,17 @@ const loop = (now: number = 0) => {
   let deltaTime = now - startTime;
   startTime = now;
 
-  if (gameStart) {
-    game.update(deltaTime);
-    game.draw(ctx);
-  } else {
-    mainMenu.draw(ctx);
+  switch (currentScene) {
+    case Scenes.MAIN_MENU:
+      mainMenu.draw(ctx);
+      break;
+    case Scenes.GAME:
+      game.update(deltaTime);
+      game.draw(ctx);
+      break;
+    case Scenes.OPENING_SCENE:
+      openingScene.draw(ctx);
+      break;
   }
 
   requestAnimationFrame(loop);

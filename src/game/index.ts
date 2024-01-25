@@ -13,7 +13,7 @@ import BottomLeftWallImage from "@/assets/images/bottom-left-wall.png";
 import BottomLeftInnerWallImage from "@/assets/images/bottom-left-inner-wall.png";
 import LeftWallImage from "@/assets/images/left-wall.png";
 import BottomRightInnerWallImage from "@/assets/images/bottom-right-inner-wall.png";
-import { getRandomArbitrary } from "@/helpers";
+import { getRandomArbitrary, romanize } from "@/helpers";
 import { Room } from "./entities/room";
 import {
   BOSS_RELOCATION_TIMER_CONST,
@@ -362,9 +362,10 @@ class Game {
       this.boss.getAttackObjects()[i]?.draw(ctx);
     }
 
-    ctx.font = `40px Verdana`;
+    ctx.font = `60px Creepster`;
     ctx.fillStyle = "red";
-    ctx.fillText(`Floor: ${this.floorLevel.toString()}`, 50, 50);
+    const floorText = this.floorLevel < 11 ? romanize(this.floorLevel).toString() : this.floorLevel.toString();
+    ctx.fillText(floorText, 50, 65);
   }
 
   private setupBossLevel(): void {
