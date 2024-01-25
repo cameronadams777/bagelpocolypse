@@ -52,7 +52,7 @@ export const MAX_ROOM_WIDTH = 20;
 export const MAX_ROOM_HEIGHT = 20;
 export const MAX_ROOM_COUNT = 10;
 export const MAX_ROOM_GEN_ATTEMPTS_COUNT = 10;
-export const MAX_OFFICE_WORKERS_PER_FLOOR = 1;
+export const MAX_OFFICE_WORKERS_PER_FLOOR = 5;
 export const MAX_POWER_UPS_PER_FLOOR = 5;
 export const MAP_CONSTANTS = [
   TileMap.BLACK,

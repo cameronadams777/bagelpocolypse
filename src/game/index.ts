@@ -19,7 +19,6 @@ import {
   BOSS_RELOCATION_TIMER_CONST,
   GameTag,
   LevelType,
-  MAP_CONSTANTS,
   MAX_BAGEL_COUNT,
   MAX_OFFICE_WORKERS_PER_FLOOR,
   MAX_POWER_UPS_PER_FLOOR,
@@ -45,7 +44,7 @@ import WizardBoss from "./entities/enemies/wizard-boss";
 import ToasterGun from "./entities/weapons/toaster-gun";
 import CreamCheese from "./entities/cream-cheese";
 import OfficeWorker from "./entities/office-worker";
-import { Grid } from "pathfinding";
+import { Grid, AStarFinder, DiagonalMovement } from "pathfinding";
 
 const stairsSprite = new Image();
 stairsSprite.src = StairsImage;
@@ -143,6 +142,10 @@ const generateSpawnCoordinates = (map: number[][], rooms: Room[]): { position: V
     room: randRoom
   };
 };
+
+const pathfinder = new AStarFinder({
+  diagonalMovement: DiagonalMovement.Never
+});
 
 class Game {
   private canvas: HTMLCanvasElement;
@@ -392,9 +395,17 @@ class Game {
     // Floor generation
     this.map = this.generateMap(this.canvas.width * 4, this.canvas.height * 4);
     this.generateRooms();
+
+    this.grid = new Grid(this.map);
+    for (let j = 0; j < this.map.length; j++) {
+      for (let i = 0; i < this.map[0].length; i++) {
+        this.grid.setWalkableAt(i, j, true);
+      }
+    }
+
     this.generateCorridors();
     this.generateWalls();
-    this.generateStairs();
+    //this.generateStairs();
 
     // Entity creation
     this.spawnPlayer();
@@ -518,13 +529,27 @@ class Game {
     while (curr != this.rooms.length - 1) {
       const currentCenter = this.rooms[curr].getCenter();
       const nextCenter = this.rooms[curr + 1].getCenter();
-      const path = this.generatePath(currentCenter, nextCenter);
+      const path = pathfinder
+        .findPath(currentCenter.x, currentCenter.y, nextCenter.x, nextCenter.y, this.grid.clone())
+        .map((vector) => new Vector2(vector[0], vector[1]));
       paths.push(path);
       curr += 1;
     }
     for (let j = 0; j < paths.length; j++) {
       for (let i = 0; i < paths[j].length; i++) {
         this.map[paths[j][i].y][paths[j][i].x] = 1;
+        this.map[paths[j][i].y + 1][paths[j][i].x] = 1;
+        this.map[paths[j][i].y - 1][paths[j][i].x] = 1;
+        this.map[paths[j][i].y + 2][paths[j][i].x] = 1;
+        this.map[paths[j][i].y - 2][paths[j][i].x] = 1;
+        this.map[paths[j][i].y + 3][paths[j][i].x] = 1;
+        this.map[paths[j][i].y - 3][paths[j][i].x] = 1;
+        this.map[paths[j][i].y][paths[j][i].x + 1] = 1;
+        this.map[paths[j][i].y][paths[j][i].x - 1] = 1;
+        this.map[paths[j][i].y][paths[j][i].x + 2] = 1;
+        this.map[paths[j][i].y][paths[j][i].x - 2] = 1;
+        this.map[paths[j][i].y][paths[j][i].x + 3] = 1;
+        this.map[paths[j][i].y][paths[j][i].x - 3] = 1;
       }
     }
   }

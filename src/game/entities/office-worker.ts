@@ -1,16 +1,18 @@
-import { GameTag, MAP_CONSTANTS, TILE_SIZE, TileMap } from "@/constants";
+import { BAGEL_SPEED, GameTag, TILE_SIZE, TileMap } from "@/constants";
 import OfficeWorkerSprite from "@/assets/images/office-worker-Sheet.png";
 import Vector2 from "../math/vector2";
 import GameObject from "./game-object";
 import { clamp, getRandomArbitrary } from "@/helpers";
 import Camera from "./camera";
+import { Grid, AStarFinder, DiagonalMovement } from "pathfinding";
 
 const officeWorkerSpriteSheet = new Image();
 officeWorkerSpriteSheet.src = OfficeWorkerSprite;
 
-const TARGET_RANGE = 2;
-
-const pathfinder = new Worker("pathfinder.ts", { type: "module" });
+//const pathfinder = new Worker("pathfinder.ts", { type: "module" });
+const pathfinder = new AStarFinder({
+  diagonalMovement: DiagonalMovement.Never
+});
 
 class OfficeWorker extends GameObject {
   private nextPosition: Vector2;
@@ -20,6 +22,7 @@ class OfficeWorker extends GameObject {
   private frameY: number;
   private frameCounter: number;
   private pathToFollow: number[][];
+  private grid: Grid;
 
   constructor(position: Vector2, width: number, height: number, map: number[][]) {
     super(GameTag.OFFICE_WORKER, position, width, height);
@@ -30,20 +33,35 @@ class OfficeWorker extends GameObject {
     this.frameCounter = 0;
     this.pathToFollow = [];
     this.nextPosition = this.getNextPosition();
-    //console.log(this.position, this.nextPosition);
-    pathfinder.postMessage({ position: this.position, nextPosition: this.nextPosition, map: this.worldMap });
 
-    pathfinder.onmessage = function (message) {
-      console.log(message.data);
-    };
-    //console.log(this.getWalkingPath());
+    const startPosition = new Vector2(this.position.x / TILE_SIZE, this.position.y / TILE_SIZE);
+    this.grid = new Grid(map);
+    for (let j = 0; j < map.length; j++) {
+      for (let i = 0; i < map[j].length; i++) {
+        if (map[j][i] !== TileMap.FLOOR) this.grid.setWalkableAt(i, j, false);
+        else this.grid.setWalkableAt(i, j, true);
+      }
+    }
+    this.pathToFollow = pathfinder.findPath(
+      startPosition.x,
+      startPosition.y,
+      this.nextPosition.x,
+      this.nextPosition.y,
+      this.grid.clone()
+    );
+
+    /*pathfinder.postMessage({ position: this.position, nextPosition: this.nextPosition, map: this.worldMap });
+
+    pathfinder.onmessage = (message) => {
+      this.pathToFollow = message.data as number[][];
+    };*/
   }
 
   public update(deltaTime: number): void {
-    //if (!this.nearTarget()) this.nextPosition = this.getNextPosition();
-    //if (this.nextPosition === Vector2.Zero()) return;
+    this.velocity = Vector2.Zero();
+    this.followPath();
     // Determine if we should change direction
-    if (
+    /*if (
       this.velocity.x < 0 &&
       (MAP_CONSTANTS.includes(
         this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
@@ -102,7 +120,7 @@ class OfficeWorker extends GameObject {
         ))
     ) {
       this.velocity.y = 0;
-    }
+    }*/
 
     this.velocity.x = clamp(this.velocity.x * deltaTime, -2, 2);
     this.velocity.y = clamp(this.velocity.y * deltaTime, -2, 2);
@@ -118,7 +136,7 @@ class OfficeWorker extends GameObject {
     else this.frameY = 0;
 
     if (this.frameCounter % 7 === 0) {
-      if (this.frameX + 1 > 3) this.frameX = 0;
+      if (this.frameX >= 3) this.frameX = 0;
       else this.frameX++;
     }
     ctx.drawImage(
@@ -147,13 +165,35 @@ class OfficeWorker extends GameObject {
     return newPosition || Vector2.Zero();
   }
 
-  private nearTarget(): boolean {
-    return (
-      this.getBottom() + TARGET_RANGE <= this.nextPosition.y ||
-      this.position.y - TARGET_RANGE >= this.nextPosition.y + TILE_SIZE ||
-      this.getRight() + TARGET_RANGE <= this.nextPosition.x ||
-      this.position.x - TARGET_RANGE >= this.nextPosition.x + TILE_SIZE
+  private followPath(): void {
+    const currentPathPosition = this.pathToFollow[0];
+    if (!currentPathPosition) return;
+    const mapBasedPosition = new Vector2(
+      Math.round(this.position.x / TILE_SIZE),
+      Math.round(this.position.y / TILE_SIZE)
     );
+    if (
+      Math.abs(mapBasedPosition.x - currentPathPosition[0]) <= 0 &&
+      Math.abs(mapBasedPosition.y - currentPathPosition[1]) <= 0
+    ) {
+      this.pathToFollow = this.pathToFollow.slice(1, this.pathToFollow.length - 1);
+    } else {
+      if (mapBasedPosition.x < currentPathPosition[0]) this.velocity.x = BAGEL_SPEED;
+      else if (mapBasedPosition.x > currentPathPosition[0]) this.velocity.x = -BAGEL_SPEED;
+      else if (mapBasedPosition.y < currentPathPosition[1]) this.velocity.y = BAGEL_SPEED;
+      else if (mapBasedPosition.y > currentPathPosition[1]) this.velocity.y = -BAGEL_SPEED;
+    }
+
+    if (!this.pathToFollow.length) {
+      this.nextPosition = this.getNextPosition();
+      this.pathToFollow = pathfinder.findPath(
+        mapBasedPosition.x,
+        mapBasedPosition.y,
+        this.nextPosition.x,
+        this.nextPosition.y,
+        this.grid.clone()
+      );
+    }
   }
 }
 
