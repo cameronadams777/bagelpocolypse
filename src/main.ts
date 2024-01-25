@@ -1,5 +1,6 @@
 import { Scenes } from "./constants";
 import Game from "./game";
+import EndingScene from "./game/cutscenes/ending-scene";
 import OpeningScene from "./game/cutscenes/opening-scene";
 import Vector2 from "./game/math/vector2";
 import Button from "./game/ui/button";
@@ -17,13 +18,19 @@ const ctx = canvas.getContext("2d");
 
 if (!ctx) throw new Error("No context found");
 
-const game = new Game(canvas);
-
 let startTime = 0;
 
 let currentScene = Scenes.MAIN_MENU;
 
+const game = new Game(canvas, (scene: Scenes) => {
+  currentScene = scene;
+});
+
 const openingScene = new OpeningScene(canvas, () => {
+  currentScene = Scenes.GAME;
+});
+
+const endScene = new EndingScene(canvas, () => {
   currentScene = Scenes.GAME;
 });
 
@@ -65,6 +72,9 @@ const loop = (now: number = 0) => {
       break;
     case Scenes.OPENING_SCENE:
       openingScene.draw(ctx);
+      break;
+    case Scenes.CLOSING_SCENE:
+      endScene.draw(ctx);
       break;
   }
 

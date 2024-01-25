@@ -30,6 +30,7 @@ import {
   MAX_TOASTER_GUN_SHOT_COUNT,
   MIN_ROOM_HEIGHT,
   MIN_ROOM_WIDTH,
+  Scenes,
   TILE_SIZE,
   TileMap
 } from "@/constants";
@@ -161,8 +162,9 @@ class Game {
   private floorLevel: number;
   private currentLevelType: LevelType;
   private randomSpawnTimer: number;
+  private onChangeScene: (scene: Scenes) => void;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, onChangeScene: (scene: Scenes) => void) {
     this.canvas = canvas;
     this.floorLevel = 1;
     this.camera = new Camera(Vector2.Zero(), canvas.width, canvas.height);
@@ -175,6 +177,7 @@ class Game {
     this.playerInitialSpawn = Vector2.Zero();
     this.currentLevelType = LevelType.DUNGEON_LEVEL;
     this.randomSpawnTimer = 0;
+    this.onChangeScene = onChangeScene;
     this.setupDungeonLevel();
   }
 
@@ -263,7 +266,7 @@ class Game {
     ) {
       this.floorLevel += 1;
 
-      if (this.floorLevel % 15 === 0) this.setupBossLevel();
+      if (this.floorLevel % 10 === 0) this.setupBossLevel();
       else this.setupDungeonLevel();
     }
 
@@ -276,7 +279,7 @@ class Game {
     }
 
     if (this.boss.getHealth() <= 0) {
-      this.setupDungeonLevel();
+      this.onChangeScene(Scenes.CLOSING_SCENE);
       this.floorLevel += 1;
       this.boss.setPosition(Vector2.Zero());
       this.boss.setHealth(50);
