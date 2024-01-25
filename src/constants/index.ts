@@ -55,6 +55,7 @@ export const MAX_ROOM_GEN_ATTEMPTS_COUNT = 10;
 export const MAX_OFFICE_WORKERS_PER_FLOOR = 5;
 export const MAX_POWER_UPS_PER_FLOOR = 5;
 export const MAP_CONSTANTS = [
+  TileMap.BLACK,
   TileMap.TOP_LEFT_WALL_INNER,
   TileMap.TOP_WALL,
   TileMap.TOP_RIGHT_WALL,

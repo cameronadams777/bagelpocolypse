@@ -1,14 +1,19 @@
+import { Grid, AStarFinder, DiagonalMovement } from "pathfinding";
 import GameObject from "../game-object";
-import Vector2 from "../../math/vector2";
 import Camera from "../camera";
-import { BAGEL_SPEED, GameTag, MAP_CONSTANTS, TILE_SIZE } from "../../../constants";
-import { clamp } from "../../../helpers";
-import BasicBagelSpriteSheet from "../../../assets/images/basic-bagel-Sheet.png";
+import Vector2 from "@/game/math/vector2";
+import { BAGEL_SPEED, GameTag, MAP_CONSTANTS, TILE_SIZE, TileMap } from "@/constants";
+import { clamp, getRandomArbitrary } from "@/helpers";
+import BasicBagelSpriteSheet from "@/assets/images/basic-bagel-Sheet.png";
 
 const DETECTION_RADIUS_OFFSET = 150;
 
 const spriteSheet = new Image();
 spriteSheet.src = BasicBagelSpriteSheet;
+
+const pathfinder = new AStarFinder({
+  diagonalMovement: DiagonalMovement.Never
+});
 
 class Bagel extends GameObject {
   private velocity: Vector2;
@@ -18,6 +23,10 @@ class Bagel extends GameObject {
   private frameX: number;
   private frameY: number;
   private frameCounter: number;
+  private resetTimer: number;
+  private pathToFollow: number[][];
+  private nextPosition: Vector2;
+  private grid: Grid;
 
   constructor(position: Vector2, width: number, height: number, map: number[][]) {
     super(GameTag.BAGEL_TAG, position, width, height);
@@ -25,85 +34,106 @@ class Bagel extends GameObject {
     this.velocity = Vector2.Zero();
     this.follow = undefined;
     this.followTimer = 0;
+    this.resetTimer = 0;
     this.frameX = 0;
     this.frameY = 0;
     this.frameCounter = 0;
+
+    this.pathToFollow = [];
+    this.nextPosition = this.getNextPosition();
+
+    const startPosition = new Vector2(Math.round(this.position.x / TILE_SIZE), Math.round(this.position.y / TILE_SIZE));
+    this.grid = new Grid(map);
+    for (let j = 0; j < map.length; j++) {
+      for (let i = 0; i < map[j].length; i++) {
+        if (map[j][i] !== TileMap.FLOOR) this.grid.setWalkableAt(i, j, false);
+        else this.grid.setWalkableAt(i, j, true);
+      }
+    }
+    this.pathToFollow = pathfinder.findPath(
+      startPosition.x,
+      startPosition.y,
+      this.nextPosition.x,
+      this.nextPosition.y,
+      this.grid.clone()
+    );
   }
 
   public update(deltaTime: number): void {
-    this.velocity = Vector2.Zero();
+    if (this.follow != null) {
+      this.velocity = Vector2.Zero();
+      if (
+        this.follow.getPosition().x < this.position.x &&
+        !(
+          MAP_CONSTANTS.includes(
+            this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+              Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
+            ]
+          ) ||
+          MAP_CONSTANTS.includes(
+            this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+              Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
+            ]
+          )
+        )
+      )
+        this.velocity.x = -BAGEL_SPEED;
+      if (
+        this.follow.getPosition().x > this.getRight() &&
+        !(
+          MAP_CONSTANTS.includes(
+            this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
+              Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
+            ]
+          ) ||
+          MAP_CONSTANTS.includes(
+            this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
+              Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
+            ]
+          )
+        )
+      )
+        this.velocity.x = BAGEL_SPEED;
+      if (
+        this.follow.getPosition().y < this.position.y &&
+        !(
+          MAP_CONSTANTS.includes(
+            this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+              Math.floor(this.position.x / TILE_SIZE)
+            ]
+          ) ||
+          MAP_CONSTANTS.includes(
+            this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+              Math.floor(this.getRight() / TILE_SIZE)
+            ]
+          )
+        )
+      )
+        this.velocity.y = -BAGEL_SPEED;
+      if (
+        this.follow.getPosition().y > this.getBottom() &&
+        !(
+          MAP_CONSTANTS.includes(
+            this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+              Math.floor(this.position.x / TILE_SIZE)
+            ]
+          ) ||
+          MAP_CONSTANTS.includes(
+            this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
+              Math.floor(this.getRight() / TILE_SIZE)
+            ]
+          )
+        )
+      )
+        this.velocity.y = BAGEL_SPEED;
 
-    if (this.follow == null) return;
-
-    if (
-      this.follow.getPosition().x < this.position.x &&
-      !(
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
-            Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-          ]
-        ) ||
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
-            Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-          ]
-        )
-      )
-    )
-      this.velocity.x = -BAGEL_SPEED;
-    if (
-      this.follow.getPosition().x > this.getRight() &&
-      !(
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
-            Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-          ]
-        ) ||
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
-            Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-          ]
-        )
-      )
-    )
-      this.velocity.x = BAGEL_SPEED;
-    if (
-      this.follow.getPosition().y < this.position.y &&
-      !(
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
-            Math.floor(this.position.x / TILE_SIZE)
-          ]
-        ) ||
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
-            Math.floor(this.getRight() / TILE_SIZE)
-          ]
-        )
-      )
-    )
-      this.velocity.y = -BAGEL_SPEED;
-    if (
-      this.follow.getPosition().y > this.getBottom() &&
-      !(
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
-            Math.floor(this.position.x / TILE_SIZE)
-          ]
-        ) ||
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
-            Math.floor(this.getRight() / TILE_SIZE)
-          ]
-        )
-      )
-    )
-      this.velocity.y = BAGEL_SPEED;
-
-    this.followTimer += 1;
-    if (this.followTimer >= 500 && this.isInRadius(this.follow)) {
-      this.follow = undefined;
-      this.followTimer = 0;
+      this.followTimer += 1;
+      if (this.followTimer >= 500 && this.isInRadius(this.follow)) {
+        this.follow = undefined;
+        this.followTimer = 0;
+      }
+    } else {
+      this.followPath();
     }
 
     this.velocity.x = clamp(this.velocity.x * deltaTime, -BAGEL_SPEED, BAGEL_SPEED);
@@ -173,6 +203,66 @@ class Bagel extends GameObject {
 
   public isFollowableItem(tag: GameTag): boolean {
     return [GameTag.PLAYER_TAG, GameTag.OFFICE_WORKER].includes(tag);
+  }
+
+  private getNextPosition(): Vector2 {
+    let newPosition;
+    let attempts = 0;
+    while (!newPosition || attempts < 10) {
+      const xVal = getRandomArbitrary(0, this.worldMap[0].length - 1);
+      const yVal = getRandomArbitrary(0, this.worldMap.length - 1);
+      if (this.worldMap[yVal][xVal] === TileMap.FLOOR) newPosition = new Vector2(xVal, yVal);
+      attempts += 1;
+    }
+    return newPosition || Vector2.Zero();
+  }
+
+  private followPath(): void {
+    const currentPathPosition = this.pathToFollow[0];
+    if (!currentPathPosition) return;
+    const mapBasedPosition = new Vector2(
+      Math.round(this.position.x / TILE_SIZE),
+      Math.round(this.position.y / TILE_SIZE)
+    );
+    if (
+      Math.abs(mapBasedPosition.x - currentPathPosition[0]) <= 0 &&
+      Math.abs(mapBasedPosition.y - currentPathPosition[1]) <= 0
+    ) {
+      this.pathToFollow = this.pathToFollow.slice(1, this.pathToFollow.length - 1);
+    } else {
+      if (mapBasedPosition.x < currentPathPosition[0]) {
+        this.velocity.x = BAGEL_SPEED;
+        this.velocity.y = 0;
+      } else if (mapBasedPosition.x > currentPathPosition[0]) {
+        this.velocity.x = -BAGEL_SPEED;
+        this.velocity.y = 0;
+      } else if (mapBasedPosition.y < currentPathPosition[1]) {
+        this.velocity.y = BAGEL_SPEED;
+        this.velocity.x = 0;
+      } else if (mapBasedPosition.y > currentPathPosition[1]) {
+        this.velocity.y = -BAGEL_SPEED;
+        this.velocity.x = 0;
+      } else {
+        this.velocity = Vector2.Zero();
+      }
+    }
+
+    if (!this.pathToFollow.length) {
+      if (this.resetTimer >= 250) {
+        this.nextPosition = this.getNextPosition();
+        this.pathToFollow = pathfinder.findPath(
+          mapBasedPosition.x,
+          mapBasedPosition.y,
+          this.nextPosition.x,
+          this.nextPosition.y,
+          this.grid.clone()
+        );
+        this.resetTimer = 0;
+        return;
+      }
+
+      this.resetTimer += 1;
+    }
   }
 }
 

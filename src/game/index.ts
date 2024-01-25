@@ -1,19 +1,19 @@
-import CarpetImage from "../assets/images/floor-carpet.png";
-import BlackImage from "../assets/images/black.png";
-import StairsImage from "../assets/images/stairs.png";
-import TopLeftWallImage from "../assets/images/top-left-wall.png";
-import TopLeftInnerWallImage from "../assets/images/top-left-inner-wall.png";
-import TopWallImage from "../assets/images/top-wall.png";
-import TopRightWallImage from "../assets/images/top-right-wall.png";
-import TopRightInnerWallImage from "../assets/images/top-right-inner-wall.png";
-import RightWallImage from "../assets/images/right-wall.png";
-import BottomRightWallImage from "../assets/images/bottom-right-wall.png";
-import BottomWallImage from "../assets/images/bottom-wall.png";
-import BottomLeftWallImage from "../assets/images/bottom-left-wall.png";
-import BottomLeftInnerWallImage from "../assets/images/bottom-left-inner-wall.png";
-import LeftWallImage from "../assets/images/left-wall.png";
-import BottomRightInnerWallImage from "../assets/images/bottom-right-inner-wall.png";
-import { getRandomArbitrary } from "../helpers";
+import CarpetImage from "@/assets/images/floor-carpet.png";
+import BlackImage from "@/assets/images/black.png";
+import StairsImage from "@/assets/images/stairs.png";
+import TopLeftWallImage from "@/assets/images/top-left-wall.png";
+import TopLeftInnerWallImage from "@/assets/images/top-left-inner-wall.png";
+import TopWallImage from "@/assets/images/top-wall.png";
+import TopRightWallImage from "@/assets/images/top-right-wall.png";
+import TopRightInnerWallImage from "@/assets/images/top-right-inner-wall.png";
+import RightWallImage from "@/assets/images/right-wall.png";
+import BottomRightWallImage from "@/assets/images/bottom-right-wall.png";
+import BottomWallImage from "@/assets/images/bottom-wall.png";
+import BottomLeftWallImage from "@/assets/images/bottom-left-wall.png";
+import BottomLeftInnerWallImage from "@/assets/images/bottom-left-inner-wall.png";
+import LeftWallImage from "@/assets/images/left-wall.png";
+import BottomRightInnerWallImage from "@/assets/images/bottom-right-inner-wall.png";
+import { getRandomArbitrary } from "@/helpers";
 import { Room } from "./entities/room";
 import {
   BOSS_RELOCATION_TIMER_CONST,
@@ -32,7 +32,7 @@ import {
   MIN_ROOM_WIDTH,
   TILE_SIZE,
   TileMap
-} from "../constants";
+} from "@/constants";
 import Player from "./entities/player";
 import Bagel from "./entities/enemies/bagel";
 import GameObject from "./entities/game-object";
@@ -44,6 +44,7 @@ import WizardBoss from "./entities/enemies/wizard-boss";
 import ToasterGun from "./entities/weapons/toaster-gun";
 import CreamCheese from "./entities/cream-cheese";
 import OfficeWorker from "./entities/office-worker";
+import { Grid, AStarFinder, DiagonalMovement } from "pathfinding";
 
 const stairsSprite = new Image();
 stairsSprite.src = StairsImage;
@@ -142,6 +143,10 @@ const generateSpawnCoordinates = (map: number[][], rooms: Room[]): { position: V
   };
 };
 
+const pathfinder = new AStarFinder({
+  diagonalMovement: DiagonalMovement.Never
+});
+
 class Game {
   private canvas: HTMLCanvasElement;
   private camera: Camera;
@@ -149,7 +154,8 @@ class Game {
   private boss: WizardBoss;
   private playerInitialSpawn: Vector2;
   private bagels: Bagel[];
-  private map: number[][];
+  private map: TileMap[][];
+  private grid: Grid;
   private rooms: Room[];
   private gameObjects: Array<GameObject | undefined>;
   private floorLevel: number;
@@ -243,7 +249,6 @@ class Game {
           if (boss.getRelocationTimer() >= BOSS_RELOCATION_TIMER_CONST) {
             const { position } = generateSpawnCoordinates(this.map, this.rooms);
             boss.setPosition(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE));
-            boss.setRelocationTimer(0);
           }
         }
       }
@@ -389,6 +394,14 @@ class Game {
     // Floor generation
     this.map = this.generateMap(this.canvas.width * 4, this.canvas.height * 4);
     this.generateRooms();
+
+    this.grid = new Grid(this.map);
+    for (let j = 0; j < this.map.length; j++) {
+      for (let i = 0; i < this.map[0].length; i++) {
+        this.grid.setWalkableAt(i, j, true);
+      }
+    }
+
     this.generateCorridors();
     this.generateWalls();
     this.generateStairs();
@@ -515,39 +528,29 @@ class Game {
     while (curr != this.rooms.length - 1) {
       const currentCenter = this.rooms[curr].getCenter();
       const nextCenter = this.rooms[curr + 1].getCenter();
-      const path = this.generatePath(currentCenter, nextCenter);
+      const path = pathfinder
+        .findPath(currentCenter.x, currentCenter.y, nextCenter.x, nextCenter.y, this.grid.clone())
+        .map((vector) => new Vector2(vector[0], vector[1]));
       paths.push(path);
       curr += 1;
     }
     for (let j = 0; j < paths.length; j++) {
       for (let i = 0; i < paths[j].length; i++) {
         this.map[paths[j][i].y][paths[j][i].x] = 1;
+        this.map[paths[j][i].y + 1][paths[j][i].x] = 1;
+        this.map[paths[j][i].y - 1][paths[j][i].x] = 1;
+        this.map[paths[j][i].y + 2][paths[j][i].x] = 1;
+        this.map[paths[j][i].y - 2][paths[j][i].x] = 1;
+        this.map[paths[j][i].y + 3][paths[j][i].x] = 1;
+        this.map[paths[j][i].y - 3][paths[j][i].x] = 1;
+        this.map[paths[j][i].y][paths[j][i].x + 1] = 1;
+        this.map[paths[j][i].y][paths[j][i].x - 1] = 1;
+        this.map[paths[j][i].y][paths[j][i].x + 2] = 1;
+        this.map[paths[j][i].y][paths[j][i].x - 2] = 1;
+        this.map[paths[j][i].y][paths[j][i].x + 3] = 1;
+        this.map[paths[j][i].y][paths[j][i].x - 3] = 1;
       }
     }
-  }
-
-  private generatePath(currentCenter: Vector2, nextCenter: Vector2): Vector2[] {
-    const path: Vector2[] = [];
-    const corridorSize = 4;
-    let diffX = currentCenter.x - nextCenter.x;
-    let diffY = currentCenter.y - nextCenter.y;
-    for (let i = 0; i < corridorSize; i++) {
-      for (let j = 0; j < Math.abs(diffX); j++) {
-        let currentTile: Vector2;
-        if (diffX > 0) currentTile = new Vector2(currentCenter.x - j, currentCenter.y + i);
-        else currentTile = new Vector2(currentCenter.x + j, currentCenter.y + i);
-        path.push(currentTile);
-      }
-    }
-    for (let i = 0; i < corridorSize; i++) {
-      for (let j = 0; j < Math.abs(diffY); j++) {
-        let currentTile: Vector2;
-        if (diffY > 0) currentTile = new Vector2(nextCenter.x + i, currentCenter.y - j);
-        else currentTile = new Vector2(nextCenter.x + i, currentCenter.y + j);
-        path.push(currentTile);
-      }
-    }
-    return path;
   }
 
   private generateStairs(): void {
@@ -623,16 +626,12 @@ class Game {
     let attempts = 0;
     const workers: OfficeWorker[] = [];
     while (workers.length < MAX_OFFICE_WORKERS_PER_FLOOR && attempts < 10) {
-      const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
-      if (!room.getHasBagels()) {
-        this.map[position.y][position.x] = TileMap.OFFICE_WORKER;
-        workers.push(
-          new OfficeWorker(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map)
-        );
-        attempts = 0;
-        continue;
-      }
-      attempts += 1;
+      const { position } = generateSpawnCoordinates(this.map, this.rooms);
+      this.map[position.y][position.x] = TileMap.OFFICE_WORKER;
+      workers.push(
+        new OfficeWorker(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map)
+      );
+      attempts = 0;
     }
     return workers;
   }
