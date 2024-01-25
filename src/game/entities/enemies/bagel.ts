@@ -23,6 +23,7 @@ class Bagel extends GameObject {
   private frameX: number;
   private frameY: number;
   private frameCounter: number;
+  private resetTimer: number;
   private pathToFollow: number[][];
   private nextPosition: Vector2;
   private grid: Grid;
@@ -33,6 +34,7 @@ class Bagel extends GameObject {
     this.velocity = Vector2.Zero();
     this.follow = undefined;
     this.followTimer = 0;
+    this.resetTimer = 0;
     this.frameX = 0;
     this.frameY = 0;
     this.frameCounter = 0;
@@ -246,14 +248,20 @@ class Bagel extends GameObject {
     }
 
     if (!this.pathToFollow.length) {
-      this.nextPosition = this.getNextPosition();
-      this.pathToFollow = pathfinder.findPath(
-        mapBasedPosition.x,
-        mapBasedPosition.y,
-        this.nextPosition.x,
-        this.nextPosition.y,
-        this.grid.clone()
-      );
+      if (this.resetTimer >= 250) {
+        this.nextPosition = this.getNextPosition();
+        this.pathToFollow = pathfinder.findPath(
+          mapBasedPosition.x,
+          mapBasedPosition.y,
+          this.nextPosition.x,
+          this.nextPosition.y,
+          this.grid.clone()
+        );
+        this.resetTimer = 0;
+        return;
+      }
+
+      this.resetTimer += 1;
     }
   }
 }

@@ -1,19 +1,19 @@
-import CarpetImage from "../assets/images/floor-carpet.png";
-import BlackImage from "../assets/images/black.png";
-import StairsImage from "../assets/images/stairs.png";
-import TopLeftWallImage from "../assets/images/top-left-wall.png";
-import TopLeftInnerWallImage from "../assets/images/top-left-inner-wall.png";
-import TopWallImage from "../assets/images/top-wall.png";
-import TopRightWallImage from "../assets/images/top-right-wall.png";
-import TopRightInnerWallImage from "../assets/images/top-right-inner-wall.png";
-import RightWallImage from "../assets/images/right-wall.png";
-import BottomRightWallImage from "../assets/images/bottom-right-wall.png";
-import BottomWallImage from "../assets/images/bottom-wall.png";
-import BottomLeftWallImage from "../assets/images/bottom-left-wall.png";
-import BottomLeftInnerWallImage from "../assets/images/bottom-left-inner-wall.png";
-import LeftWallImage from "../assets/images/left-wall.png";
-import BottomRightInnerWallImage from "../assets/images/bottom-right-inner-wall.png";
-import { getRandomArbitrary } from "../helpers";
+import CarpetImage from "@/assets/images/floor-carpet.png";
+import BlackImage from "@/assets/images/black.png";
+import StairsImage from "@/assets/images/stairs.png";
+import TopLeftWallImage from "@/assets/images/top-left-wall.png";
+import TopLeftInnerWallImage from "@/assets/images/top-left-inner-wall.png";
+import TopWallImage from "@/assets/images/top-wall.png";
+import TopRightWallImage from "@/assets/images/top-right-wall.png";
+import TopRightInnerWallImage from "@/assets/images/top-right-inner-wall.png";
+import RightWallImage from "@/assets/images/right-wall.png";
+import BottomRightWallImage from "@/assets/images/bottom-right-wall.png";
+import BottomWallImage from "@/assets/images/bottom-wall.png";
+import BottomLeftWallImage from "@/assets/images/bottom-left-wall.png";
+import BottomLeftInnerWallImage from "@/assets/images/bottom-left-inner-wall.png";
+import LeftWallImage from "@/assets/images/left-wall.png";
+import BottomRightInnerWallImage from "@/assets/images/bottom-right-inner-wall.png";
+import { getRandomArbitrary } from "@/helpers";
 import { Room } from "./entities/room";
 import {
   BOSS_RELOCATION_TIMER_CONST,
@@ -32,7 +32,7 @@ import {
   MIN_ROOM_WIDTH,
   TILE_SIZE,
   TileMap
-} from "../constants";
+} from "@/constants";
 import Player from "./entities/player";
 import Bagel from "./entities/enemies/bagel";
 import GameObject from "./entities/game-object";
@@ -553,30 +553,6 @@ class Game {
     }
   }
 
-  private generatePath(currentCenter: Vector2, nextCenter: Vector2): Vector2[] {
-    const path: Vector2[] = [];
-    const corridorSize = 4;
-    let diffX = currentCenter.x - nextCenter.x;
-    let diffY = currentCenter.y - nextCenter.y;
-    for (let i = 0; i < corridorSize; i++) {
-      for (let j = 0; j < Math.abs(diffX); j++) {
-        let currentTile: Vector2;
-        if (diffX > 0) currentTile = new Vector2(currentCenter.x - j, currentCenter.y + i);
-        else currentTile = new Vector2(currentCenter.x + j, currentCenter.y + i);
-        path.push(currentTile);
-      }
-    }
-    for (let i = 0; i < corridorSize; i++) {
-      for (let j = 0; j < Math.abs(diffY); j++) {
-        let currentTile: Vector2;
-        if (diffY > 0) currentTile = new Vector2(nextCenter.x + i, currentCenter.y - j);
-        else currentTile = new Vector2(nextCenter.x + i, currentCenter.y + j);
-        path.push(currentTile);
-      }
-    }
-    return path;
-  }
-
   private generateStairs(): void {
     const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
     this.map[position.y][position.x] = TileMap.STAIRS;
@@ -650,7 +626,7 @@ class Game {
     let attempts = 0;
     const workers: OfficeWorker[] = [];
     while (workers.length < MAX_OFFICE_WORKERS_PER_FLOOR && attempts < 10) {
-      const { position, room } = generateSpawnCoordinates(this.map, this.rooms);
+      const { position } = generateSpawnCoordinates(this.map, this.rooms);
       this.map[position.y][position.x] = TileMap.OFFICE_WORKER;
       workers.push(
         new OfficeWorker(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE), TILE_SIZE, TILE_SIZE, this.map)

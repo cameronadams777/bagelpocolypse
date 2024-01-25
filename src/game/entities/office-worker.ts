@@ -22,6 +22,7 @@ class OfficeWorker extends GameObject {
   private frameY: number;
   private frameCounter: number;
   private pathToFollow: number[][];
+  private resetTimer: number;
   private grid: Grid;
 
   constructor(position: Vector2, width: number, height: number, map: number[][]) {
@@ -31,6 +32,7 @@ class OfficeWorker extends GameObject {
     this.frameX = 0;
     this.frameY = 0;
     this.frameCounter = 0;
+    this.resetTimer = 0;
     this.pathToFollow = [];
     this.nextPosition = this.getNextPosition();
 
@@ -49,81 +51,12 @@ class OfficeWorker extends GameObject {
       this.nextPosition.y,
       this.grid.clone()
     );
-
-    /*pathfinder.postMessage({ position: this.position, nextPosition: this.nextPosition, map: this.worldMap });
-
-    pathfinder.onmessage = (message) => {
-      this.pathToFollow = message.data as number[][];
-    };*/
   }
 
   public update(deltaTime: number): void {
     this.followPath();
-    // Determine if we should change direction
-    /*if (
-      this.velocity.x < 0 &&
-      (MAP_CONSTANTS.includes(
-        this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
-          Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-        ]
-      ) ||
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
-            Math.floor((this.position.x + this.velocity.x) / TILE_SIZE)
-          ]
-        ))
-    ) {
-      this.velocity.x = 0;
-    }
-    if (
-      this.velocity.x > 0 &&
-      (MAP_CONSTANTS.includes(
-        this.worldMap[Math.floor(this.position.y / TILE_SIZE)][
-          Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-        ]
-      ) ||
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor(this.getBottom() / TILE_SIZE)][
-            Math.ceil((this.position.x + this.velocity.x) / TILE_SIZE)
-          ]
-        ))
-    ) {
-      this.velocity.x = 0;
-    }
-    if (
-      this.velocity.y < 0 &&
-      (MAP_CONSTANTS.includes(
-        this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
-          Math.floor(this.position.x / TILE_SIZE)
-        ]
-      ) ||
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.floor((this.position.y + this.velocity.y) / TILE_SIZE)][
-            Math.floor(this.getRight() / TILE_SIZE)
-          ]
-        ))
-    ) {
-      this.velocity.y = 0;
-    }
-    if (
-      this.velocity.y > 0 &&
-      (MAP_CONSTANTS.includes(
-        this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
-          Math.floor(this.position.x / TILE_SIZE)
-        ]
-      ) ||
-        MAP_CONSTANTS.includes(
-          this.worldMap[Math.ceil((this.position.y + this.velocity.y) / TILE_SIZE)][
-            Math.floor(this.getRight() / TILE_SIZE)
-          ]
-        ))
-    ) {
-      this.velocity.y = 0;
-    }*/
-
     this.velocity.x = clamp(this.velocity.x * deltaTime, -2, 2);
     this.velocity.y = clamp(this.velocity.y * deltaTime, -2, 2);
-
     this.position.add(this.velocity);
   }
 
@@ -195,14 +128,19 @@ class OfficeWorker extends GameObject {
     }
 
     if (!this.pathToFollow.length) {
-      this.nextPosition = this.getNextPosition();
-      this.pathToFollow = pathfinder.findPath(
-        mapBasedPosition.x,
-        mapBasedPosition.y,
-        this.nextPosition.x,
-        this.nextPosition.y,
-        this.grid.clone()
-      );
+      if (this.resetTimer >= 250) {
+        this.nextPosition = this.getNextPosition();
+        this.pathToFollow = pathfinder.findPath(
+          mapBasedPosition.x,
+          mapBasedPosition.y,
+          this.nextPosition.x,
+          this.nextPosition.y,
+          this.grid.clone()
+        );
+        this.resetTimer = 0;
+        return;
+      }
+      this.resetTimer += 1;
     }
   }
 }
