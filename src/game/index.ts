@@ -299,6 +299,7 @@ class Game {
       this.floorLevel += 1;
       this.boss.setPosition(Vector2.Zero());
       this.boss.setHealth(50);
+      this.setupDungeonLevel();
     }
 
     if (this.currentLevelType === LevelType.BOSS_LEVEL) {
