@@ -7,7 +7,9 @@ class Button {
   private text: string;
   private backgroundColor: string;
   private textColor: string;
+  private isHovered: boolean;
   private onClick: () => void;
+
   constructor(
     position: Vector2,
     width: number,
@@ -22,11 +24,13 @@ class Button {
     this.height = height;
     this.text = text;
     this.backgroundColor = backgroundColor;
+    this.isHovered = false;
     this.textColor = textColor;
     this.onClick = onClick;
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
+    if (this.isHovered) ctx.globalAlpha = 0.5;
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
     ctx.fillStyle = this.textColor;
@@ -38,6 +42,7 @@ class Button {
       this.getRight() - this.width / 2 - metrics.width / 2,
       this.getBottom() - this.height / 2 + textHeight / 2
     );
+    ctx.globalAlpha = 1.0;
   }
 
   public getPosition(): Vector2 {
@@ -50,6 +55,10 @@ class Button {
 
   public getBottom(): number {
     return this.position.y + this.height;
+  }
+
+  public setIsHovered(isHovered: boolean): void {
+    this.isHovered = isHovered;
   }
 
   public click(): void {

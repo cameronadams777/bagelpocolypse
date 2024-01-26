@@ -1,20 +1,32 @@
-import { BAGEL_SPEED, GameTag, TILE_SIZE } from "../../../constants";
-import { clamp } from "../../../helpers";
-import Vector2 from "../../math/vector2";
+import BagelAttackImage from "@/assets/images/bagel-attack-sheet.png";
+import WizardBossImage from "@/assets/images/bagel-wizard-sheet.png";
+import { BAGEL_SPEED, GameTag, TILE_SIZE } from "@/constants";
+import { clamp } from "@/helpers";
+import Vector2 from "@/game/math/vector2";
 import Camera from "../camera";
 import GameObject from "../game-object";
 import Player from "../player";
 
 const TARGET_RANGE = 2;
 
+const bagelAttackSheet = new Image();
+bagelAttackSheet.src = BagelAttackImage;
+
+const wizardBossSheet = new Image();
+wizardBossSheet.src = WizardBossImage;
+
 class BagelMagic extends GameObject {
   private target: Vector2;
   private velocity: Vector2;
+  private animationTimer: number;
+  private animationFrameX: number;
 
   constructor(position: Vector2, width: number, height: number, target: Vector2) {
     super(GameTag.BAGEL_MAGIC, position, width, height);
     this.target = target;
     this.velocity = Vector2.Zero();
+    this.animationTimer = 0;
+    this.animationFrameX = 0;
   }
 
   public update(deltaTime: number): void {
@@ -30,8 +42,23 @@ class BagelMagic extends GameObject {
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
-    ctx.fillStyle = "blue";
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+    this.animationTimer += 1;
+    if (this.animationTimer % 7 === 0) {
+      this.animationFrameX += 1;
+      if (this.animationFrameX > 3) this.animationFrameX = 0;
+    }
+
+    ctx.drawImage(
+      bagelAttackSheet,
+      this.animationFrameX * TILE_SIZE,
+      0,
+      TILE_SIZE,
+      TILE_SIZE,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height
+    );
   }
 
   public nearTarget(): boolean {
@@ -51,6 +78,7 @@ class WizardBoss extends GameObject {
   private attackSpawnTimer: number;
   private relocationTimer: number;
   private attackObjects: Array<BagelMagic | undefined>;
+  private animationFrameY: number;
 
   constructor(position: Vector2, width: number, height: number, player: Player) {
     super(GameTag.WIZARD_BOSS, position, width, height);
@@ -60,6 +88,7 @@ class WizardBoss extends GameObject {
     this.relocationTimer = 0;
     this.isActive = true;
     this.attackObjects = [];
+    this.animationFrameY = 0;
   }
 
   public update(_deltaTime: number) {
@@ -68,8 +97,8 @@ class WizardBoss extends GameObject {
       this.attackObjects.push(
         new BagelMagic(
           new Vector2(this.position.x, this.position.y),
-          TILE_SIZE / 2,
-          TILE_SIZE / 2,
+          TILE_SIZE * 0.75,
+          TILE_SIZE * 0.75,
           new Vector2(this.player.getPosition().x, this.player.getPosition().y)
         )
       );
@@ -84,9 +113,44 @@ class WizardBoss extends GameObject {
   }
 
   public draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
-    ctx.fillStyle = "red";
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+    const POSITION_ANIMATION_OFFSET_X = 100;
+    const POSITION_ANIMATION_OFFSET_Y = 100;
+    if (
+      this.player.getPosition().y < this.position.y - POSITION_ANIMATION_OFFSET_Y &&
+      this.player.getPosition().x < this.position.x - POSITION_ANIMATION_OFFSET_X
+    )
+      this.animationFrameY = 3;
+    else if (
+      this.player.getPosition().y < this.position.y - POSITION_ANIMATION_OFFSET_Y &&
+      this.player.getPosition().x > this.position.x + POSITION_ANIMATION_OFFSET_X
+    )
+      this.animationFrameY = 4;
+    else if (
+      this.player.getPosition().y > this.position.y + POSITION_ANIMATION_OFFSET_Y &&
+      this.player.getPosition().x < this.position.x - POSITION_ANIMATION_OFFSET_X
+    )
+      this.animationFrameY = 2;
+    else if (
+      this.player.getPosition().y > this.position.y + POSITION_ANIMATION_OFFSET_Y &&
+      this.player.getPosition().x > this.position.x + POSITION_ANIMATION_OFFSET_X
+    )
+      this.animationFrameY = 1;
+    else if (this.player.getPosition().y > this.position.y + POSITION_ANIMATION_OFFSET_Y) this.animationFrameY = 0;
+    else if (this.player.getPosition().y < this.position.y - POSITION_ANIMATION_OFFSET_Y) this.animationFrameY = 5;
+    else if (this.position.x > this.player.getPosition().x) this.animationFrameY = 7;
+    else if (this.position.x < this.player.getPosition().x) this.animationFrameY = 6;
 
+    ctx.drawImage(
+      wizardBossSheet,
+      0,
+      this.animationFrameY * TILE_SIZE,
+      TILE_SIZE,
+      TILE_SIZE,
+      this.position.x,
+      this.position.y,
+      TILE_SIZE,
+      TILE_SIZE
+    );
     ctx.fillRect(camera.getWidth() / 2 - (this.health * 5) / 2, 25, this.health * 5, 25);
   }
 

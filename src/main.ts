@@ -41,15 +41,21 @@ const mainMenu = new Menu(canvas)
       new Vector2(canvas.width / 2 - 100, canvas.height / 2 - 25),
       200,
       50,
-      "Play Demo",
+      "Play",
       "red",
       "#fff",
       () => (currentScene = Scenes.OPENING_SCENE)
     )
   )
   .addButton(
-    new Button(new Vector2(canvas.width / 2 - 100, canvas.height / 2 + 50), 200, 50, "Settings", "red", "#fff", () =>
-      alert("Need to build settings menu")
+    new Button(
+      new Vector2(canvas.width / 2 - 100, canvas.height / 2 + 50),
+      200,
+      50,
+      "Tutorial",
+      "red",
+      "#fff",
+      () => {}
     )
   )
   .create();

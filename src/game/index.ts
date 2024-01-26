@@ -178,7 +178,7 @@ class Game {
     this.currentLevelType = LevelType.DUNGEON_LEVEL;
     this.randomSpawnTimer = 0;
     this.onChangeScene = onChangeScene;
-    this.setupDungeonLevel();
+    this.setupBossLevel();
   }
 
   public update(deltaTime: number): void {
@@ -252,6 +252,7 @@ class Game {
           if (boss.getRelocationTimer() >= BOSS_RELOCATION_TIMER_CONST) {
             const { position } = generateSpawnCoordinates(this.map, this.rooms);
             boss.setPosition(new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE));
+            boss.setRelocationTimer(0);
           }
         }
       }
