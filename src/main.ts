@@ -7,7 +7,6 @@ import SpreadingToolImage from "@/assets/images/spreading-tool-Sheet.png";
 import BagelImage from "@/assets/images/basic-bagel-Sheet.png";
 import OfficeWorkerImage from "@/assets/images/office-worker-Sheet.png";
 import StairsImage from "@/assets/images/stairs.png";
-import EndingScene from "./game/cutscenes/ending-scene";
 import OpeningScene from "./game/cutscenes/opening-scene";
 import Vector2 from "./game/math/vector2";
 import Button from "./game/ui/button";
@@ -50,17 +49,11 @@ let startTime = 0;
 
 let currentScene = Scenes.MAIN_MENU;
 
-const game = new Game(canvas, (scene: Scenes) => {
-  currentScene = scene;
-});
+const game = new Game(canvas);
 
 const openingScene = new OpeningScene(canvas, () => {
   currentScene = Scenes.GAME;
 });
-
-/*const endScene = new EndingScene(canvas, () => {
-  currentScene = Scenes.GAME;
-});*/
 
 const mainMenu = new Menu(canvas)
   .setBackgroundColor("#000")

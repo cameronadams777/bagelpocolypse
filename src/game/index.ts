@@ -162,9 +162,8 @@ class Game {
   private floorLevel: number;
   private currentLevelType: LevelType;
   private randomSpawnTimer: number;
-  private onChangeScene: (scene: Scenes) => void;
 
-  constructor(canvas: HTMLCanvasElement, onChangeScene: (scene: Scenes) => void) {
+  constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.floorLevel = 1;
     this.camera = new Camera(Vector2.Zero(), canvas.width, canvas.height);
@@ -177,7 +176,6 @@ class Game {
     this.playerInitialSpawn = Vector2.Zero();
     this.currentLevelType = LevelType.DUNGEON_LEVEL;
     this.randomSpawnTimer = 0;
-    this.onChangeScene = onChangeScene;
     this.setupDungeonLevel();
   }
 
@@ -280,7 +278,6 @@ class Game {
     }
 
     if (this.boss.getHealth() <= 0) {
-      this.onChangeScene(Scenes.CLOSING_SCENE);
       this.floorLevel += 1;
       this.boss.setPosition(Vector2.Zero());
       this.boss.setHealth(50);
