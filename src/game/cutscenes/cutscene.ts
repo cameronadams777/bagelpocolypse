@@ -16,6 +16,7 @@ class Cutscene {
 
     window.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.code === "Enter") {
+        console.log(this.currentMessageIndex, this.messages.length);
         if (this.currentMessageIndex === this.messages.length - 1) {
           onNext();
           return;

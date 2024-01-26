@@ -30,9 +30,9 @@ const openingScene = new OpeningScene(canvas, () => {
   currentScene = Scenes.GAME;
 });
 
-const endScene = new EndingScene(canvas, () => {
+/*const endScene = new EndingScene(canvas, () => {
   currentScene = Scenes.GAME;
-});
+});*/
 
 const mainMenu = new Menu(canvas)
   .setBackgroundColor("#000")
@@ -74,7 +74,7 @@ const loop = (now: number = 0) => {
       openingScene.draw(ctx);
       break;
     case Scenes.CLOSING_SCENE:
-      endScene.draw(ctx);
+      //endScene.draw(ctx);
       break;
   }
 
