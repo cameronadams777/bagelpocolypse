@@ -28,6 +28,7 @@ export class SubMenu {
 
 class Menu {
   private canvas: HTMLCanvasElement;
+  private title: string;
   private buttons: Button[];
   private backgroundColor: string;
 
@@ -35,54 +36,45 @@ class Menu {
     this.canvas = canvas;
     this.buttons = [];
     this.backgroundColor = "";
+    this.title = "";
   }
 
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public draw(ctx: CanvasRenderingContext2D, onDraw?: () => void): void {
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const title = "Bagelpocolypse";
-    const titleMeasurements = ctx.measureText(title);
-    ctx.font = "100px Creepster";
-    ctx.fillStyle = "red";
-    ctx.textAlign = "left";
-    ctx.fillText(title, this.canvas.width / 2 - titleMeasurements.width * 1.75, this.canvas.height * 0.25);
+    if (this.title.length) {
+      const titleMeasurements = ctx.measureText(this.title);
+      ctx.font = "100px Creepster";
+      ctx.fillStyle = "red";
+      ctx.textAlign = "left";
+      ctx.fillText(this.title, this.canvas.width / 2 - titleMeasurements.width * 1.75, this.canvas.height * 0.25);
+    }
 
     for (let i = 0; i < this.buttons.length; i++) {
       this.buttons[i].draw(ctx);
     }
+
+    onDraw?.();
   }
 
   public create(): Menu {
-    window.addEventListener("click", (e: MouseEvent) => {
-      for (let i = 0; i < this.buttons.length; i++) {
-        if (
-          e.clientX > this.buttons[i].getPosition().x &&
-          e.clientX < this.buttons[i].getRight() &&
-          e.clientY > this.buttons[i].getPosition().y &&
-          e.clientY < this.buttons[i].getBottom()
-        )
-          this.buttons[i].click();
-      }
-    });
+    window.addEventListener("click", (e: MouseEvent) => this.clickEvent(e, this.buttons));
 
-    window.addEventListener("mousemove", (e: MouseEvent) => {
-      for (let i = 0; i < this.buttons.length; i++) {
-        if (
-          e.clientX > this.buttons[i].getPosition().x &&
-          e.clientX < this.buttons[i].getRight() &&
-          e.clientY > this.buttons[i].getPosition().y &&
-          e.clientY < this.buttons[i].getBottom()
-        ) {
-          this.canvas.setAttribute("style", "cursor: pointer;");
-          this.buttons[i].setIsHovered(true);
-          return;
-        } else {
-          this.buttons[i].setIsHovered(false);
-        }
-      }
-      this.canvas.setAttribute("style", "cursor: normal;");
-    });
+    window.addEventListener("mousemove", (e: MouseEvent) => this.mouseMoveEvent(e, this.canvas, this.buttons));
+
+    return this;
+  }
+
+  public destroy(): Menu {
+    window.removeEventListener("click", (e: MouseEvent) => this.clickEvent(e, this.buttons));
+    window.removeEventListener("mousemove", (e: MouseEvent) => this.mouseMoveEvent(e, this.canvas, this.buttons));
+
+    return this;
+  }
+
+  public setTitle(title: string): Menu {
+    this.title = title;
     return this;
   }
 
@@ -94,6 +86,36 @@ class Menu {
   public setBackgroundColor(backgroundColor: string): Menu {
     this.backgroundColor = backgroundColor;
     return this;
+  }
+
+  private clickEvent(e: MouseEvent, buttons: Button[]) {
+    for (let i = 0; i < buttons.length; i++) {
+      if (
+        e.clientX > buttons[i].getPosition().x &&
+        e.clientX < buttons[i].getRight() &&
+        e.clientY > buttons[i].getPosition().y &&
+        e.clientY < buttons[i].getBottom()
+      )
+        buttons[i].click();
+    }
+  }
+
+  private mouseMoveEvent(e: MouseEvent, canvas: HTMLCanvasElement, buttons: Button[]) {
+    for (let i = 0; i < buttons.length; i++) {
+      if (
+        e.clientX > buttons[i].getPosition().x &&
+        e.clientX < buttons[i].getRight() &&
+        e.clientY > buttons[i].getPosition().y &&
+        e.clientY < buttons[i].getBottom()
+      ) {
+        canvas.setAttribute("style", "cursor: pointer;");
+        buttons[i].setIsHovered(true);
+        return;
+      } else {
+        buttons[i].setIsHovered(false);
+      }
+    }
+    canvas.setAttribute("style", "cursor: normal;");
   }
 }
 

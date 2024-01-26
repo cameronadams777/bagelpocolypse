@@ -1,5 +1,6 @@
 export enum Scenes {
   MAIN_MENU = "main_menu",
+  TUTORIAL_MENU = "tutorial_menu",
   OPENING_SCENE = "opening_scene",
   CLOSING_SCENE = "closing_scene",
   GAME = "game"

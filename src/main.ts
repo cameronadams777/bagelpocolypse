@@ -1,11 +1,35 @@
-import { Scenes } from "./constants";
+import { Scenes, TILE_SIZE } from "./constants";
 import Game from "./game";
+import HeartImage from "@/assets/images/heart.png";
+import ToasterGunImage from "@/assets/images/toaster-gun-Sheet.png";
+import SalmonImage from "@/assets/images/salmon.png";
+import SpreadingToolImage from "@/assets/images/spreading-tool-Sheet.png";
+import BagelImage from "@/assets/images/basic-bagel-Sheet.png";
+import OfficeWorkerImage from "@/assets/images/office-worker-Sheet.png";
 import EndingScene from "./game/cutscenes/ending-scene";
 import OpeningScene from "./game/cutscenes/opening-scene";
 import Vector2 from "./game/math/vector2";
 import Button from "./game/ui/button";
 import Menu from "./game/ui/menu";
 import "./style.css";
+
+const heartSprite = new Image();
+heartSprite.src = HeartImage;
+
+const toasterGunSprite = new Image();
+toasterGunSprite.src = ToasterGunImage;
+
+const salmonSprite = new Image();
+salmonSprite.src = SalmonImage;
+
+const spreadingToolSprite = new Image();
+spreadingToolSprite.src = SpreadingToolImage;
+
+const bagelSprite = new Image();
+bagelSprite.src = BagelImage;
+
+const officeWorkerSprite = new Image();
+officeWorkerSprite.src = OfficeWorkerImage;
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game-canvas");
 
@@ -36,29 +60,44 @@ const openingScene = new OpeningScene(canvas, () => {
 
 const mainMenu = new Menu(canvas)
   .setBackgroundColor("#000")
+  .setTitle("Bagelpocolypse")
   .addButton(
-    new Button(
-      new Vector2(canvas.width / 2 - 100, canvas.height / 2 - 25),
-      200,
-      50,
-      "Play",
-      "red",
-      "#fff",
-      () => (currentScene = Scenes.OPENING_SCENE)
-    )
+    new Button(new Vector2(canvas.width / 2 - 100, canvas.height / 2 - 25), 300, 50, "Play", "red", "#fff", () => {
+      mainMenu.destroy();
+      currentScene = Scenes.OPENING_SCENE;
+    })
   )
   .addButton(
-    new Button(
-      new Vector2(canvas.width / 2 - 100, canvas.height / 2 + 50),
-      200,
-      50,
-      "Tutorial",
-      "red",
-      "#fff",
-      () => {}
-    )
+    new Button(new Vector2(canvas.width / 2 - 100, canvas.height / 2 + 50), 300, 50, "Tutorial", "red", "#fff", () => {
+      mainMenu.destroy();
+      tutorialMenu.create();
+      currentScene = Scenes.TUTORIAL_MENU;
+    })
   )
   .create();
+
+let toasterGunFrameTimer = 0;
+let toasterGunFrameX = 0;
+
+let salmonFrameTimer = 0;
+let salmonFrameX = 0;
+
+let spreadingToolFrameTimer = 0;
+let spreadingToolFrameX = 0;
+
+let officeWorkerFrameTimer = 0;
+let officeWorkerFrameX = 0;
+
+let bagelFrameTimer = 0;
+let bagelFrameX = 0;
+
+const tutorialMenu = new Menu(canvas).setBackgroundColor("#000").addButton(
+  new Button(new Vector2(canvas.width / 2 - 100, canvas.height * 0.75), 300, 50, "Close", "red", "#fff", () => {
+    tutorialMenu.destroy();
+    mainMenu.create();
+    currentScene = Scenes.MAIN_MENU;
+  })
+);
 
 const loop = (now: number = 0) => {
   if (!ctx) throw new Error("No context found");
@@ -71,6 +110,141 @@ const loop = (now: number = 0) => {
   switch (currentScene) {
     case Scenes.MAIN_MENU:
       mainMenu.draw(ctx);
+      break;
+    case Scenes.TUTORIAL_MENU:
+      tutorialMenu.draw(ctx, () => {
+        ctx.drawImage(heartSprite, canvas.width / 2 - 350, canvas.height / 4 - 50, TILE_SIZE, TILE_SIZE);
+        ctx.font = "20px Verdana";
+        ctx.fillStyle = "white";
+        ctx.fillText(
+          "A heart represent the lives you have left. Try not to lose them!",
+          canvas.width / 2 - 300,
+          canvas.height / 4 - 25
+        );
+
+        toasterGunFrameTimer += 1;
+        if (toasterGunFrameTimer % 5 === 0) {
+          toasterGunFrameX += 1;
+          if (toasterGunFrameX > 2) toasterGunFrameX = 0;
+        }
+
+        ctx.drawImage(
+          toasterGunSprite,
+          toasterGunFrameX * TILE_SIZE,
+          0,
+          TILE_SIZE,
+          TILE_SIZE,
+          canvas.width / 2 - 350,
+          canvas.height / 4 + 25,
+          TILE_SIZE,
+          TILE_SIZE
+        );
+        ctx.fillText(
+          "This is your toaster gun! You automatically have it but if you see one,",
+          canvas.width / 2 - 300,
+          canvas.height / 4 + 40
+        );
+        ctx.fillText("pick it up to increase your charge!", canvas.width / 2 - 300, canvas.height / 4 + 65);
+
+        salmonFrameTimer += 1;
+        if (salmonFrameTimer % 5 === 0) {
+          salmonFrameX += 1;
+          if (salmonFrameX > 3) salmonFrameX = 0;
+        }
+
+        ctx.drawImage(
+          salmonSprite,
+          salmonFrameX * TILE_SIZE,
+          0,
+          TILE_SIZE,
+          TILE_SIZE,
+          canvas.width / 2 - 350,
+          canvas.height / 4 + 105,
+          TILE_SIZE,
+          TILE_SIZE
+        );
+        ctx.fillText(
+          "Lox! The amazing taste will give you a jolt of speed!",
+          canvas.width / 2 - 300,
+          canvas.height / 4 + 125
+        );
+
+        spreadingToolFrameTimer += 1;
+        if (spreadingToolFrameTimer % 5 === 0) {
+          spreadingToolFrameX += 1;
+          if (spreadingToolFrameX > 2) spreadingToolFrameX = 0;
+        }
+
+        ctx.drawImage(
+          spreadingToolSprite,
+          spreadingToolFrameX * TILE_SIZE,
+          0,
+          TILE_SIZE,
+          TILE_SIZE,
+          canvas.width / 2 - 350,
+          canvas.height / 4 + 185,
+          TILE_SIZE,
+          TILE_SIZE
+        );
+        ctx.fillText(
+          "Pick up a spreading tool along the way! They'll prevent you from losing a life.",
+          canvas.width / 2 - 300,
+          canvas.height / 4 + 195
+        );
+        ctx.fillText("But once you use it... you lose it!", canvas.width / 2 - 300, canvas.height / 4 + 220);
+
+        bagelFrameTimer += 1;
+        if (bagelFrameTimer % 5 === 0) {
+          bagelFrameX += 1;
+          if (bagelFrameX > 2) bagelFrameX = 0;
+        }
+
+        ctx.drawImage(
+          bagelSprite,
+          bagelFrameX * TILE_SIZE,
+          0,
+          TILE_SIZE,
+          TILE_SIZE,
+          canvas.width / 2 - 350,
+          canvas.height / 4 + 287.5,
+          TILE_SIZE,
+          TILE_SIZE
+        );
+        ctx.fillText(
+          "Beware of the once Lame Company, Inc. employees now turned Bagels!",
+          canvas.width / 2 - 300,
+          canvas.height / 4 + 295
+        );
+        ctx.fillText("If they see you, they're coming for you!", canvas.width / 2 - 300, canvas.height / 4 + 320);
+
+        officeWorkerFrameTimer += 1;
+        if (officeWorkerFrameTimer % 5 === 0) {
+          officeWorkerFrameX += 1;
+          if (officeWorkerFrameX > 2) officeWorkerFrameX = 0;
+        }
+
+        ctx.drawImage(
+          officeWorkerSprite,
+          officeWorkerFrameX * TILE_SIZE,
+          0,
+          TILE_SIZE,
+          TILE_SIZE,
+          canvas.width / 2 - 350,
+          canvas.height / 4 + 385,
+          TILE_SIZE,
+          TILE_SIZE
+        );
+        ctx.fillText(
+          "You coworkers are trying to find a way out too! If bagels see them and",
+          canvas.width / 2 - 300,
+          canvas.height / 4 + 395
+        );
+        ctx.fillText(
+          "turn them though... You'll have more problems than you started with...",
+          canvas.width / 2 - 300,
+          canvas.height / 4 + 420
+        );
+      });
       break;
     case Scenes.GAME:
       game.update(deltaTime);
