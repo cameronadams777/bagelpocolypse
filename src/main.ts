@@ -17,6 +17,7 @@ import "./style.css";
 
 const audio = new Audio(Music);
 audio.volume = 0.5;
+audio.loop = true;
 
 const heartSprite = new Image();
 heartSprite.src = HeartImage;
