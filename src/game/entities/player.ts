@@ -327,19 +327,20 @@ class Player extends GameObject {
 
   private setupKeyboardHandlers(): void {
     document.addEventListener("keydown", (e: KeyboardEvent) => {
-      if (e.key === "w") {
+      console.log(e);
+      if (e.key === "w" || e.key === "ArrowUp") {
         this.currentFrameY = 1;
         this.velocity.y = -this.playerSpeedConstant;
       }
-      if (e.key === "s") {
+      if (e.key === "s" || e.key === "ArrowDown") {
         this.currentFrameY = 0;
         this.velocity.y = this.playerSpeedConstant;
       }
-      if (e.key === "a") {
+      if (e.key === "a" || e.key === "ArrowLeft") {
         this.currentFrameY = 2;
         this.velocity.x = -this.playerSpeedConstant;
       }
-      if (e.key === "d") {
+      if (e.key === "d" || e.key === "ArrowRight") {
         this.currentFrameY = 3;
         this.velocity.x = this.playerSpeedConstant;
       }
@@ -355,19 +356,19 @@ class Player extends GameObject {
     });
 
     document.addEventListener("keyup", (e: KeyboardEvent) => {
-      if (e.key === "w") {
+      if (e.key === "w" || e.key === "ArrowUp") {
         this.deltaFrameX = 0;
         this.frameX = 0;
         this.velocity.y = 0;
-      } else if (e.key === "s") {
+      } else if (e.key === "s" || e.key === "ArrowDown") {
         this.deltaFrameX = 0;
         this.frameX = 0;
         this.velocity.y = 0;
-      } else if (e.key === "a") {
+      } else if (e.key === "a" || e.key === "ArrowLeft") {
         this.deltaFrameX = 0;
         this.frameX = 0;
         this.velocity.x = 0;
-      } else if (e.key === "d") {
+      } else if (e.key === "d" || e.key === "ArrowRight") {
         this.deltaFrameX = 0;
         this.frameX = 0;
         this.velocity.x = 0;
