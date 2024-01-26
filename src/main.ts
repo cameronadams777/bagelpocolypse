@@ -3,6 +3,7 @@ import Game from "./game";
 import HeartImage from "@/assets/images/heart.png";
 import ToasterGunImage from "@/assets/images/toaster-gun-Sheet.png";
 import SalmonImage from "@/assets/images/salmon.png";
+import CreamCheeseImage from "@/assets/images/cream-cheese.png";
 import SpreadingToolImage from "@/assets/images/spreading-tool-Sheet.png";
 import BagelImage from "@/assets/images/basic-bagel-Sheet.png";
 import OfficeWorkerImage from "@/assets/images/office-worker-Sheet.png";
@@ -21,6 +22,9 @@ toasterGunSprite.src = ToasterGunImage;
 
 const salmonSprite = new Image();
 salmonSprite.src = SalmonImage;
+
+const creamCheeseSprite = new Image();
+creamCheeseSprite.src = CreamCheeseImage;
 
 const spreadingToolSprite = new Image();
 spreadingToolSprite.src = SpreadingToolImage;
@@ -89,7 +93,7 @@ let bagelFrameTimer = 0;
 let bagelFrameX = 0;
 
 const tutorialMenu = new Menu(canvas).setBackgroundColor("#000").addButton(
-  new Button(new Vector2(canvas.width / 2 - 100, canvas.height * 0.75), 300, 50, "Close", "red", "#fff", () => {
+  new Button(new Vector2(canvas.width / 2 - 100, canvas.height * 0.85), 300, 50, "Close", "red", "#fff", () => {
     tutorialMenu.destroy();
     mainMenu.create();
     currentScene = Scenes.MAIN_MENU;
@@ -247,6 +251,13 @@ const loop = (now: number = 0) => {
           "turn them though... You'll have more problems than you started with...",
           canvas.width / 2 - 300,
           canvas.height / 4 + 420
+        );
+
+        ctx.drawImage(creamCheeseSprite, canvas.width / 2 - 350, canvas.height / 4 + 465, TILE_SIZE, TILE_SIZE);
+        ctx.fillText(
+          "All the creamy cream cheese goodness... Don't let it slow you down!",
+          canvas.width / 2 - 300,
+          canvas.height / 4 + 490
         );
       });
       break;
