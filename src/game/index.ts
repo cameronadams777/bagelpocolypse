@@ -188,7 +188,7 @@ class Game {
     this.playerInitialSpawn = Vector2.Zero();
     this.currentLevelType = LevelType.DUNGEON_LEVEL;
     this.randomSpawnTimer = 0;
-    this.setupDungeonLevel();
+    this.setupBossLevel();
   }
 
   public update(deltaTime: number): void {
@@ -299,6 +299,8 @@ class Game {
       this.floorLevel += 1;
       this.boss.setPosition(Vector2.Zero());
       this.boss.setHealth(50);
+      this.boss.setAttackObjects([]);
+      this.gameObjects = [];
       this.setupDungeonLevel();
     }
 
