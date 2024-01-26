@@ -1,5 +1,6 @@
 import { Scenes, TILE_SIZE } from "./constants";
 import Game from "./game";
+import Music from "@/assets/music/Industro_Odd.mp3";
 import HeartImage from "@/assets/images/heart.png";
 import ToasterGunImage from "@/assets/images/toaster-gun-Sheet.png";
 import SalmonImage from "@/assets/images/salmon.png";
@@ -13,6 +14,9 @@ import Vector2 from "./game/math/vector2";
 import Button from "./game/ui/button";
 import Menu from "./game/ui/menu";
 import "./style.css";
+
+const audio = new Audio(Music);
+audio.volume = 0.5;
 
 const heartSprite = new Image();
 heartSprite.src = HeartImage;
@@ -56,6 +60,7 @@ let currentScene = Scenes.MAIN_MENU;
 const game = new Game(canvas);
 
 const openingScene = new OpeningScene(canvas, () => {
+  audio.play();
   currentScene = Scenes.GAME;
 });
 

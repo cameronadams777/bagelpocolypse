@@ -1,3 +1,9 @@
+import DeathSound from "@/assets/sounds/death.mp3";
+import ToasterGunSound from "@/assets/sounds/toaster-gun.mp3";
+import LoxSound from "@/assets/sounds/lox.mp3";
+import RestartSound from "@/assets/sounds/restart.mp3";
+import NextLevelSound from "@/assets/sounds/next-level.mp3";
+import EatingSound from "@/assets/sounds/eating.mp3";
 import CarpetImage from "@/assets/images/floor-carpet.png";
 import BlackImage from "@/assets/images/black.png";
 import StairsImage from "@/assets/images/stairs.png";
@@ -30,7 +36,6 @@ import {
   MAX_TOASTER_GUN_SHOT_COUNT,
   MIN_ROOM_HEIGHT,
   MIN_ROOM_WIDTH,
-  Scenes,
   TILE_SIZE,
   TileMap
 } from "@/constants";
@@ -46,6 +51,13 @@ import ToasterGun from "./entities/weapons/toaster-gun";
 import CreamCheese from "./entities/cream-cheese";
 import OfficeWorker from "./entities/office-worker";
 import { Grid, AStarFinder, DiagonalMovement } from "pathfinding";
+
+const deathSound = new Audio(DeathSound);
+const toasterGunSound = new Audio(ToasterGunSound);
+const loxSound = new Audio(LoxSound);
+const restartSound = new Audio(RestartSound);
+const nextLevelSound = new Audio(NextLevelSound);
+const eatingSound = new Audio(EatingSound);
 
 const stairsSprite = new Image();
 stairsSprite.src = StairsImage;
@@ -192,9 +204,11 @@ class Game {
           if (!p.isCollidingWith(this.gameObjects[j]!)) {
             if (this.gameObjects[j]?.getTag() === GameTag.BAGEL_TAG) {
               if (p.getSpreadingToolCount() > 0) {
+                eatingSound.play();
                 this.gameObjects[j] = undefined;
                 p.setSpreadingToolCount(p.getSpreadingToolCount() - 1);
               } else {
+                deathSound.play();
                 p.setLives(p.getLives() - 1);
                 p.setPosition(
                   new Vector2(this.playerInitialSpawn.x * TILE_SIZE, this.playerInitialSpawn.y * TILE_SIZE)
@@ -202,6 +216,7 @@ class Game {
               }
             }
             if (this.gameObjects[j]?.getTag() === GameTag.SALMON_TAG) {
+              loxSound.play();
               this.gameObjects[j] = undefined;
               this.player.setPlayerSpeedConstant(10);
               setTimeout(() => this.player.setPlayerSpeedConstant(5), 5000);
@@ -221,6 +236,7 @@ class Game {
             if (this.gameObjects[j]?.getTag() === GameTag.TOASTER_GUN) {
               this.gameObjects[j] = undefined;
               if (this.player.getToastGunShotCount() < MAX_TOASTER_GUN_SHOT_COUNT) {
+                toasterGunSound.play();
                 this.player.setToasterGunShotCount(this.player.getToastGunShotCount() + 5);
               }
             }
@@ -263,6 +279,7 @@ class Game {
         Math.round(this.player.getPosition().x / TILE_SIZE)
       ] === TileMap.STAIRS
     ) {
+      nextLevelSound.play();
       this.floorLevel += 1;
 
       if (this.floorLevel % 10 === 0) this.setupBossLevel();
@@ -270,6 +287,7 @@ class Game {
     }
 
     if (this.player.getLives() <= 0) {
+      restartSound.play();
       this.player.setLives(3);
       this.player.setAttackObjects([]);
       this.player.setToasterGunShotCount(5);

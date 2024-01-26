@@ -5,9 +5,12 @@ import SpreadingToolImage from "@/assets/images/spreading-tool-Sheet.png";
 import HeartSprite from "@/assets/images/heart.png";
 import ToasterGunSprite from "@/assets/images/toaster-gun-Sheet.png";
 import FireballSprite from "@/assets/images/fire-attack-Sheet.png";
+import FireballSound from "@/assets/sounds/fireball.mp3";
 import { clamp } from "@/helpers";
 import Vector2 from "../math/vector2";
 import Camera from "./camera";
+
+const fireballSound = new Audio(FireballSound);
 
 const sprite = new Image();
 sprite.src = PlayerSprite;
@@ -327,7 +330,6 @@ class Player extends GameObject {
 
   private setupKeyboardHandlers(): void {
     document.addEventListener("keydown", (e: KeyboardEvent) => {
-      console.log(e);
       if (e.key === "w" || e.key === "ArrowUp") {
         this.currentFrameY = 1;
         this.velocity.y = -this.playerSpeedConstant;
@@ -345,6 +347,7 @@ class Player extends GameObject {
         this.velocity.x = this.playerSpeedConstant;
       }
       if (e.code === "Space" && this.toasterGunShotCount > 0 && this.shotTimer === 0) {
+        fireballSound.play();
         this.toasterGunShotCount -= 1;
         const xVel = this.currentFrameY === 2 ? -FIREBALL_SPEED : this.currentFrameY === 3 ? FIREBALL_SPEED : 0;
         const yVel = this.currentFrameY === 1 ? -FIREBALL_SPEED : this.currentFrameY === 0 ? FIREBALL_SPEED : 0;
