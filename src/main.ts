@@ -6,6 +6,7 @@ import SalmonImage from "@/assets/images/salmon.png";
 import SpreadingToolImage from "@/assets/images/spreading-tool-Sheet.png";
 import BagelImage from "@/assets/images/basic-bagel-Sheet.png";
 import OfficeWorkerImage from "@/assets/images/office-worker-Sheet.png";
+import StairsImage from "@/assets/images/stairs.png";
 import EndingScene from "./game/cutscenes/ending-scene";
 import OpeningScene from "./game/cutscenes/opening-scene";
 import Vector2 from "./game/math/vector2";
@@ -30,6 +31,9 @@ bagelSprite.src = BagelImage;
 
 const officeWorkerSprite = new Image();
 officeWorkerSprite.src = OfficeWorkerImage;
+
+const stairsSprite = new Image();
+stairsSprite.src = StairsImage;
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game-canvas");
 
@@ -113,9 +117,16 @@ const loop = (now: number = 0) => {
       break;
     case Scenes.TUTORIAL_MENU:
       tutorialMenu.draw(ctx, () => {
-        ctx.drawImage(heartSprite, canvas.width / 2 - 350, canvas.height / 4 - 50, TILE_SIZE, TILE_SIZE);
+        ctx.drawImage(stairsSprite, canvas.width / 2 - 350, canvas.height / 4 - 125, TILE_SIZE, TILE_SIZE);
         ctx.font = "20px Verdana";
         ctx.fillStyle = "white";
+        ctx.fillText(
+          "Ascend! You need to reach the roof to evacuate. Look for stairs to attempt your escape.",
+          canvas.width / 2 - 300,
+          canvas.height / 4 - 105
+        );
+
+        ctx.drawImage(heartSprite, canvas.width / 2 - 350, canvas.height / 4 - 50, TILE_SIZE, TILE_SIZE);
         ctx.fillText(
           "A heart represent the lives you have left. Try not to lose them!",
           canvas.width / 2 - 300,
